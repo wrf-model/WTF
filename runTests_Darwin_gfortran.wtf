@@ -1,0 +1,135 @@
+##
+##                       WRF SOFTWARE TEST SUITE CONFIGURATION FILE
+##  
+##  The WRF Software Test Suite is designed to automatically build and run WRF under a variety of 
+##  configurations.  People contributing changes to WRF are encouraged to run a small set of tests given in the 
+##  "testNamelists/contributors" directory, as a way of confirming that their changes do not break existing code.      
+##  This file should be the only one that requires modification by the test suite user. 
+##
+##  STEPS TO RUNNING THE TEST SUITE:
+##
+##  1)  Familiarize yourself with the directory structure of the test suite by reading the README file in
+##      the top-level directory of the test suite.  
+##  2)  Place one or more WRF source tar-files in the top-level "tarFiles_WRF" directory.  These tar-files 
+##      must have the case-sensitive suffix ".tar".  The rest of each tar-file name is used to label builds and test results.
+##  3)  Modify the variables in this WRF Test File.   Variables near the top are most likely to require modification.
+##  4)  After checking the settings in this file to confirm they are correct for your needs, type the following at the command 
+##      line:  "run_WRF_tests.ksh -R <this_file>".
+##
+##  Author:  Brian Bonnlander
+##
+
+
+# Specify which WRF target executables to build and test.  Choose some or all of the following: 
+# "em_real nmm_real nmm_nest em_chem em_chem_kpp em_b_wave em_quarter_ss".   The final two cases are 
+# idealized cases, and if either is specified, then "em_real" must also be included earlier in the list.
+
+#export BUILD_TYPES="em_real nmm_real nmm_nest em_chem em_b_wave em_quarter_ss"
+export BUILD_TYPES="em_real nmm_real"
+
+# Select one of the directories below.  This is the parent directory for all namelist.input files to be used for 
+# the tests.  Below this directory should be subdirectories "em_real", "nmm_real", etc with namelist.input files 
+# that should be run for that flavor of WRF.  
+#
+# Code contributors: select the directory ending in "contributors".
+
+#export NAMELIST_DIR=$WRF_TEST_ROOT/testNamelists/caseStudies
+export NAMELIST_DIR=$WRF_TEST_ROOT/testNamelists/contributors
+#export NAMELIST_DIR=$WRF_TEST_ROOT/testNamelists/internal
+#export NAMELIST_DIR=$WRF_TEST_ROOT/testNamelists/weekly
+
+# Choose the options that should be passed to the "configure" script used to build WRF.  Each specified option 
+# builds a separate WRF executable that will be tested.  Each option indicates a Fortran compiler to use for 
+# building WRF and a communication framework (serial, mpi, or openmp) to use
+# when running WRF.   If you are unsure of which options you need, unpack the WRF source code, start a terminal 
+# session, go to the top-level directory of the WRF source code, and type "./configure".  The available options 
+# will be displayed.   For example, on Darwin machines, the three options "15 16 17" specify the gfortran compiler 
+# with the "serial", "openmp", and "mpi" communication frameworks, respectively. 
+
+export CONFIGURE_CHOICES="15 16 17"
+
+# If set to true, the tasks associated with building WRF and running tests using WRF will be submitted to a 
+# batch queue.   All logically independent WRF builds (em_real, nmm_real, nmm_nest, em_chem, em_chem_kpp) will 
+# be built concurrently, each using NUM_PROCESSORS processors to build WRF.  Then the remaining builds 
+# (em_b_wave, em_quarter_ss) will be built consecutively in the em_real directory tree; these depend on the
+# existence of the "em_real" version of the WRF executable.  If set to false, then each WRF executable is 
+# built consecutively using NUM_PROCESSORS processors, and all WRF tests are performed consecutively.
+# Recommended value:  false for personal computers, true for mainframe computers with batch queues. 
+
+export BATCH_COMPILE=false
+export BATCH_TEST=false
+export BATCH_QUEUE_TYPE=NONE
+export BUILD_QUEUE=NONE
+export TEST_QUEUE=NONE
+
+# Account charge code string for queue-managed computers.   Ignored when BATCH_COMPUTER is false.
+
+export BATCH_ACCOUNT=64000400
+
+# Number of processors to use for individual tasks, including building WRF, running MPI-based tests, 
+# and checking test outcomes.  On batch computers, this is not the *total* used at once, but the number 
+# used for each test or compilation.  Recommended value for personal computers: the number of available 
+# processors on the machine.  Recommended value for batch computers: at least 4, and no more than 12.
+
+export NUM_PROCESSORS=4
+
+# If true, all script commands are echoed to the standard error output stream.  To capture this output to a file 
+# "run.log", run the tests using the command "scripts/run_WRF_tests.ksh -R <this_file> >& run.log &".
+# Recommended value: true for at least the first time using the test suite, false once you're confident the 
+# scripts are working.
+
+export DEBUG_WTF=true
+
+# Directory where the WRF source tar files should be placed for testing. 
+
+export TARFILE_DIR=$WRF_TEST_ROOT/tarFiles_WRF
+
+# Directory where all the WRF source builds take place. 
+
+export BUILD_DIR=$WRF_TEST_ROOT/testBuilds
+
+# The parent directory for all the regression test runs created and performed by this script. 
+
+export TEST_DIR=$WRF_TEST_ROOT/testRuns
+
+
+# The parent directory for all meteorological input data files to be used for the regression tests.  Below this directory
+# should be subdirectories "em_real", "nmm_real", etc with data files that should be part of the test for each
+# flavor of WRF.  For idealized versions of WRF that use no observation data (e.g. em_b_wave), no input data are needed,
+# so the directories can be empty.
+
+export METDATA_DIR=$WRF_TEST_ROOT/testData
+
+# Whether to build WRF optimized or not.  Recommended value:  false for code contributors, since turning on full 
+# optimization can cause bit-for-bit differences when comparing output from serial and non-serial versions of WRF. 
+
+export OPTIMIZE_WRF=false
+
+# Whether to build the "em_chem" or "em_chem_kpp" versions of WRF optimized.  Recommended value: false, since 
+# optimizing the large Fortran modules associated with these codes has taken up to 14 hours on some machines.  
+
+export OPTIMIZE_WRF_CHEM=false
+
+#  Location of the library libfl.a; needed for building em_chem_kpp version of WRF.   The location of this library
+#  is often in /usr/lib, /usr/local/lib, or /lib, but it could be anywhere the computer administrator chooses to 
+#  install it.   If unsure of its location, ask your system administrator.  This option is ignored if the "em_chem_kpp"
+#  version of WRF is not built. 
+
+export FLEX_LIB_DIR='/usr/lib'
+
+#  This probably does not need to be modified.  Most WRF tests expect only basic nesting to be available within WRF.
+#  Recommended value: 1 (basic nesting).
+
+export NEST_OPTION=1         
+
+#  If true, all WRF variables of type "real" are double-precision instead of single-precision.  Most WRF users 
+#  do not use double-precision arithmetic, as single-precision roundoff errors are typically smaller than measurement 
+#  errors used to initialize the WRF model.   However, if iterative schemes are used, such as Thompson microphysics, 
+#  then single-precision roundoff errors can grow, and the user may want to consider using double-precision variables.
+#  Recommended value: false
+ 
+export REAL8=false          
+
+
+
+

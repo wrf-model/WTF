@@ -1,0 +1,8 @@
+===============================
+NON-NESTED NMM REGRESSION TESTS
+===============================
+
+The namelist.input files ending in "b" require binary metgrid input files, which are usually machine-specific.   
+
+The available binary metgrid files are for the bluefire IBM mainframe, which is going away shortly, so we 
+don't run these tests right now. 

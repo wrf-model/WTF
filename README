@@ -1,0 +1,228 @@
+
+#########################################################################
+##   
+##             WRF TESTING FRAMEWORK
+##   
+##             INSTRUCTIONS FOR USE
+##
+##        Author:  Brian Bonnlander, NCAR 
+##   
+#########################################################################
+
+
+The WRF Testing Framework is designed to build, test, and analyze test results for 
+one or more versions of the WRF model.   It supports the testing of various "flavors"
+of WRF, including the ARW model, NMM model, and WRF-Chem.  It also supports
+the comparison of results for different software revisions of the same model;
+for example, test results for version 3.4.1 of WRF can be compared against 
+an updated version of WRF.   Finally, for users with access to Matlab, test results
+can be summarized in a single plot, which gives a summary overview of results.
+
+
+The WRF Testing Framework has been designed so that only a single "master control file", 
+from now on referred to as a "WRF Test File", needs to be modified by the user.   
+This file specifies which "flavors" of WRF should be built, which compiler options
+to use, whether to build WRF with optimizations turned on, etc.   
+
+
+The file structure of the WRF Test Framework is as follows:
+
+     README                           --  This file
+     regTest_pgi.wtf                  --  WTF config file for Yellowstone PGI regtests
+     runTests_Darwin_gfortran.wtf     --  WTF config file for Apple using gfortran
+     runTests_Darwin_pgi.wtf          --  WTF config file for Apple using pgi
+     runTests_Linux_pgi.wtf           --  WTF config file for Linux using pgi 
+     runTests_bluefire_xlf.wtf        --  WTF config file for bluefire using xlf
+     scripts/                         --  Control programs 
+     tarFiles_WRF/                    --  User must place WRF source tar files here (initially empty)
+     testBuilds/                      --  All WRF builds are performed here  (initially empty)
+     testData/                        --  Metgrid files for tests  (user can add files for new tests)
+     testNamelists/                   --  Namelists for tests (user can add namelists for new tests)
+     testRuns/                        --  All WRF tests are performed here  (initially empty)
+
+
+=================================================================================================
+                                       STEPS TO RUN
+=================================================================================================
+
+1)   Place one or more WRF source tar files in the "tarFiles_WRF" directory.  Each file
+     must end in "*.tar" (case sensitive), and the tarfile names should not contain spaces. 
+     IMPORTANT: each WRF tarfile must create the directory "WRFV3" when unpacked.  Otherwise, 
+     the script will fail.  
+
+2)   Create or modify a WRF Test File.  This file must end in "*.wtf"  (case sensitive). 
+     Lengthy explanations are given in existing WRF Test Files for each parameter.  
+     The most important parameters to check are near the top of the file.
+     
+3)   Make sure that you have selected the proper compiler environment within your shell!
+     On Yellowstone, this means running "module list" and possibly "module swap intel pgi"
+     to use the PGI compiler instead of the default Intel compiler. 
+
+4)   In the top-level directory, issue the command:
+
+       "scripts/run_WRF_Tests.ksh -R <WRF_Test_File>.wtf >& run.log &"
+
+
+You can issue the command "tail -f run.log" to check the progress of the script.   There will 
+be some long pauses in the log file output at two different times:  while the WRF code is 
+unpacked and compiled (look in the build directories for compilation logs), and after all the 
+WRF runs have completed when all the WRF output files are checked for invalid values (NaNs).   
+
+When the top-level command  has completed,  results will be summarized in the directory testRuns/RESULTS. 
+
+
+
+------------------------------------------------------------------------------------------------------
+WHAT'S HAPPENING BEHIND THE SCENES
+------------------------------------------------------------------------------------------------------
+
+The WRF Test Framework (WTF) performs three major steps, in consecutive order, for each WRF
+source tar file placed in "tarFiles_WRF": 
+
+1)  Unpacks and compiles all desired WRF flavors.  On a computer with a batch queue, these 
+    happen simultaneously.   On a personal computer, each WRF build is performed consecutively.
+2)  Runs tests for all successfully built WRF executables.  Again, if a batch queue is 
+    available for testing, these tests are queued simultaneously; otherwise, tests are run
+    consecutively. 
+3)  Evaluates which tests passed or failed and creates a time-stamped summary file in 
+    "testRuns/RESULTS".
+
+WTF is designed for incremental development and testing, which means these steps can be repeated as 
+many times as the user wishes in the case that some builds or tests fail.  If a compilation or test 
+fails, re-running WTF will attempt to recompile failed builds and re-run failed tests.  Any successful 
+outcomes, whether in compiling WRF or in passing tests, are not retried on successive WTF invocations.  
+If a user wishes to repeat a successful build, it is sufficient to either delete the created source 
+directory or run "./clean -a" to remove the compilation output.  If a user wishes to repeat a 
+successful test, it is sufficient to delete the "wrfout*" output file. 
+
+If one or more WRF builds fails, the source can be modified by hand and the WTF command run again in order 
+to retry a compilation.  If one or more tests fail, re-running WTF will cause these tests to be 
+tried again.   Each time the scripts are run, a PASS/FAIL summary file is created in testRuns/RESULTS 
+with the current state of the compilation and test outcomes.   
+
+If a test fails because of a bug in a successfully built WRF program, the user can go into the 
+appropriate source directory, modify the code, and either recompile by hand or rerun the scripts to 
+generate a new wrf.exe file.  For WTF to recompile the source, the old wrf.exe executable must be removed.  
+The scripts simply invoke the "configure" and "compile" commands to generate a wrf.exe file.  
+If "real.exe" and "wrf.exe" are both created, the compilation is deemed successful, and any 
+non-successful tests for this executable are later performed.  
+
+WTF performs checks on WRF output to see if forecasts look valid, and to see if the same output is
+produced for serial and parallel versions of WRF.   The serial vs. parallel output check (also 
+called a bit-for-bit check) is only performed if both the serial and parallel forecasts look valid. 
+Otherwise, the check is skipped.  The summary file WILL contain information about the forecast 
+results being invalid.
+
+
+------------------------------------------------------------------------------------------------------
+WHERE TO FIND THE SOURCE FOR A WRF BUILD
+------------------------------------------------------------------------------------------------------
+
+WTF is designed to build many versions of WRF at once, so each WRF build takes place in its 
+own designated directory location.   Each WRF source tarfile is unpacked in a directory with the name :
+
+"testBuilds/<WRF_TARFILE_NAME>.<CONFIGURE_OPTION>/<WRF_FLAVOR>/WRFV3".  
+
+For example, suppose you place the WRF tarfile "wrf_Goober.tar" in the directory "tarFiles_WRF", and 
+you intend to build WRF-ARW serially using the Intel compiler on Yellowstone.  It turns out that 
+configure expects you to enter the number "17" (as of January 10, 2013) to build this version of WRF.  
+Then the WRF source will be unpacked in the directory "testBuilds/wrf_Goober.17/em_real/WRFV3".  
+ 
+As another example, suppose you place another WRF tarfile "wrf_trunk_122112_05_dg.tar" in the 
+directory "tarFiles_WRF", and you intend to build WRF-CHEM with MPI using the PGI compiler on 
+Yellowstone.  It turns out that configure expects you to enter the number "3" (as of January 10, 2013) 
+to build this version of WRF.  Then the WRF source will be unpacked in the directory 
+"testBuilds/wrf_trunk_122112_05_dg.3/em_chem/WRFV3".  
+ 
+
+
+------------------------------------------------------------------------------------------------------
+WHERE TO FIND THE TESTS FOR A WRF BUILD
+------------------------------------------------------------------------------------------------------
+
+WTF is designed to run many tests for each WRF executable.  Each test is embodied in a single namelist
+file of the form "namelist.input.<TAG>".   The particular tests that are run depend on which 
+"namelist directory" the user chooses in the WTF configure file.  Suppose the choice in the WTF 
+configuration file is:
+
+export NAMELIST_DIR=$WRF_TEST_ROOT/testNamelists/weekly
+
+Then all ARW tests are located in $WRF_TEST_ROOT/testNamelists/weekly/em_real.   Tests that should 
+only be run serially are in the subdirectory $WRF_TEST_ROOT/testNamelists/weekly/em_real/SERIAL.  
+The same convention exists for tests that should only be run under OpenMP or MPI.    
+
+The directories where tests are all performed, 
+
+perhaps to check output logs or re-run tests by 
+hand, 
+
+
+
+------------------------------------------------------------------------------------------------------
+HOW TO INTERPRET JOB CODES FOR BATCH COMPILES AND TESTS
+------------------------------------------------------------------------------------------------------
+
+Eager users may want to monitor the progress of their batch jobs submitted for compiling WRF
+or running tests.  Each batch job is given a unique job string, which helps determine what
+builds or tests remain unfinished.   On Yellowstone, use the command "bjobs -w" to see all pending
+and running jobs and their associated job code strings.   
+
+Build job strings have the form "bld.<WRF_TYPE_ABBREVATION>.<CONFIG#>", where <WRF_TYPE_ABBREVATION>
+is a two-letter code, one for each flavor of WRF, and <CONFIG#> is the value given to the "configure"
+script.  Codes for different flavors or WRF are: 
+
+       em_real)        typeCode='er'
+       nmm_real)       typeCode='nr'
+       nmm_nest)       typeCode='nn'
+       em_chem)        typeCode='ec'
+       em_chem_kpp)    typeCode='ek'
+       em_b_wave)      typeCode='eb'
+       em_quarter_ss)  typeCode='eq'
+
+For example, the job string given for building the MPI version of "em_real" using the PGI compiler 
+on yellowstone would be "bld.er.3", since "3" is the value passed to "configure" to select the PGI
+compiler building the MPI version of WRF.  
+ 
+
+Test job strings have the form "t.<WRF_TYPE_ABBREVATION>.<PARALLEL_TYPE>.<NAMELIST_SUFFIX>".  The
+<WRF_TYPE_ABBREVIATION> codes are the same as for builds.   The <PARALLEL_TYPE> is either "se" for
+a serial test, "sm" for an OpenMP (shared memory) test, or "dm" for an MPI (distributed memory) test.
+The <NAMELIST_SUFFIX> code is simply the string that appears at the end of the namelist file, which
+always has the form "namelist.input.<SUFFIX>".   
+
+For example, the job string given for running an NMM MPI test on the file namelist.input.5A would 
+be "t.nr.dm.5A".  
+
+------------------------------------------------------------------------------------------------------
+HOW TO ADD METEOROLOGICAL DATA FOR A NEW TEST DOMAIN
+------------------------------------------------------------------------------------------------------
+
+All meteorological data used for testing purposes is located in the directory "testData/<WRF_FLAVOR>".
+For example, all WRF-CHEM data is in the directory "testData/em_chem".  For each WRF-CHEM test, all 
+files found in this directory are linked into the test directory.   As long as the new domain's 
+dates do not conflict with existing tests, adding new domain data is as simple as putting the files
+in the testData/em_chem directory. 
+
+
+------------------------------------------------------------------------------------------------------
+SOME IMPORTANT CAVEATS
+------------------------------------------------------------------------------------------------------
+
+WTF is "smart" when it comes to reusing compiled code for related WRF flavors:  idealized 
+versions of ARW (em_b_wave and em_quarter_ss) are built in the same source directory as 
+regular WRF, and the nested version of NMM-WRF (nmm_nest) is built in the same directory as NMM.   
+However, this creates a conflict for the WRF preprocessor executable names: em_b_wave and 
+em_quarter_ss normally both create a preprocessor named "ideal.exe", and both versions of NMM 
+normally create a preprocessor named "real.exe".  To prevent clobbering of preprocessor 
+executables, WTF renames each preprocessor executable to "prewrf_<WRF_FLAVOR>.exe".  If you 
+try recompiling WRF source by hand, the scripts will expect this file to exist or will 
+perform this renaming for you.  
+
+Remember, WRF tarfiles must unpack the WRF source into a directory named "WRFV3".  
+
+WTF is not designed to build several revisions of WRF simultaneously where the options passed to 
+"configure" are different depending on the revision.  If you run into this problem, please 
+lobby your local WRF developer committee to prevent changes to configure codes from being accepted.   
+
+
+

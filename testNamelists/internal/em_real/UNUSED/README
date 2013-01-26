@@ -1,0 +1,38 @@
+
+REASONS WHY THESE TESTS HAVE BEEN REMOVED
+
+
+==========================================================================
+
+"SAS cumulus scheme cannot run with adaptive time stepping"
+
+namelist.input.4AD
+namelist.input.11AD    
+
+Status:  None
+
+==========================================================================
+
+"the TEMF PBL scheme (10) produces NaNs in adaptive timestepping mode, DFI, nesting, quilting, and Standard."
+
+namelist.input.16*
+
+Status:  Sent note to Wei, Jimy, Kelly, and Ming on Dec. 13, 2012.   To make this test work, TEMF PBL goes to YSU, and sfc
+layer to SFCLAY.
+
+
+==========================================================================
+
+"f_qi is not set"
+
+Status:  None
+
+namelist.input.17DF  
+namelist.input.13DF  
+namelist.input.2DF   
+
+==========================================================================
+
+"Global domain test; Dave must provide a global initial conditions file to run."
+
+namelist.input.gl*
