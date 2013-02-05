@@ -83,28 +83,12 @@ done
 
 
 # 
-#  The "batch wait" code below is copy-pasted from the bottom of this script.  It should probably be put in a function 
-#  to eliminate duplicate code. 
+#  Make sure all batch jobs have been submitted, then wait for them to finish.
 # 
 
 wait
 if $BATCH_COMPILE; then
-    OS_NAME=`uname`
-    case $BATCH_QUEUE_TYPE in
-       LSF)   JOBS=`bjobs -w | grep bld\.`
-              while [ -n "$JOBS" ]; do
-                   sleep 60
-                   JOBS=`bjobs -w | grep bld\.`
-              done
-	      ;;
-       NQS) JOBS=`qstat -u bonnland | grep bonnland | grep 'bld' | awk '{print $10}' | grep -v C`
-              while [ -n "$JOBS" ]; do
-                   sleep 60
-                   JOBS=`qstat -u bonnland | grep bonnland | grep 'bld' | awk '{print $10}' | grep -v C`
-                   echo JOBS="$JOBS"
-              done
-	      ;;
-    esac
+   batchWait $BATCH_QUEUE_TYPE 'bld\.'
 fi
 
 # Then, when all the above builds have finished, fire off the builds that cannot
@@ -112,38 +96,24 @@ fi
 
 wait
 
+# Loop over WRF flavors (e.g. em_b_wave, nmm_nest, etc.)
 for wrfType in $WRF_SERIAL; do
-   # Loop over platform choices for this WRF type. 
+   # Loop over parallel build choices for this WRF type (e.g. serial, openmp, mpi). 
    for platform in $CONFIGURE_CHOICES; do
       buildDir=${BUILD_DIR}/$wrfTarName.$platform
       buildString=`getBuildString $wrfType $platform`
-      $WRF_TEST_ROOT/scripts/buildWrf.ksh -f $TARFILE -d $buildDir -ci $platform -ct $wrfType -bs $buildString -N $NUM_PROC_BUILD 
+      if $BATCH_COMPILE; then
+         $WRF_TEST_ROOT/scripts/buildWrf.ksh -f $TARFILE -d $buildDir -ci $platform -ct $wrfType -bs $buildString -N $NUM_PROC_BUILD &
+      else
+         $WRF_TEST_ROOT/scripts/buildWrf.ksh -f $TARFILE -d $buildDir -ci $platform -ct $wrfType -bs $buildString -N $NUM_PROC_BUILD 
+      fi
    done
+   # Wait for builds in each separate build space to finish.
+   wait
+   if $BATCH_COMPILE; then
+      batchWait $BATCH_QUEUE_TYPE 'bld\.'
+   fi
 done
-
-
-# Now we keep this script alive until all builds are done.   This will let us string together
-# this script with another than runs all the tests.  If builds are not done using batch queues, then we reach this 
-# point only after all builds are done (thanks to "wait").   So we only worry about batch cases now. 
-
-if $BATCH_COMPILE; then
-    OS_NAME=`uname`
-    case $BATCH_QUEUE_TYPE in
-       LSF)   JOBS=`bjobs -w | grep bld\.`
-              while [ -n "$JOBS" ]; do
-                   sleep 60
-                   JOBS=`bjobs -w | grep bld\.`
-              done
-	      ;;
-       NQS) JOBS=`qstat -u bonnland | grep bonnland | grep 'bld' | awk '{print $10}' | grep -v C`
-              while [ -n "$JOBS" ]; do
-                   sleep 60
-                   JOBS=`qstat -u bonnland | grep bonnland | grep 'bld' | awk '{print $10}' | grep -v C`
-                   echo JOBS="$JOBS"
-              done
-	      ;;
-    esac
-fi
 
 echo ALL BUILDS APPEAR TO BE DONE!
 date

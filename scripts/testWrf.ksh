@@ -23,7 +23,7 @@ usage(){
    echo >&2 "usage: $0 [-G BATCH_ACCOUNT] [-C] -d <test_dir> -t <wrf_root_dir> -m <regdata_dir> -n <namelist_path> -par <parallel_type> -wt <wrf_type> "
    echo >&2 ""
    echo >&2 "   (-G BATCH_ACCOUNT uses the given account number/string for mpi and openmp runs.)"
-   echo >&2 "   (specifying -C will "clobber" a test that may have been done in the past.)"
+   echo >&2 "   (specifying -C will 'clobber' a test that may have been done in the past.)"
    echo >&2 "   (<parallel_type> is one of the strings in {serial, openmp, mpi}.)"
    echo >&2 "   (<wrf_type> is one of the strings in {em_real, em_b_wave, em_quarter_ss, nmm_real, nmm_nest}.)"
 }
@@ -97,14 +97,14 @@ getJobString()
 ##  Initialize command-line variables.  
 ##
 
-testDir=''           #  The directory where the test will be run
-WRF_ROOT_DIR=''       #  The directory where WRF run-time tables are located
-REGDATA_PATH=''       #  The directory containing all regression data files for this test
-NAMELIST_PATH=''      #  The path to the namelist file 
-BATCH_ACCOUNT=''      #  The account number or string to use for a batch-submitted openmp or mpi test
-PARALLEL_TYPE=''      #  Should be 'serial', 'openmp', or 'mpi' to specify the parallel setting for wrf.exe and prewrf.exe
-WRF_TYPE=''           #  Should be one of {em_real, em_b_wave, em_quarter_ss, nmm_real, nmm_nest}.
-CLOBBER=false         #  If true, pre-existing test results are potentially lost and test is run again.
+testDir=''        #  The directory where the test will be run
+WRF_ROOT_DIR=''   #  The directory where WRF run-time tables are located
+REGDATA_PATH=''   #  The directory containing all regression data files for this test
+NAMELIST_PATH=''  #  The path to the namelist file 
+BATCH_ACCOUNT=''  #  The account number or string to use for a batch-submitted openmp or mpi test
+PARALLEL_TYPE=''  #  Should be 'serial', 'openmp', or 'mpi' 
+WRF_TYPE=''       #  Should be one of 'em_real', 'em_b_wave', 'nmm_real', etc.
+CLOBBER=false     #  If true, pre-existing test results are potentially lost and test is run again.
 
 
 ##
@@ -124,8 +124,8 @@ do
         -par)shift;  PARALLEL_TYPE=$1   ;;
         -wt) shift;  WRF_TYPE=$1        ;;
         -C)          CLOBBER=true       ;;
-	*)  usage
-	    exit 1
+        *)  usage
+            exit 1
     esac
     shift
 done
@@ -154,12 +154,12 @@ OS_NAME=`uname`
 if [[ ! -d $WRF_ROOT_DIR ]] || [[ ! -f $WRF_ROOT_DIR/Makefile ]] || [[ ! -d $WRF_ROOT_DIR/test/em_real ]]; then
    echo "WRF source root directory '${WRF_ROOT_DIR}' not found or missing files; exiting."
    exit 2
-else
-   TBL_FILES=$(getTableNames)
-   if [ -z $TBL_FILES ]; then
-       echo "WRF Table directory '${WRF_ROOT_DIR}' did not contain any *.TBL files; check and run again."
-       exit 2
-   fi
+#else
+#   TBL_FILES=$(getTableNames)
+#   if [ -z $TBL_FILES ]; then
+#       echo "WRF Table directory '${WRF_ROOT_DIR}' did not contain any *.TBL files; check and run again."
+#       exit 2
+#   fi
 fi
 
 # Namelist file must exist and have nonzero size. 
@@ -197,12 +197,12 @@ case $PARALLEL_TYPE in
             ;;
     mpi)    if $BATCH_TEST; then
                 case $BATCH_QUEUE_TYPE in
-                     LSF)   REAL_COMMAND="mpirun.lsf ./prewrf.exe "
-                            WRF_COMMAND="mpirun.lsf  ./wrf.exe "
-			    ;;
+                     LSF) REAL_COMMAND="mpirun.lsf ./prewrf.exe "
+                          WRF_COMMAND="mpirun.lsf  ./wrf.exe "
+        		  ;;
                      NQS) REAL_COMMAND="mpirun ./prewrf.exe "
-                            WRF_COMMAND="mpirun ./wrf.exe "
-			    ;;
+                          WRF_COMMAND="mpirun ./wrf.exe "
+        		  ;;
                 esac
             else
                 REAL_COMMAND="mpirun -machinefile machfile -np $NUM_PROC_TEST ./prewrf.exe "
@@ -221,19 +221,20 @@ esac
 ##
 
 CREATE_DIR=true
-if [ -e $testDir ]; then
+if [ -d $testDir ]; then
     if $CLOBBER; then
        newDir=${testDir}.$$
        echo "Moving existing directory '$testDir' to '$newDir'."
        mv $testDir $newDir
     else
-       SUCCESS=`checkForecastResult $PARALLEL_TYPE $testDir`
-       if $SUCCESS; then
-          echo TEST SUCCESSFUL for $testDir... exiting early.  
-          touch $testDir/SUCCESS_FCST.tst
+       CREATE_DIR=false
+       # If there are no failures reported from last run, skip test. 
+       # Also, re-route error message about no files to /dev/null.
+       fails=`ls $testDir/FAIL*.tst 2> /dev/null`
+       if [ -z "$fails" -a -f $testDir/SUCCESS_FCST.tst ]; then
+          echo TESTS SUCCESSFUL for $testDir... exiting early.  
           exit 0
        fi
-       CREATE_DIR=false
     fi
 fi
 
@@ -249,46 +250,60 @@ if $CREATE_DIR; then
        echo "Unable to create test directory '${testDir}'; exiting test." 
        exit 2
     fi
-fi    
     
-for f in $REGDATA_FILES; do
-   fullpath=`makeFullPath $f $CURRENT_DIR`
-   ln -sf $fullpath $testDir
-   if [[ $? != 0 ]]; then
-      echo "Unable to link regression data file $fullpath into '${testDir}'; exiting test." 
-      exit 2
-   fi
-done
+    for f in $REGDATA_FILES; do
+       fullpath=`makeFullPath $f $CURRENT_DIR`
+       ln -sf $fullpath $testDir
+       if [[ $? != 0 ]]; then
+          echo "Unable to link regression data file $fullpath into '${testDir}'; exiting test." 
+          exit 2
+       fi
+    done
+    
+    NAMELIST_PATH=`makeFullPath $NAMELIST_PATH $CURRENT_DIR`
+    # Don't link namelist file, so user can experiment with settings in the working directory.
+    #ln -sf $NAMELIST_PATH $testDir/namelist.input
+    cp $NAMELIST_PATH $testDir/namelist.input
+    if [[ $? != 0 ]]; then
+       echo "Unable to copy namelist.input file into '${testDir}'; exiting test." 
+       exit 2
+    fi
+
+    # Assume data tables exist in $WRF_ROOT_DIR/run for now; link them into the test directory.
+    TBL_FILES=$(getTableNames)
+    for f in $TBL_FILES; do
+       fullPath=${WRF_ROOT_DIR}/run/$f 
+       if [ ! -f $fullPath ]; then
+          echo File does not exist; verify WRF top-level directory: $fullPath
+          exit 2
+       fi
+       ln -sf $fullPath $testDir
+    done
+
+fi    
 
 
-NAMELIST_PATH=`makeFullPath $NAMELIST_PATH $CURRENT_DIR`
-ln -sf $NAMELIST_PATH $testDir/namelist.input
-if [[ $? != 0 ]]; then
-   echo "Unable to link namelist.input file into '${testDir}'; exiting test." 
-   exit 2
-fi
-
-
-# Assume data tables exist in $WRF_ROOT_DIR/run for now; link them into the test directory.
-for f in $TBL_FILES; do
-   fullPath=${WRF_ROOT_DIR}/run/$f 
-   if [ ! -f $fullPath ]; then
-      echo File does not exist; verify WRF top-level directory: $fullPath
-      exit 2
-   fi
-   ln -sf $fullPath $testDir
-done
 
 # Link in the preprocessor and WRF executables if they exist.
 realFile=$WRF_ROOT_DIR/main/prewrf_${WRF_TYPE}.exe
 wrfFile=$WRF_ROOT_DIR/main/wrf.exe
 
+
 if [ -f $realFile ]; then
    ln -sf $realFile $testDir/prewrf.exe
+else
+   echo "Compile failure: File does not exist: $realFile"
+   touch FAIL_COMPILE.tst
+   exit 2
 fi
+
 
 if [ -f $wrfFile ]; then
    ln -sf $wrfFile $testDir/wrf.exe
+else
+   echo "Compile failure: File does not exist: $wrfFile"
+   touch FAIL_COMPILE.tst
+   exit 2
 fi
 
 
@@ -309,41 +324,41 @@ case $outputForm in
        exit 2
 esac
 
-
-if [ "$PARALLEL_TYPE" = "mpi" ]; then    
-    ##  Put all batched commands related to running the test in the local file "test.sh". 
-    cat >| $testDir/test.sh << EOF
-    \rm -f rsl.out* rsl.err*
-    date >| testStart.txt
-    #export LD_LIBRARY_PATH="/home/dude/netcdf-4.1.3-ifort/lib:$LD_LIBRARY_PATH"
-    $REAL_COMMAND
-    mkdir -p rsl.PREWRF
-    \mv -f rsl.out* rsl.err* rsl.PREWRF
-    $WRF_COMMAND
-    date >| testEnd.txt
+# Create a script to actually run the test.
+if $CREATE_DIR; then
+    if [ "$PARALLEL_TYPE" = "mpi" ]; then    
+        ##  Put all batched commands related to running the test in the local file "test.sh". 
+        cat >| $testDir/test.sh << EOF
+\rm -f rsl.out* rsl.err*
+date >| testStart.txt
+$REAL_COMMAND
+mkdir -p rsl.PREWRF
+\mv -f rsl.out* rsl.err* rsl.PREWRF
+$WRF_COMMAND
+date >| testEnd.txt
 EOF
-
-    ## Also add a machine file.   Do not indent the next few lines!
-    HOSTNAME=`hostname`
-    cat >| $testDir/machfile << EOF
-$HOSTNAME
-$HOSTNAME
-$HOSTNAME
-$HOSTNAME
-EOF
-
-else
-    ##  Put all non-batched commands related to running the test in the local file "test.sh".    
-    ##  Do not indent the next few lines!
-    cat >| $testDir/test.sh << EOF
-    echo shell = $0
-    date >| testStart.txt
-    $REAL_COMMAND
-    $WRF_COMMAND
-    date >| testEnd.txt
-EOF
-fi
     
+        ## Also add a machine file.   Do not indent the next few lines!
+        HOSTNAME=`hostname`
+        cat >| $testDir/machfile << EOF
+$HOSTNAME
+$HOSTNAME
+$HOSTNAME
+$HOSTNAME
+EOF
+    
+    else
+        ##  Put all non-batched commands related to running the test in the local file "test.sh".    
+        ##  Do not indent the next few lines!
+        cat >| $testDir/test.sh << EOF
+   echo shell = $0
+   date >| testStart.txt
+   $REAL_COMMAND
+   $WRF_COMMAND
+   date >| testEnd.txt
+EOF
+    fi
+fi  # if $CREATE_DIR
 
 
 # To allow many tests to be done in parallel, put all tests (even serial jobs) in a processing queue.  
@@ -368,7 +383,7 @@ if $BATCH_TEST; then
             fi
             BSUB="qsub -V -q janus-debug -l nodes=1:ppn=$NUM_PROC,walltime=$runTime -N $jobString -o $testDir/test.out -e $testDir/test.err -d $testDir"
             $BSUB $testDir/test.sh
-	    ;;
+            ;;
         *)  echo "Error: Unknown OS type '$OS_NAME'!"
             exit 2
     esac

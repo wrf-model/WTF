@@ -90,7 +90,7 @@ if [[ $fileSuffix != "wtf" ]]; then
    exit 2
 fi
 
-#.  $WRF_TEST_FILE
+##  Import settings from the WTF master control file. 
 currDir=`pwd`
 export TEST_FILE_FULL=`makeFullPath $WRF_TEST_FILE $currDir`
 . $TEST_FILE_FULL
@@ -108,6 +108,10 @@ if [[ -z $NUM_PROC_BUILD ]]  || [[ -z $TARFILE_DIR ]]; then
 fi
 
 
+##  Create a list of all build options to pass to "configure". 
+export CONFIGURE_CHOICES=`echo $CONFIGURE_SERIAL $CONFIGURE_OPENMP $CONFIGURE_MPI`
+
+
 tarFiles=`ls $TARFILE_DIR/*.tar`
 if [ -z "$tarFiles" ]; then
    echo "WTF:  Error: no WRF source tarfiles found in $TARFILE_DIR!"
@@ -118,23 +122,26 @@ fi
 ##
 ##  Loop over all WRF source tarfiles.
 ##
+debug_allCheck=false
 for TARFILE in $tarFiles; do
 
-    ## Run top-level build script
-    . $WRF_TEST_ROOT/scripts/allBuild.ksh  
-    if [ $? != 0 ]; then
-       echo "$WRF_TEST_ROOT/scripts/allBuild.ksh returned $?; aborting!"
-       exit 255
-    fi 
+    if ! $debug_allCheck; then
+        ## Run top-level build script
+        . $WRF_TEST_ROOT/scripts/allBuild.ksh  
+        if [ $? != 0 ]; then
+           echo "$WRF_TEST_ROOT/scripts/allBuild.ksh returned $?; aborting!"
+           exit 255
+        fi 
 
-    ## Run top-level testing script
-    . $WRF_TEST_ROOT/scripts/allTest.ksh  
-    retCode=$?
-    if [ $retCode != 0 ]; then
-       echo "$WRF_TEST_ROOT/scripts/allTest.ksh returned $retCode; aborting!"
-       exit 255
-    fi 
-
+        ## Run top-level testing script
+        . $WRF_TEST_ROOT/scripts/allTest.ksh  
+        retCode=$?
+        if [ $retCode != 0 ]; then
+           echo "$WRF_TEST_ROOT/scripts/allTest.ksh returned $retCode; aborting!"
+           exit 255
+        fi 
+     fi
+ 
     ## Run script to generate summary of test results.
     . $WRF_TEST_ROOT/scripts/allCheck.ksh  
     

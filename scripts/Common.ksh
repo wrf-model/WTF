@@ -41,65 +41,28 @@ getTestRootDir()
 
 
 ##
+##   Usage: name=`getParallelType $configure_option`
+##
 ##   Determine the parallel build type from the OS and configure option.
 ##
 getParallelType()
 {
+   set -x
    configOption=$1
-   OS=`uname`
-   parallelType='UNKNOWN'
 
-   case $OS in
-       AIX)
-             case $configOption in
-                 1)  parallelType='serial' 
-		     ;;
-                 2)  parallelType='openmp' 
-		     ;;
-                 3)  parallelType='mpi' 
-		     ;;
-             esac
-             ;;
-       Darwin)     
-             # Assume Intel chipset for now
-             case $configOption in
-                 1|5|9|13|15|19)   parallelType='serial' 
-		                   ;;
-                 2|6|10|16)        parallelType='openmp' 
-		                   ;;
-                 3|7|11|14|17|20)  parallelType='mpi' 
-		                   ;;
-             esac
-             ;;
-       Linux)     
-             # List for "configure" script depends on the chipset
-	     OS=`uname -a`
-	     # If return code from grep is zero, string was found
-	     echo $OS | grep "x86_64" > /dev/null 2>&1
-	     if [ $? == 0 ]; then
-                 case $configOption in
-                     1|5|9|13|17|21|23|27|31)   parallelType='serial' 
-		                                ;;
-                     2|6|10|14|18|24|28|32)     parallelType='openmp' 
-		                                ;;
-                     3|7|11|15|19|22|25|29|33)  parallelType='mpi' 
-		                                ;;
-                 esac
-	     else
-                 case $configOption in
-                     1|5|9|11|15|19|23)   parallelType='serial' 
-		                          ;;
-                     2|6|10|12|16|20)     parallelType='openmp' 
-		                          ;;
-                     3|7|13|17|21|24)     parallelType='mpi' 
-		                          ;;
-                 esac
-	     fi
-             ;;
+   case $configOption in
+         $CONFIGURE_SERIAL)  parallelType='serial' 
+	                     ;;
+         $CONFIGURE_OPENMP)  parallelType='openmp' 
+	                     ;;
+         $CONFIGURE_MPI)     parallelType='mpi' 
+	                     ;;
+         *)                  parallelType='UNKNOWN' 
+	                     ;;
    esac
-
    echo $parallelType
 }
+
 
 
 ##
@@ -190,10 +153,12 @@ getFilePath()
 ##
 checkForecastResult()
 {
+   set -x
    parallelType=$1
    test_dir=$2
 
    success=false
+   reason=""
 
    case $parallelType in
       serial)  LOGFILE='wrf.out'
@@ -206,7 +171,7 @@ checkForecastResult()
                exit 2
    esac
 
-   outputForm=`grep io_form_history $test_dir/namelist.input | cut -d '=' -f 2 | awk '{print $1;}`
+   outputForm=`grep io_form_history $test_dir/namelist.input | cut -d '=' -f 2 | awk '{print $1;}'`
 
    if [ -f $test_dir/wrfout_d01*  ]; then
 
@@ -228,10 +193,7 @@ checkForecastResult()
       case $outputForm in
           1) noNaNs="( 1 -ne 0 )"      # We don't have a way of checking for NaNs with binary output
 	     ;;
-          2) #NAN_REGEXP=" '[+-]?[Nn][Aa][Nn][Qq]?' "
-             #ncdump $test_dir/wrfout_d01* | egrep -w $NAN_REGEXP  > /dev/null  2>&1
-             #ncdump $test_dir/wrfout_d01* | egrep $NAN_REGEXP | grep -v description > /dev/null  2>&1
-             ncdump $test_dir/wrfout_d01* | grep -i NaN | grep -v description > /dev/null  2>&1
+          2) ncdump $test_dir/wrfout_d01* | grep -i NaN | grep -v description > /dev/null  2>&1
              noNaNs="( $? -ne 0 )" 
 	     ;;
           5) noNaNs="( 1 -ne 0 )"      # We don't have a way of checking for NaNs with Grib1 output
@@ -247,10 +209,18 @@ checkForecastResult()
       # Return true if all three conditions are met.
       if [ $twoSteps -a $noNaNs -a $foundSuccess ]; then
          success=true
-      else
-         # Log the reasons for forecast failure. 
-         echo "$test_dir: FORECAST FAILURE: twosteps=$twoSteps, nonNaNs=$noNaNs, foundSuccess=$foundSuccess"
       fi
+      if [ ! $foundSuccess ]; then
+         echo "Not found in WRF log file: 'SUCCESS COMPLETE WRF'." >> $test_dir/FAIL_FCST.tst
+      fi
+      if [ ! $noNaNs ]; then
+         echo "NaN values found in wrfout file." >> $test_dir/FAIL_FCST.tst
+      fi
+      if [ ! $twoSteps ]; then
+         echo "Number of timesteps in wrfout file did not equal two." >> $test_dir/FAIL_FCST.tst
+      fi
+   else
+         echo "No wrfout file created." >> $test_dir/FAIL_FCST.tst
    fi
    echo $success
 }
@@ -293,4 +263,94 @@ wipeUserBuildVars()
     unset WRF_SRC_ROOT_DIR
 }
 
+
+##
+##  Get the list of namelist files.  This depends on the WRF communication framework ($parallelType 
+##  in the code) because some tests are known to fail with OpenMP builds.  
+##
+getNamelists()
+{
+   namelistDir=$1
+   parallelType=$2
+
+   # Basic set of namelists
+   namelists=`ls $namelistDir/namelist.input.*`
+   extra=''
+
+   # Extra namelists for specific communication configuration choices
+   case $parallelType in
+      serial)  extra=`ls $namelistDir/SERIAL/namelist.input.* 2> /dev/null`
+               ;;
+      openmp)  extra=`ls $namelistDir/OPENMP/namelist.input.* 2> /dev/null`
+               ;;
+         mpi)  extra=`ls $namelistDir/MPI/namelist.input.* 2> /dev/null`
+               ;;
+   esac
+   namelists="$namelists $extra"
+   echo $namelists
+}
+
+
+# Returns true for a good combination of build parameters.  This may vary according to machine type, em_real vs. nmm,
+#  or serial vs. parallel, for example. 
+#
+#  Bad parameter combinations include WRF-NMM or WRF-CHEM built with smpar (shared memory parallel).
+#
+#  usage:  GOOD=`goodConfiguration <wrf_type> <platform_choice>`
+#
+goodConfiguration()
+{
+   set -x
+   wType=$1
+   platf=$2
+
+   # exclude OpenMP for nmm builds.
+   if [ "$wType" = "nmm_real" -o "$wType" = "nmm_nest" ]; then
+      if [ "$platf" = "openmp" ]; then
+         echo false
+         return 0
+      fi
+   # exclude OpenMP for chemistry builds.
+   elif [ "$wType" = "em_chem" ] -o [ "$wType" = "em_chem_kpp" ]; then
+      if [ "$platf" = "openmp" ]; then
+         echo false
+         return 0
+      fi
+   fi
+   echo true
+   return 0
+}
+
+
+#
+#  Waits for all batch jobs matching a given string to finish.
+#  Only call this function if you are running batch jobs.
+#  The first parameter indicates the type of batch queue manager used.
+#
+#  NOTE: job string must escape special characters like ".", i.e. "\."
+#
+#  usage: batchWait <LSF_NSQ> <jobstring> 
+#   
+batchWait()
+{
+   queueType=$1
+   jobString=$2
+
+   case $queueType in
+      LSF)   JOBS=`bjobs -w | grep $jobString`
+             while [ -n "$JOBS" ]; do
+                  sleep 60
+                  JOBS=`bjobs -w | grep $jobString`
+             done
+             ;;
+      NQS)   userName=`whoami`
+             JOBS=`qstat -u $userName | grep $userName | grep $jobString | awk '{print $10}' | grep -v C`
+             while [ -n "$JOBS" ]; do
+                  sleep 60
+                  JOBS=`qstat -u bonnland | grep bonnland | grep $jobString | awk '{print $10}' | grep -v C`
+                  echo JOBS="$JOBS"
+             done
+             ;;
+   esac
+}
 

@@ -29,36 +29,6 @@ usage()
 }
 
 
-# Returns true for a good combination of build parameters.  This may vary according to machine type, em_real vs. nmm,
-#  or serial vs. parallel, for example. 
-#
-#  Bad parameter combinations include WRF-NMM or WRF-CHEM built with smpar (shared memory parallel).
-#
-#  usage:  GOOD=`goodConfiguration <wrf_type> <platform_choice>`
-#
-goodConfiguration()
-{
-   type=$1
-   platf=$2
-
-   # exclude OpenMP for nmm builds.
-   if [ $type == "nmm_real" -o $type == "nmm_nest" ]; then
-      if [ $platf -eq 2  ]; then    
-         echo false
-         return 0
-      fi
-   # exclude OpenMP for chemistry builds.
-   elif [ $type == "em_chem" -o $type == "em_chem_kpp" ]; then
-      if [ $platf -eq 2  ]; then    
-         echo false
-         return 0
-      fi
-   fi
-   echo true
-   return 0
-}
-
-
 
 #  usage:  USABLE=`reusable_wrfdir <dir>`   
 # returns true if given directory can be re-used for building a different version of WRF or WRF preprocessor. 
@@ -179,8 +149,13 @@ wipeUserBuildVars
 # The exceptions are "nmm_nest","em_chem", and "em_chem_kpp". 
 COMPILE_STRING=$COMPILE_TYPE
 
-####    CONFIGURE_COMMAND="./configure "           ###  <---- *USE THIS USUALLY*  
-CONFIGURE_COMMAND="./configure -d"
+if $OPTIMIZE_WRF; then
+    CONFIGURE_COMMAND="./configure"
+else
+    CONFIGURE_COMMAND="./configure -d"
+fi
+
+
 PREPROCESSOR=`getPreprocessorName $COMPILE_STRING`
 
 case $COMPILE_STRING in
@@ -188,6 +163,7 @@ case $COMPILE_STRING in
                    COMPATIBLE_BUILD='em_real'
                    ;;
     nmm_real)
+                   COMPATIBLE_BUILD='nmm_real'
                    export WRF_EM_CORE=0
                    export WRF_NMM_CORE=1
                    export WRF_NMM_NEST=0
@@ -256,8 +232,9 @@ TARGET_PREWRF=prewrf_${COMPILE_TYPE}.exe
 ##   
 ##   Exit with an informational message if this is not a valid build configuration. 
 
-GOOD_CONFIG=`goodConfiguration $COMPILE_TYPE $CONFIG_OPTION`
-if ( ! $GOOD_CONFIG ); then
+parallelType=`getParallelType $CONFIG_OPTION`
+goodConfig=`goodConfiguration $COMPILE_TYPE $parallelType`
+if ( ! $goodConfig ); then
    banner  "Bad build combo; skipping WRF build $COMPILE_TYPE for platform choice $CONFIG_OPTION ...."
    exit 0
 fi
@@ -321,16 +298,20 @@ if $UNPACK_WRF; then
    oldDir=`pwd`
    cd $buildDir/$COMPILE_TYPE 
    tar -xf $tarFile
+   tarSuccess=$?
    if [ $? != 0 ]; then
       echo "$0: Unable to untar '${tarFile}' in '$buildDir/$COMPILE_TYPE'; stopping."
       exit 2
-   else
-      touch $targetDir/SUCCESS_TAR.tst
    fi
    # Run "clean -a" on untarred source, in case it wasn't clean when tarred up.
    cd $targetDir
    ./clean -a
    cd $oldDir
+
+   # Indicate that untarring was a success and does not need to be repeated again. 
+   if [ $tarSuccess == 0 ]; then
+      touch $targetDir/SUCCESS_TAR.tst
+   fi
 
    # Record the REAL8 setting that will be used for compilation.
    if $REAL8; then
@@ -401,14 +382,14 @@ if $RUN_COMPILE; then
        cat > $targetDir/build.sh << EOF
           export J="-j ${NUM_PROCS}"
           date > StartTime_${COMPILE_TYPE}.txt
-          \rm -f *.tst   # Remove previous compile test results
+          \rm -f *COMPILE.tst   # Remove previous compile test results
           ./compile $COMPILE_STRING > compile_${COMPILE_STRING}.log 2>&1
           date > EndTime_${COMPILE_TYPE}.txt
 EOF
        $BSUB < $targetDir/build.sh
    else
       date > StartTime_${COMPILE_TYPE}.txt
-      \rm -f *.tst   # Remove previous compile test results
+      \rm -f *COMPILE.tst   # Remove previous compile test results
       ./compile $COMPILE_STRING > compile_${COMPILE_STRING}.log 2>&1
       date > EndTime_${COMPILE_TYPE}.txt
    fi 

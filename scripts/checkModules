@@ -1,0 +1,36 @@
+#!/bin/bash
+
+##
+##  Determines if a given string is in the current module environment.  
+##  Returns 0 (no error) if the string is present in the module list,
+##  otherwise it returns 1. 
+##
+##  Works only on UCAR's Yellowstone machine. 
+##
+##  Author: Brian Bonnlander
+##
+
+usage()
+{
+   echo >&2 "usage: $0 <string>"
+}
+
+# Command line must have a single argument. 
+if [ $# != 1 ]; then 
+   usage
+   exit 255
+fi
+
+source /glade/apps/opt/lmod/lmod/init/bash
+
+moduleString=$(module list 2>&1)
+
+# grep -q is silent; just check return code. 
+echo $moduleString | grep -q $1 
+
+# If return code is zero, string was found. 
+if [ $? != 0 ]; then
+   exit 1
+else
+   exit 0
+fi
