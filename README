@@ -29,16 +29,13 @@ The file structure of the WRF Test Framework is as follows:
 
      README                           --  This file
      regTest_pgi.wtf                  --  WTF config file for Yellowstone PGI regtests
-     runTests_Darwin_gfortran.wtf     --  WTF config file for Apple using gfortran
-     runTests_Darwin_pgi.wtf          --  WTF config file for Apple using pgi
-     runTests_Linux_pgi.wtf           --  WTF config file for Linux using pgi 
-     runTests_bluefire_xlf.wtf        --  WTF config file for bluefire using xlf
+     regTest_intel.wtf                --  WTF config file for Yellowstone Intel ifort regtests
      scripts/                         --  Control programs 
      tarFiles_WRF/                    --  User must place WRF source tar files here (initially empty)
-     testBuilds/                      --  All WRF builds are performed here  (initially empty)
-     testData/                        --  Metgrid files for tests  (user can add files for new tests)
-     testNamelists/                   --  Namelists for tests (user can add namelists for new tests)
-     testRuns/                        --  All WRF tests are performed here  (initially empty)
+     Builds/                          --  All WRF builds are performed here  (initially empty)
+     Data/                            --  Metgrid files for tests  (user can add files for new tests)
+     Namelists/                       --  Namelists for tests (user can add namelists for new tests)
+     Runs/                            --  All WRF tests are performed here  (initially empty)
 
 
 =================================================================================================
@@ -68,7 +65,7 @@ be some long pauses in the log file output at two different times:  while the WR
 unpacked and compiled (look in the build directories for compilation logs), and after all the 
 WRF runs have completed when all the WRF output files are checked for invalid values (NaNs).   
 
-When the top-level command  has completed,  results will be summarized in the directory testRuns/RESULTS. 
+When the top-level command  has completed,  results will be summarized in the directory Runs/RESULTS. 
 
 
 
@@ -85,7 +82,7 @@ source tar file placed in "tarFiles_WRF":
     available for testing, these tests are queued simultaneously; otherwise, tests are run
     consecutively. 
 3)  Evaluates which tests passed or failed and creates a time-stamped summary file in 
-    "testRuns/RESULTS".
+    "Runs/RESULTS".
 
 WTF is designed for incremental development and testing, which means these steps can be repeated as 
 many times as the user wishes in the case that some builds or tests fail.  If a compilation or test 
@@ -97,7 +94,7 @@ successful test, it is sufficient to delete the "wrfout*" output file.
 
 If one or more WRF builds fails, the source can be modified by hand and the WTF command run again in order 
 to retry a compilation.  If one or more tests fail, re-running WTF will cause these tests to be 
-tried again.   Each time the scripts are run, a PASS/FAIL summary file is created in testRuns/RESULTS 
+tried again.   Each time the scripts are run, a PASS/FAIL summary file is created in Runs/RESULTS 
 with the current state of the compilation and test outcomes.   
 
 If a test fails because of a bug in a successfully built WRF program, the user can go into the 
@@ -121,18 +118,18 @@ WHERE TO FIND THE SOURCE FOR A WRF BUILD
 WTF is designed to build many versions of WRF at once, so each WRF build takes place in its 
 own designated directory location.   Each WRF source tarfile is unpacked in a directory with the name :
 
-"testBuilds/<WRF_TARFILE_NAME>.<CONFIGURE_OPTION>/<WRF_FLAVOR>/WRFV3".  
+"Builds/<WRF_TARFILE_NAME>.<CONFIGURE_OPTION>/<WRF_FLAVOR>/WRFV3".  
 
 For example, suppose you place the WRF tarfile "wrf_Goober.tar" in the directory "tarFiles_WRF", and 
 you intend to build WRF-ARW serially using the Intel compiler on Yellowstone.  It turns out that 
 configure expects you to enter the number "17" (as of January 10, 2013) to build this version of WRF.  
-Then the WRF source will be unpacked in the directory "testBuilds/wrf_Goober.17/em_real/WRFV3".  
+Then the WRF source will be unpacked in the directory "Builds/wrf_Goober.17/em_real/WRFV3".  
  
 As another example, suppose you place another WRF tarfile "wrf_trunk_122112_05_dg.tar" in the 
 directory "tarFiles_WRF", and you intend to build WRF-CHEM with MPI using the PGI compiler on 
 Yellowstone.  It turns out that configure expects you to enter the number "3" (as of January 10, 2013) 
 to build this version of WRF.  Then the WRF source will be unpacked in the directory 
-"testBuilds/wrf_trunk_122112_05_dg.3/em_chem/WRFV3".  
+"Builds/wrf_trunk_122112_05_dg.3/em_chem/WRFV3".  
  
 
 
@@ -145,10 +142,10 @@ file of the form "namelist.input.<TAG>".   The particular tests that are run dep
 "namelist directory" the user chooses in the WTF configure file.  Suppose the choice in the WTF 
 configuration file is:
 
-export NAMELIST_DIR=$WRF_TEST_ROOT/testNamelists/weekly
+export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/weekly
 
-Then all ARW tests are located in $WRF_TEST_ROOT/testNamelists/weekly/em_real.   Tests that should 
-only be run serially are in the subdirectory $WRF_TEST_ROOT/testNamelists/weekly/em_real/SERIAL.  
+Then all ARW tests are located in $WRF_TEST_ROOT/Namelists/weekly/em_real.   Tests that should 
+only be run serially are in the subdirectory $WRF_TEST_ROOT/Namelists/weekly/em_real/SERIAL.  
 The same convention exists for tests that should only be run under OpenMP or MPI.    
 
 The directories where tests are all performed, 
@@ -197,11 +194,11 @@ be "t.nr.dm.5A".
 HOW TO ADD METEOROLOGICAL DATA FOR A NEW TEST DOMAIN
 ------------------------------------------------------------------------------------------------------
 
-All meteorological data used for testing purposes is located in the directory "testData/<WRF_FLAVOR>".
-For example, all WRF-CHEM data is in the directory "testData/em_chem".  For each WRF-CHEM test, all 
+All meteorological data used for testing purposes is located in the directory "Data/<WRF_FLAVOR>".
+For example, all WRF-CHEM data is in the directory "Data/em_chem".  For each WRF-CHEM test, all 
 files found in this directory are linked into the test directory.   As long as the new domain's 
 dates do not conflict with existing tests, adding new domain data is as simple as putting the files
-in the testData/em_chem directory. 
+in the Data/em_chem directory. 
 
 
 ------------------------------------------------------------------------------------------------------
