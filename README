@@ -28,8 +28,9 @@ to use, whether to build WRF with optimizations turned on, etc.
 The file structure of the WRF Test Framework is as follows:
 
      README                           --  This file
-     regTest_pgi.wtf                  --  WTF config file for Yellowstone PGI regtests
+     regTest_gnu.wtf                  --  WTF config file for Yellowstone gfortran regtests
      regTest_intel.wtf                --  WTF config file for Yellowstone Intel ifort regtests
+     regTest_pgi.wtf                  --  WTF config file for Yellowstone PGI regtests
      scripts/                         --  Control programs 
      tarFiles_WRF/                    --  User must place WRF source tar files here (initially empty)
      Builds/                          --  All WRF builds are performed here  (initially empty)
