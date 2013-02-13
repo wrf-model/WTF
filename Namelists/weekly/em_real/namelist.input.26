@@ -65,7 +65,6 @@
  radt                                = 21,    21,    21,
  sf_sfclay_physics                   = 3,     3,     3,
  sf_surface_physics                  = 1,     1,     1,
- topo_wind                           = 1,     1,     1,
  bl_pbl_physics                      = 2,     2,     2,
  bldt                                = 0,     0,     0,
  cu_physics                          = 1,     1,     0,
