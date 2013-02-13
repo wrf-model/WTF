@@ -157,10 +157,12 @@ fi
 
 
 PREPROCESSOR=`getPreprocessorName $COMPILE_STRING`
+wallTime="0:60"
 
 case $COMPILE_STRING in
     em_real|em_b_wave|em_quarter_ss)
                    COMPATIBLE_BUILD='em_real'
+                   wallTime="0:10"
                    ;;
     nmm_real)
                    COMPATIBLE_BUILD='nmm_real'
@@ -213,7 +215,9 @@ if [ ! -f $tarFile ]; then
 fi
 
 # tarFile must be an actual tarfile. 
-topDir=`tar tf $tarFile | head -1`
+#topDir=`tar tf $tarFile | head -1`
+(tar -tf *.tar | head -1) > $buildDir/.foo 2> /dev/null
+topDir=`cat $buildDir/.foo`
 topDir=`basename $topDir`
 if [ -z $topDir ]; then
    echo "$0: not a valid tarfile: '${tarFile}'; stopping."
@@ -368,11 +372,11 @@ if $RUN_COMPILE; then
    echo BATCH_COMPILE==$BATCH_COMPILE
    if $BATCH_COMPILE; then
        case $BATCH_QUEUE_TYPE in
-          LSF)  BSUB="bsub -K -q $BUILD_QUEUE -P $BATCH_ACCOUNT -n $NUM_PROCS -a poe -W 0:60 -J $BUILD_STRING -o build.out -e build.err -cwd $targetDir "
+          LSF)  BSUB="bsub -K -q $BUILD_QUEUE -P $BATCH_ACCOUNT -n $NUM_PROCS -a poe -W $wallTime -J $BUILD_STRING -o build.out -e build.err -cwd $targetDir "
                 ;;
           NQS)  export MSUBQUERYINTERVAL=30
                 export PNETCDF="/curc/tools/free/redhat_5_x86_64/parallel-netcdf-1.2.0_openmpi-1.4.5_intel-12.1.4/"
-                BSUB="msub -K -V -q janus-debug -l nodes=1:ppn=$NUM_PROCS,walltime=1:00:00 -N $BUILD_STRING -o $targetDir/build.out -e $targetDir/build.err -d $targetDir "
+                BSUB="msub -K -V -q janus-debug -l nodes=1:ppn=$NUM_PROCS,walltime=0:${wallTime}:00 -N $BUILD_STRING -o $targetDir/build.out -e $targetDir/build.err -d $targetDir "
                 ;;
           *)    echo "$0: unknown BATCH_QUEUE_TYPE '$BATCH_QUEUE_TYPE'; aborting!"
                 exit 3
