@@ -16,3 +16,8 @@ For test #18, if we swap mp=11 for anything else (such as 16), we get BFB pass r
 
 For test #27, if we replace shcu=3 for shcu=0, then we get BFB pass results.   There is another test that successfully gets BFB pass results with shcu=3 (test #28).  So there must be some interaction between physics options somewhere.  
 
+Test #4, both cu=4 (oldsass) and surface=8 (ssibscheme), individually cause BFB failures.   Together, they do also. 
+
+For test #11, cu=4 (oldsass) causes BFB failures, as it does in test #4.  
+
+
