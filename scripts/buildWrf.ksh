@@ -216,9 +216,11 @@ fi
 
 # tarFile must be an actual tarfile. 
 #topDir=`tar tf $tarFile | head -1`
-(tar -tf *.tar | head -1) > $buildDir/.foo 2> /dev/null
-topDir=`cat $buildDir/.foo`
+(tar -tf $tarFile | head -1) > /tmp/.foo_$$ 2> /dev/null
+topDir=`cat /tmp/.foo_$$`
 topDir=`basename $topDir`
+\rm /tmp/.foo_$$
+
 if [ -z $topDir ]; then
    echo "$0: not a valid tarfile: '${tarFile}'; stopping."
    echo "Rebuild the tarfile so it unpacks everything into a directory 'WRFV3'."
