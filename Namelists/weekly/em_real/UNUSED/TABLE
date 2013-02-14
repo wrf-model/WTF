@@ -11,3 +11,8 @@ NL      PBL     CU      MP      LW      SW      SFC     LAND    SHCU    TOPO
 
 If we replace mp_physics=17,18 with any other microphysics scheme (e.g. 6), then forecasts complete.
 We sent notification of this to Wei.
+
+For test #18, if we swap mp=11 for anything else (such as 16), we get BFB pass results.  This is the only test for mp=11, and that probably means that this is the reason for BFB failures.  
+
+For test #27, if we replace shcu=3 for shcu=0, then we get BFB pass results.   There is another test that successfully gets BFB pass results with shcu=3 (test #28).  So there must be some interaction between physics options somewhere.  
+
