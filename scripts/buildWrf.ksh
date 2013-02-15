@@ -162,7 +162,6 @@ wallTime="0:60"
 case $COMPILE_STRING in
     em_real|em_b_wave|em_quarter_ss)
                    COMPATIBLE_BUILD='em_real'
-                   wallTime="0:10"
                    ;;
     nmm_real)
                    COMPATIBLE_BUILD='nmm_real'
