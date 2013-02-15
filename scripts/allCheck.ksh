@@ -291,59 +291,55 @@ for configOpt in $WRF_COMPARE_PLATFORMS; do
           #typeDirs=`ls $TEST_DIR/$TEST_ID.$configOpt`
           NAMELIST_FILES=`getNamelists $NAMELIST_DIR/$wrfType $parType`
     
-          #for dir in $testDirs; do
           for nf in $NAMELIST_FILES; do
               namelist=`basename $nf`
                  
               checkDir=${testBase}/wrf_regression.${namelist}
               compareDir=${serialTestDir}/${wrfType}/wrf_regression.${namelist}
-              if [ ! -d $checkDir ]; then
-                 echo "$0: non-serial test directory does not exist: '$checkDir'; something broke!"
-                 exit 2
-              fi
-              if [ ! -d $compareDir ]; then
-                 echo "$0: serial test directory does not exist: '$compareDir'; something broke!"
-                 exit 2
-              fi
+
+              # Both directories do not have to exist; only do BFB test if both exist. 
+              if [[ -d $checkDir ]] && [[ -d $compareDir ]]; then
       
-              # Find whether this is a standard test or a variation; the final two characters in the
-              # namelist file will be capital letters if it is a particular variation
-              variation=`getVariationName $namelist`
-    
-              # If this is a non-standard variation, the namelist string should be truncated to remove
-              # the variation code.
-              if [[ $variation != "Standard" ]]; then
-                  strlen=${#namelist}
-                  strlen=$(($strlen-2))
-                  namelist=`echo $namelist | cut -c 1-$strlen`
-              fi
-    
-              # If either the serial or non-serial forecast didn't succeed, then the bit-for-bit
-              # test fails trivially, so only report a bit-for-bit test result if both forecasts succeeded. 
-              checkTest1=$checkDir/SUCCESS_FCST.tst
-              checkTest2=$compareDir/SUCCESS_FCST.tst
-              if [ -f $checkTest1 -a -f $checkTest2 ]; then
-                 checkFile=$checkDir/wrfout_d01*
-                 compareFile=$compareDir/wrfout_d01*
-                 writeBitForBit $checkFile $compareFile $wrfType $namelist $parType $variation $testType  &
-                 testCounter=$((testCounter + 1))
-	      else
-	         # Create FAIL_BFB files as a way of triggering a test re-run next time. 
-	         case $parType in
-		    openmp)   touch $checkDir/FAIL_BFB_OMP.tst
-		              touch $compareDir/FAIL_BFB_OMP.tst  ;;
-		    mpi)      touch $checkDir/FAIL_BFB_MPI.tst
-		              touch $compareDir/FAIL_BFB_MPI.tst  ;;
-		    *)
-		 esac
-              fi
-    
-              if [ $testCounter -ge $NUM_PROC_TEST ]; then
-                 jobs
-                 wait
-                 testCounter=0
-              fi
-            
+                  # Find whether this is a standard test or a variation; the final two characters in the
+                  # namelist file will be capital letters if it is a particular variation
+                  variation=`getVariationName $namelist`
+        
+                  # If this is a non-standard variation, the namelist string should be truncated to remove
+                  # the variation code.
+                  if [[ $variation != "Standard" ]]; then
+                      strlen=${#namelist}
+                      strlen=$(($strlen-2))
+                      namelist=`echo $namelist | cut -c 1-$strlen`
+                  fi
+        
+                  # If either the serial or non-serial forecast didn't succeed, then the bit-for-bit
+                  # test fails trivially, so only report a bit-for-bit test result if both forecasts succeeded. 
+                  checkTest1=$checkDir/SUCCESS_FCST.tst
+                  checkTest2=$compareDir/SUCCESS_FCST.tst
+                  if [ -f $checkTest1 -a -f $checkTest2 ]; then
+                     checkFile=$checkDir/wrfout_d01*
+                     compareFile=$compareDir/wrfout_d01*
+                     writeBitForBit $checkFile $compareFile $wrfType $namelist $parType $variation $testType  &
+                     testCounter=$((testCounter + 1))
+                  else
+                     # Create FAIL_BFB files as a way of triggering a test re-run next time. 
+                     case $parType in
+           		    openmp)   touch $checkDir/FAIL_BFB_OMP.tst
+           		              touch $compareDir/FAIL_BFB_OMP.tst  ;;
+           		    mpi)      touch $checkDir/FAIL_BFB_MPI.tst
+           		              touch $compareDir/FAIL_BFB_MPI.tst  ;;
+           		    *)
+    		     esac
+                  fi
+        
+                  if [ $testCounter -ge $NUM_PROC_TEST ]; then
+                     jobs
+                     wait
+                     testCounter=0
+                  fi
+                
+              fi  #  if both test directories exist
+
           done   # Loop over tests
 
       fi   # if good configuration
