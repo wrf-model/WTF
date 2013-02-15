@@ -395,6 +395,7 @@ if $RUN_COMPILE; then
           ./compile $COMPILE_STRING > compile_${COMPILE_STRING}.log 2>&1
           date > EndTime_${COMPILE_TYPE}.txt
 EOF
+       echo $BSUB > $targetDir/submitCommand
        $BSUB < $targetDir/build.sh
    else
       date > StartTime_${COMPILE_TYPE}.txt

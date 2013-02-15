@@ -372,6 +372,7 @@ if $BATCH_TEST; then
                runTime="0:05"
             fi
             BSUB="bsub -q $TEST_QUEUE -P $BATCH_ACCOUNT -n $NUM_PROC -a poe -W $runTime -J $jobString -o test.out -e test.err -cwd $testDir "
+            echo $BSUB > $testDir/submitCommand
             $BSUB < $testDir/test.sh
             ;;
         NQS) # Create a meaningful job string, so unfinished jobs can be identified easily. 
@@ -382,6 +383,7 @@ if $BATCH_TEST; then
                runTime="0:05:00"
             fi
             BSUB="qsub -V -q janus-debug -l nodes=1:ppn=$NUM_PROC,walltime=$runTime -N $jobString -o $testDir/test.out -e $testDir/test.err -d $testDir"
+            echo $BSUB > $testDir/submitCommand
             $BSUB $testDir/test.sh
             ;;
         *)  echo "Error: Unknown OS type '$OS_NAME'!"
