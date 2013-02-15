@@ -381,7 +381,7 @@ if $RUN_COMPILE; then
                 ;;
           NQS)  export MSUBQUERYINTERVAL=30
                 export PNETCDF="/curc/tools/free/redhat_5_x86_64/parallel-netcdf-1.2.0_openmpi-1.4.5_intel-12.1.4/"
-                BSUB="msub -K -V -q janus-debug -l nodes=1:ppn=$NUM_PROCS,walltime=0:${wallTime}:00 -N $BUILD_STRING -o $targetDir/build.out -e $targetDir/build.err -d $targetDir "
+                BSUB="msub -K -V -q janus-debug -l nodes=1:ppn=$NUM_PROCS,walltime=${wallTime}:00 -N $BUILD_STRING -o $targetDir/build.out -e $targetDir/build.err -d $targetDir "
                 ;;
           *)    echo "$0: unknown BATCH_QUEUE_TYPE '$BATCH_QUEUE_TYPE'; aborting!"
                 exit 3
