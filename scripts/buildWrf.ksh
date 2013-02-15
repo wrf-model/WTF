@@ -160,8 +160,12 @@ PREPROCESSOR=`getPreprocessorName $COMPILE_STRING`
 wallTime="0:60"
 
 case $COMPILE_STRING in
-    em_real|em_b_wave|em_quarter_ss)
+    em_real)       
                    COMPATIBLE_BUILD='em_real'
+                   ;;
+    em_b_wave|em_quarter_ss)
+                   COMPATIBLE_BUILD='em_real'
+                   wallTime="0:10"
                    ;;
     nmm_real)
                    COMPATIBLE_BUILD='nmm_real'
@@ -188,7 +192,7 @@ case $COMPILE_STRING in
 		   fi 
 		   ;;
     em_chem_kpp)
-		   COMPILE_STRING='em_real'    # For chemistry, "compile em_real" is needed. 
+		   COMPILE_STRING='em_real'    # For KPP chemistry, "compile em_real" is needed. 
                    COMPATIBLE_BUILD='em_chem_kpp'
 		   export WRF_CHEM=1
 		   export WRF_KPP=1

@@ -33,8 +33,8 @@ writeTestSummary()
    outcome_wt=$6        #  e.g. PASS, FAIL, PASS_MANUAL
 
    # Fixed-format output thanks to ksh printf
-   printf "%-13s %-22s %-7s %-10s %-8s %-11s\n" \
-     ${wrfFlavor_wt} ${namelistFile_wt} ${parType_wt} ${variation_wt} ${testType_wt} ${outcome_wt} >> $SUMMARY_FILE
+   printf "%-13s %-22s %-10s %-7s %-8s %-11s\n" \
+     ${wrfFlavor_wt} ${namelistFile_wt} ${variation_wt} ${parType_wt} ${testType_wt} ${outcome_wt} >> $SUMMARY_FILE
 }
 
 
