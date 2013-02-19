@@ -254,6 +254,15 @@ wipeUserBuildVars()
     unset HWRF
     unset WRFIO_NCD_LARGE_FILE_SUPPORT
 
+    unset NETCDF
+    unset USENETCDFF
+    unset HDF5_PATH
+    unset ZLIB_PATH
+    unset GPFS_PATH
+    unset CURL_PATH
+    unset NETCDF4
+    unset PNETCDF
+
     # additional vars from "compile" script
     unset WRF_DA_CORE
     unset WRF_EM_CORE
