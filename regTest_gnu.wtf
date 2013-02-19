@@ -14,7 +14,7 @@
 ##      must have the case-sensitive suffix ".tar".  The rest of each tar-file name is used to label builds and test results.
 ##  3)  Modify the variables in this WRF Test File.   Variables near the top are most likely to require modification.
 ##  4)  After checking the settings in this file to confirm they are correct for your needs, type the following at the command 
-##      line:  "run_WRF_tests.ksh -R <this_file>".
+##      line:  "scripts/run_WRF_tests.ksh -R <this_file>".
 ##
 ##  Author:  Brian Bonnlander
 ##
