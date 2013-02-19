@@ -1,0 +1,1 @@
+./genAdapt.ksh:  Namelist does not contain 'use_adaptive_time_step = .FALSE.'

@@ -67,9 +67,9 @@
  ra_lw_physics                       = 3,     3,     3,
  ra_sw_physics                       = 3,     3,     3,
  radt                                = 21,    21,    21,
- sf_sfclay_physics                   = 2,     2,     2,
+ sf_sfclay_physics                   = 1,     1,     1,
  sf_surface_physics                  = 4,     4,     4,
- bl_pbl_physics                      = 2,     2,     2,
+ bl_pbl_physics                      = 1,     1,     1,
  bldt                                = 0,     0,     0,
  cu_physics                          = 2,     2,     0,
  cudt                                = 5,     5,     5,
@@ -87,7 +87,6 @@
  cam_abs_freq_s                      = 21600
  cam_abs_dim1                        = 4
  cam_abs_dim2                        = 28
- shcu_physics                        = 2,     2,     2,
  /
 
  &fdda

@@ -63,7 +63,7 @@
  ra_lw_physics                       = 1,     1,     1,
  ra_sw_physics                       = 1,     1,     1,
  radt                                = 21,    21,    21,
- sf_sfclay_physics                   = 11,    11,    11,
+ sf_sfclay_physics                   = 1,     1,     1,
  sf_surface_physics                  = 1,     1,     1,
  topo_wind                           = 1,     1,     1,
  bl_pbl_physics                      = 1,     1,     1,

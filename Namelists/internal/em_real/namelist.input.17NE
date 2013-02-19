@@ -87,7 +87,6 @@
  cam_abs_freq_s                      = 21600
  cam_abs_dim1                        = 4
  cam_abs_dim2                        = 28
- shcu_physics                        = 2,     2,     2,
  /
 
  &fdda
