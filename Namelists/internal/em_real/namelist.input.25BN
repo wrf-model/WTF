@@ -70,7 +70,7 @@
  bldt                                = 0,     0,     0,
  cu_physics                          = 1,     1,     0,
  cudt                                = 5,     5,     5,
- omlcall                             = 1,
+ sf_ocean_physics                    = 1,
  oml_hml0                            = 50,
  oml_gamma                           = 0.14
  slope_rad                           = 1,     1,     1,

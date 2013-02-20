@@ -68,7 +68,7 @@
  bldt                                = 0,     0,     0,
  cu_physics                          = 6,     6,     0,
  cudt                                = 0,     0,     0,
- omlcall                             = 1,
+ sf_ocean_physics                    = 1,
  oml_hml0                            = 50,
  oml_gamma                           = 0.14
  isfflx                              = 1,
