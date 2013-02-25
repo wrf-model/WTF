@@ -157,7 +157,7 @@ fi
 
 
 PREPROCESSOR=`getPreprocessorName $COMPILE_STRING`
-wallTime="0:60"
+wallTime="0:90"
 
 case $COMPILE_STRING in
     em_real)       

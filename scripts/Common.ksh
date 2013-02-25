@@ -254,8 +254,6 @@ wipeUserBuildVars()
     unset HWRF
     unset WRFIO_NCD_LARGE_FILE_SUPPORT
 
-    unset NETCDF
-    unset USENETCDFF
     unset HDF5_PATH
     unset ZLIB_PATH
     unset GPFS_PATH
