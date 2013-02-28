@@ -46,10 +46,10 @@ export BUILD_TYPES="em_real nmm_real nmm_nest em_chem em_chem_kpp em_b_wave em_q
 #
 # Code contributors: select the directory ending in "contributors".
 
-#export NAMELIST_DIR=$WRF_TEST_ROOT/testNamelists/contributors
-##export NAMELIST_DIR=$WRF_TEST_ROOT/testNamelists/internal
+#export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/contributors
+#export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/internal
 export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/weekly
-#export NAMELIST_DIR=$WRF_TEST_ROOT/testNamelists/caseStudies
+#export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/caseStudies
 
 # Choose the options that should be passed to the "configure" script used to build WRF.  Each specified option 
 # builds a separate WRF executable that will be tested.  Each option indicates a Fortran compiler to use for 
