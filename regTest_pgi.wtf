@@ -14,7 +14,7 @@
 ##      must have the case-sensitive suffix ".tar".  The rest of each tar-file name is used to label builds and test results.
 ##  3)  Modify the variables in this WRF Test File.   Variables near the top are most likely to require modification.
 ##  4)  After checking the settings in this file to confirm they are correct for your needs, type the following at the command 
-##      line:  "scripts/run_WRF_tests.ksh -R <this_file>".
+##      line:  "scripts/run_WRF_Tests.ksh -R <this_file> >& run.log &".
 ##
 ##  Author:  Brian Bonnlander
 ##
@@ -103,11 +103,12 @@ export NUM_PROC_BUILD=4
 # and checking test outcomes.  On batch computers, this is not the *total* used at once, but the number 
 # used for each test or compilation.  Recommended value for personal computers: the number of available 
 # processors on the machine.  Recommended value for batch computers: at least 4, and no more than 12.
+# NOTE: this value can be overridden by putting "NUM_PROCESSORS=<value>" in an individual test namelist.input file.
 
 export NUM_PROC_TEST=6
 
 # If true, all script commands are echoed to the standard error output stream.  To capture this output to a file 
-# "run.log", run the tests using the command "scripts/run_WRF_tests.ksh -R <this_file> >& run.log &".
+# "run.log", run the tests using the command "scripts/run_WRF_Tests.ksh -R <this_file> >& run.log &".
 # Recommended value: true for at least the first time using the test suite, false once you're confident the 
 # scripts are working.
 
