@@ -318,7 +318,7 @@ goodConfiguration()
          return 0
       fi
    # exclude OpenMP for chemistry builds.
-   elif [ "$wType" = "em_chem" ] -o [ "$wType" = "em_chem_kpp" ]; then
+   elif [ "$wType" = "em_chem" -o "$wType" = "em_chem_kpp" ]; then
       if [ "$platf" = "openmp" ]; then
          echo false
          return 0
