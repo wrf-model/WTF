@@ -124,7 +124,13 @@ export OPTIMIZE_WRF=false
 
 export OPTIMIZE_WRF_CHEM=false
 
-#
+# If set to true, WRF is built in such a way that checks array bounds, uninitialized variables, and serious
+# floating point exceptions.  Execution stops when one of these errors is encountered, and a debugger can be 
+# used to track down the problem.  For Intel builds, "idb" is the debugger.  For PGI builds, "pgdbg" is the 
+# debugger.  For gfortran builds, "gdb" is the debugger. 
+
+export TRAP_ERRORS=false
+
 # ========================== STUFF BELOW HERE PROBABLY NEEDS NO MODIFICATION ==============================
 #
 
