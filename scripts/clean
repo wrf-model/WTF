@@ -1,0 +1,223 @@
+#!/bin/ksh
+
+##  clean
+##  
+##  Script for deleting prior builds, tests, and results.   The script has three options:
+##
+##       1.  "clean all":    delete all prior WRF builds and tests; does not delete test result summaries
+##       2.  "clean fail":   delete all WRF build directories whose compilations failed, and
+##                           also delete all test directories where there was some kind of failure. 
+##       3.  "clean check":  list the directories that will be deleted when running "clean fail".
+##
+##  Author: Brian Bonnlander
+##
+
+# Uncomment the next line to debug script.
+#set -x 
+
+usage()
+{
+   echo >&2 "usage: $0 all|fail|check"
+   echo >&2 ""
+   echo >&2 "       $0 all   : delete all WRF build directories and test directories (keeps RESULTS)"
+   echo >&2 "       $0 fail  : delete only WRF build directories and test directories with failures"
+   echo >&2 "       $0 check : show what '$0 fail' would delete."
+}
+
+
+##
+## Usage:  rootDir=`getTestRootDir`
+##
+##  Returns the root directory of the WRF Test Suite, based on the path to this script.
+##  This script should be located in $TEST_ROOT/scripts/.   The function returns $TEST_ROOT
+##  as an absolute path.
+##
+getTestRootDir()
+{
+   curr=`pwd` 
+   cd `dirname $0` 
+   scriptDir=`pwd` 
+   cd $curr 
+   rootDir=`dirname $scriptDir`
+   echo $rootDir
+}
+
+
+# Start of main script: check for valid options
+# A single parameter must be passed in, and it must be "all","fail", or "check".
+if [[ $# -ne 1 ]]; then
+   usage
+   exit 1
+fi
+case $1 in
+   all|fail) DELETE_TRASH=true  ;;
+   check)    DELETE_TRASH=false ;;
+   *)  usage
+       exit 2 ;;
+esac
+
+
+# Define relevant directories.
+WTF_ROOTDIR=`getTestRootDir`
+BUILD_DIR=$WTF_ROOTDIR/Builds
+RUNS_DIR=$WTF_ROOTDIR/Runs
+TRASH_DIR=$WTF_ROOTDIR/.Trash.$$
+
+# Make sure builds and runs directories exist.
+if [[ ! -d $BUILD_DIR ]] ||  [[ ! -d $RUNS_DIR ]] ; then
+   echo "$0: Please update this clean script to reflect your directory names:"
+   echo "      BUILD_DIR is currently '$BUILD_DIR'"
+   echo "      RUNS_DIR is currently '$RUNS_DIR'"
+   echo "  ...aborting. "
+   exit 255
+fi
+
+# Create Trash directories if "clean all" or "clean fail"
+if $DELETE_TRASH; then
+    mkdir -p $TRASH_DIR/Builds $TRASH_DIR/Runs
+    if [ $? != 0 ] ; then
+       echo "$0: Could not create Trash folders '$TRASH_DIR/Builds' and '$TRASH_DIR/Runs'"
+       echo "  ...aborting. "
+       exit 255
+    else 
+       echo "Created Trash folder '$TRASH_DIR'..."
+    fi 
+fi
+
+# Create an extra line break in script output for clarity.
+echo ""
+
+#
+# If "clean all", move entire contents of Builds directory, plus all Runs directories 
+#   except RESULTS, to the trash.
+#
+if [ $1 = "all" ]; then
+
+    # Move contents of Builds directory to Trash directory. 
+    mv $BUILD_DIR/* $TRASH_DIR/Builds
+    if [ $? != 0 ] ; then
+        echo "$0: Could not move Builds directory contents to '$TRASH_DIR'"
+        echo "  ...aborting. "
+        exit 255
+    else
+        echo "Moving Builds directory contents to Trash... Done!"
+    fi 
+   
+    # Move contents of Runs directory, except RESULTS, to trash directory. 
+    delDirs=`ls $RUNS_DIR | grep -v RESULTS`
+    for delDir in $delDirs; do
+       mv $RUNS_DIR/$delDir $TRASH_DIR/Runs
+       if [ $? != 0 ] ; then
+           echo "$0: Could not move Runs directory '$RUNS_DIR/$delDir' to '$TRASH_DIR/Runs'"
+           echo "  ...aborting. "
+           exit 255
+       else
+           echo "Moving '$RUNS_DIR/$delDir' to '$TRASH_DIR/Runs'... Done!"
+       fi 
+    done
+
+else   
+
+    # If "clean fail" or "clean check", find build directories with FAIL*.tst in them.
+    # This code relies on the fact that all builds have these *.tst files at the same 
+    # depth in the Builds directory structure.  If this changes, then a "find" command
+    # will probably be necessary.
+    echo  "Failed Build directories to delete (searching):"
+    startDir=`pwd`
+    cd $BUILD_DIR
+    allBuilds=`ls */*/*/FAIL*.tst 2> /dev/null`
+    cd $startDir
+
+    # Loop over found directories; we could just print them but we try to be a little
+    # fancier and produced nicely-formatted output.
+    dirLenMax=40
+    for dir in $allBuilds; do
+        dirLen=`dirname $dir | wc -c`
+	if [ $dirLen -gt $dirLenMax ]; then
+	    dirLenMax=$dirLen
+	fi
+    done
+    formatString="  Builds/%-${dirLenMax}s   (%s)\n"
+
+    # List the directories to be deleted.  Check for duplicates (more than one failure); 
+    # assumes sorted directory names.
+    lastDir=""
+    for fail in $allBuilds; do
+        dir=`dirname $fail`
+        if [ "$dir" != "$lastDir" ]; then
+            printf "$formatString" `dirname $fail` `basename $fail`
+    	    if $DELETE_TRASH; then
+    	        mv $BUILD_DIR/$dir $TRASH_DIR/Builds
+                if [ $? != 0 ] ; then
+                   echo "$0: Could not move $BUILD_DIR/$dir to '$TRASH_DIR/Builds'"
+                   echo "  ...aborting. "
+                   exit 255
+    	        fi
+    	    fi
+	fi
+	lastDir=$dir
+    done
+
+    # Find Runs directories with FAIL*.tst in them.  This code relies on the fact that 
+    # right now, all Runs have these *.tst files at the same depth in the Runs directory 
+    # structure.  If this changes, then a "find" command  will probably be necessary.
+    echo ""
+    echo "Failed Runs directories to delete (searching):"
+    cd $RUNS_DIR
+    allRuns=`ls */*/*/FAIL*.tst 2> /dev/null`
+    cd $startDir
+
+    # Loop over found directories; we could just print them but we try to be a little
+    # fancier and produced nicely-formatted output.
+    dirLenMax=40
+    for dir in $allRuns; do
+        dirLen=`dirname $dir | wc -c`
+	if [ $dirLen -gt $dirLenMax ]; then
+	    dirLenMax=$dirLen
+	fi
+    done
+    formatString="  Runs/%-${dirLenMax}s   (%s)\n"
+
+    # List the directories to be deleted.  Check for duplicates (more than one failure); 
+    # assumes sorted directory names.
+    lastDir=""
+    for fail in $allRuns; do
+        dir=`dirname $fail`
+        if [ "$dir" != "$lastDir" ]; then
+            # Report FCST failure as opposed to BFB failure when both are present. 
+            if [ -f "$RUNS_DIR/$dir/FAIL_FCST.tst" ]; then
+                printf "$formatString" `dirname $fail` "FAIL_FCST.tst"
+            else
+                printf "$formatString" `dirname $fail` `basename $fail`
+            fi
+    	    if $DELETE_TRASH; then
+    	       mv $RUNS_DIR/$dir $TRASH_DIR/Runs
+               if [ $? != 0 ] ; then
+                  echo "$0: Could not move $RUNS_DIR/$dir to '$TRASH_DIR/Runs'"
+                  echo "  ...aborting. "
+                  exit 255
+    	       fi
+    	    fi
+	fi
+	lastDir=$dir
+    done
+fi 
+
+
+# Delete trash directory in the background if DELETE_TRASH is true. 
+if $DELETE_TRASH; then
+    \rm -rf $TRASH_DIR  &
+    if [ $? != 0 ] ; then
+       echo "$0: Could not delete trash directory '$TRASH_DIR'"
+       echo "  ...aborting. "
+       exit 255
+    else
+       echo "Deleting Trash directory: $TRASH_DIR"
+    fi
+fi 
+
+# Exit with no error.
+echo ""
+echo "$0: success!"
+exit 0
+

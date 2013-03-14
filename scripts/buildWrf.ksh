@@ -149,7 +149,9 @@ wipeUserBuildVars
 # The exceptions are "nmm_nest","em_chem", and "em_chem_kpp". 
 COMPILE_STRING=$COMPILE_TYPE
 
-if $OPTIMIZE_WRF; then
+if $TRAP_ERRORS; then
+    CONFIGURE_COMMAND="./configure -D"
+elif $OPTIMIZE_WRF; then
     CONFIGURE_COMMAND="./configure"
 else
     CONFIGURE_COMMAND="./configure -d"
@@ -187,7 +189,7 @@ case $COMPILE_STRING in
 		   export WRF_CHEM=1
 		   export WRF_KPP=0
 		   export CHEM_OPT=''
-		   if [ $OPTIMIZE_WRF_CHEM = false ]; then
+		   if [ $TRAP_ERRORS = false -a $OPTIMIZE_WRF_CHEM = false ]; then
 		       CONFIGURE_COMMAND="./configure -d "
 		   fi 
 		   ;;
@@ -198,7 +200,7 @@ case $COMPILE_STRING in
 		   export WRF_KPP=1
 		   export YACC='/usr/bin/yacc -d'
 		   export CHEM_OPT=104
-		   if [ $OPTIMIZE_WRF_CHEM = false ]; then
+		   if [ $TRAP_ERRORS = false -a $OPTIMIZE_WRF_CHEM = false ]; then
 		       CONFIGURE_COMMAND="./configure -d "
 		   fi 
 		   ;;
@@ -224,9 +226,13 @@ topDir=`cat /tmp/.foo_$$`
 topDir=`basename $topDir`
 \rm /tmp/.foo_$$
 
-if [ -z $topDir ]; then
+if [ -z "$topDir" ]; then
    echo "$0: not a valid tarfile: '${tarFile}'; stopping."
-   echo "Rebuild the tarfile so it unpacks everything into a directory 'WRFV3'."
+   echo "Rebuild the tarfile so it unpacks everything into a local directory named 'WRFV3'"
+   exit 2
+elif [[ "$topDir" = ._* ]]; then
+   echo "$0: not a valid tarfile: '${tarFile}', since it unpacks into '$topDir'."
+   echo "Please remake the tarfile with the command 'tar --exclude="._*" -cf myTarName.tar WRFV3'"
    exit 2
 fi
 
