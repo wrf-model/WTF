@@ -23,7 +23,9 @@
 ##  A helpful check to make sure that the PGI compiler is ready to use on yellowstone.
 CHECK_MODULES=true
 if $CHECK_MODULES; then
-   if [ `hostname | cut -c1-2` == "ys" ]; then
+   if [ `hostname | cut -c1-2` == "ys" -o \
+        `hostname | cut -c1-2` == "ca" -o \
+        `hostname | cut -c1-2` == "gs" ]; then
       $WRF_TEST_ROOT/scripts/checkModules pgi
       if [ $? != 0 ]; then
          echo "WTF: PGI compiler not loaded; aborting."
