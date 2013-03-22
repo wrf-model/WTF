@@ -22,7 +22,7 @@ for d in $namelists; do
 done
 
    
-varnames="mp_physics ra_lw_physics ra_sw_physics sf_sfclay_physics sf_surface_physics bl_pbl_physics cu_physics shcu_physics topo_wind"
+varnames="mp_physics ra_lw_physics ra_sw_physics sf_sfclay_physics sf_surface_physics sf_urban_physics bl_pbl_physics cu_physics shcu_physics topo_wind"
 
 
 #
@@ -36,6 +36,7 @@ for var in $varnames; do
        ra_sw_physics)   V=SW;;
        sf_sfclay_physics)   V=SFC;;
        sf_surface_physics)   V=LAND;;
+       sf_urban_physics)   V=URB;;
        bl_pbl_physics)   V=PBL;;
        cu_physics)   V=CU;;
        shcu_physics)   V=SHCU;;
