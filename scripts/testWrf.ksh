@@ -179,9 +179,13 @@ REGDATA_FILES=`ls ${REGDATA_PATH}/*`
 
 
 # Set the number of processors/threads to use for the test.
-NUM_PROC=`grep NUM_PROCESSORS ${NAMELIST_PATH} | cut -d '=' -f 2`
-if [ -z "$NUM_PROC" ]; then
+if [ "$BATCH_COMPILE" = false -a "$BATCH_TEST" = false ]; then
    NUM_PROC=$NUM_PROC_TEST
+else
+   NUM_PROC=`grep NUM_PROCESSORS ${NAMELIST_PATH} | cut -d '=' -f 2`
+   if [ -z "$NUM_PROC" ]; then
+      NUM_PROC=$NUM_PROC_TEST
+   fi
 fi
 
 

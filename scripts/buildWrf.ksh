@@ -404,6 +404,7 @@ EOF
        echo $BSUB > $targetDir/submitCommand
        $BSUB < $targetDir/build.sh
    else
+      export J="-j ${NUM_PROCS}"
       date > StartTime_${COMPILE_TYPE}.txt
       \rm -f *COMPILE.tst   # Remove previous compile test results
       ./compile $COMPILE_STRING > compile_${COMPILE_STRING}.log 2>&1
