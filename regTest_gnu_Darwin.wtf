@@ -20,15 +20,16 @@
 ##
 
 
-##  A helpful check to make sure that the GNU compiler is ready to use on yellowstone.
+##  A helpful check to make sure that the compiler is ready to use on yellowstone.
+export COMPILER_WTF=gnu
 CHECK_MODULES=true
 if $CHECK_MODULES; then
    if [ `hostname | cut -c1-2` == "ys" -o \
         `hostname | cut -c1-2` == "ca" -o \
         `hostname | cut -c1-2` == "gs" ]; then
-      $WRF_TEST_ROOT/scripts/checkModules gnu
+      $WRF_TEST_ROOT/scripts/checkModules ${COMPILER_WTF}
       if [ $? != 0 ]; then
-         echo "WTF: GNU compiler not loaded; aborting."
+         echo "WTF: ${COMPILER_WTF} compiler not loaded; aborting."
          exit 255
       fi
    fi

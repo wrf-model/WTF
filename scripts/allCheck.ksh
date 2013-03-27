@@ -170,7 +170,7 @@ mkdir -p ${TEST_DIR}/RESULTS
 TEST_ID=`basename $TARFILE .tar`
 
 # The path to the file containing a summary of all test results
-export SUMMARY_FILE=${TEST_DIR}/RESULTS/${TEST_ID}.`date +"%Y-%m-%d_%T"`
+export SUMMARY_FILE=${TEST_DIR}/RESULTS/${TEST_ID}_${COMPILER_WTF}.`date +"%Y-%m-%d_%T"`
 
 echo "Test results will be summarized in '$SUMMARY_FILE'."
 
