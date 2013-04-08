@@ -64,7 +64,6 @@ export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/weekly
 
 export CONFIGURE_SERIAL="40"
 export CONFIGURE_OPENMP="41"
-#export CONFIGURE_OPENMP=""     # Do not build/test OpenMP right now.
 export CONFIGURE_MPI="42"
 
 

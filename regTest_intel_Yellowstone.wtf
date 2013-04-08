@@ -63,8 +63,7 @@ export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/weekly
 # that you do not wish to build and test. 
 
 export CONFIGURE_SERIAL="17"
-#export CONFIGURE_OPENMP="18"
-export CONFIGURE_OPENMP=""     # Do not build/test OpenMP right now.
+export CONFIGURE_OPENMP="18"
 export CONFIGURE_MPI="19"
 
 
