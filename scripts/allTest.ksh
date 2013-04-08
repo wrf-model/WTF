@@ -18,6 +18,8 @@ fi
 
 wrfTarName=`basename $TARFILE .tar`
 
+# Guarantee that the test directory exists.
+mkdir -p $TEST_DIR
 
 # Loop over WRF platforms and types.
 for choice in $CONFIGURE_CHOICES; do

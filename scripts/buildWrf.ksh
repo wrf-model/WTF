@@ -204,7 +204,7 @@ case $COMPILE_STRING in
 		       CONFIGURE_COMMAND="./configure -d "
 		   fi 
 		   ;;
-    *)             echo "$0: Unknown compile string: '$COMPILE_TYPE'"
+    *)             echo "$0: Unknown compile string: '$COMPILE_STRING'"
                    exit 2
                    ;;
 esac
@@ -398,6 +398,10 @@ if $RUN_COMPILE; then
           export J="-j ${NUM_PROCS}"
           date > StartTime_${COMPILE_TYPE}.txt
           \rm -f *COMPILE.tst   # Remove previous compile test results
+          if [ "$COMPATIBLE_BUILD" -eq em_real ]; then
+             sed -e 's/WRF_USE_CLM/WRF_USE_CLM -DCLWRFGHG/' configure.wrf 2>&1 .foofoo
+             mv .foofoo configure.wrf
+          fi
           ./compile $COMPILE_STRING > compile_${COMPILE_STRING}.log 2>&1
           date > EndTime_${COMPILE_TYPE}.txt
 EOF
@@ -407,6 +411,10 @@ EOF
       export J="-j ${NUM_PROCS}"
       date > StartTime_${COMPILE_TYPE}.txt
       \rm -f *COMPILE.tst   # Remove previous compile test results
+      if [ "$COMPATIBLE_BUILD" -eq em_real ]; then
+         sed -e 's/WRF_USE_CLM/WRF_USE_CLM -DCLWRFGHG/' configure.wrf 2>&1 .foofoo
+         mv .foofoo configure.wrf
+      fi
       ./compile $COMPILE_STRING > compile_${COMPILE_STRING}.log 2>&1
       date > EndTime_${COMPILE_TYPE}.txt
    fi 
