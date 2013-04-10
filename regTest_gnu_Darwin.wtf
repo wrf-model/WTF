@@ -64,7 +64,8 @@ export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/weekly
 # that you do not wish to build and test. 
 
 export CONFIGURE_SERIAL="15"
-export CONFIGURE_OPENMP="16"
+#export CONFIGURE_OPENMP="16"
+export CONFIGURE_OPENMP=""     # No OpenMP on small Darwin machines, it does not build
 export CONFIGURE_MPI="17"
 
 
