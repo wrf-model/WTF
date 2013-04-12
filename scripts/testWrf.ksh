@@ -297,7 +297,7 @@ if [ -f $realFile ]; then
    ln -sf $realFile $testDir/prewrf.exe
 else
    echo "Compile failure: File does not exist: $realFile"
-   touch FAIL_COMPILE.tst
+   touch $testDir/FAIL_COMPILE.tst
    exit 2
 fi
 
@@ -306,7 +306,7 @@ if [ -f $wrfFile ]; then
    ln -sf $wrfFile $testDir/wrf.exe
 else
    echo "Compile failure: File does not exist: $wrfFile"
-   touch FAIL_COMPILE.tst
+   touch $testDir/FAIL_COMPILE.tst
    exit 2
 fi
 
