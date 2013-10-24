@@ -2,7 +2,7 @@
  run_days = 0,
  run_hours = 0,
  run_minutes = 0,
- run_seconds                         = 540,
+ run_seconds                         = 1800,
  start_year                          = 2000, 2000, 2000,
  start_month                         = 01,   01,   01,
  start_day                           = 24,   24,   24,
@@ -17,14 +17,14 @@
  end_second                          = 00,   00,   00,
  interval_seconds                    = 21600
  input_from_file                     = .true.,.false.,.false.
- history_interval                    = 9,  60,   60,
+ history_interval                    = 30,  60,   60,
  frames_per_outfile = 200, 1000, 1000,
  restart                             = .false.,
  restart_interval                    = 5000,
- io_form_history                     = 2
- io_form_restart                     = 2
- io_form_input                       = 2
- io_form_boundary                    = 2
+ io_form_history                     = 1
+ io_form_restart                     = 1
+ io_form_input                       = 1
+ io_form_boundary                    = 1
  debug_level                         = 0
  auxinput1_inname                    = "met_em.d<domain>.<date>"
  /
@@ -33,12 +33,7 @@
  time_step                           = 180,
  time_step_fract_num                 = 0,
  time_step_fract_den                 = 1,
- max_dom                             = 2,
- num_moves                           = 3
- move_id                             = 2 , 2 , 2
- move_interval                       = 3 , 6 , 9
- move_cd_x                           = 1 , 1 , 1
- move_cd_y                           = 1 , 1 , 1
+ max_dom                             = 1,
  s_we                                = 1,     1,     1,
  e_we                                = 74,    31,    31,
  s_sn                                = 1,     1,     1,
@@ -63,27 +58,25 @@
  /
 
  &physics
- mp_physics                          = 3,     3,     3,
+ mp_physics                          = 6,     6,     6,
  ra_lw_physics                       = 4,     4,     4,
  ra_sw_physics                       = 4,     4,     4,
  radt                                = 21,    21,    21,
- sf_sfclay_physics                   = 4,     4,     4,
+ sf_sfclay_physics                   = 2,     2,     2,
  sf_surface_physics                  = 1,     1,     1,
- bl_pbl_physics                      = 4,     4,     4,
+ bl_pbl_physics                      = 8,     8,     8,
  bldt                                = 0,     0,     0,
- cu_physics                          = 3,     3,     0,
- cudt                                = 5,     5,     5,
+ cu_physics                          = 6,     6,     0,
+ cudt                                = 0,     0,     0,
+ sf_ocean_physics                    = 1,
+ oml_hml0                            = 50,
+ oml_gamma                           = 0.14
  isfflx                              = 1,
  ifsnow                              = 0,
  icloud                              = 1,
  surface_input_source                = 1,
  num_soil_layers                     = 5,
  mp_zero_out                         = 0,
- maxiens                             = 1,
- maxens                              = 3,
- maxens2                             = 3,
- maxens3                             = 16,
- ensdim                              = 144,
  /
 
  &fdda
@@ -102,8 +95,8 @@
  khdif                               = 0,      0,      0,
  kvdif                               = 0,      0,      0,
  non_hydrostatic                     = .true., .true., .true.,
- moist_adv_opt                       = 2,      2,      2,      
- scalar_adv_opt                      = 2,      2,      2,     
+ moist_adv_opt                       = 1,      1,      1,      
+ scalar_adv_opt                      = 1,      1,      1,     
  chem_adv_opt                        = 0,      0,      0,     
  tke_adv_opt                         = 0,      0,      0,     
  /

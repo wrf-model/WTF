@@ -1,0 +1,9 @@
+============================
+NESTED NMM REGRESSION TESTS
+============================
+
+The first 2 namelist files (1-2) are taken from the DTC group.  
+
+File namelist.input.3 is a nested NMM test taken from Dave Gill, where the domain and time_control parameters
+were modified to match the settings for the other namelist files.  
+
