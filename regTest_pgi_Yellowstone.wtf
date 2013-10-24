@@ -131,10 +131,8 @@ export OPTIMIZE_WRF_CHEM=false
 # used to track down the problem.  For Intel builds, "idb" is the debugger.  For PGI builds, "pgdbg" is the 
 # debugger.  For gfortran builds, "gdb" is the debugger. 
 #
-# Recommended value for contributors:  "true" when testing only the contributed code, and false when running the
-# full set of tests because several of the WRF microphysics options (e.g., CAM shortwave radiation) have 
-# numerical exceptions occur as part of their expected behavior.  
-
+# Recommended value for contributors:  false, because several of the WRF microphysics options (e.g., CAM 
+# shortwave radiation) have spurious numerical exceptions occur as part of their expected behavior.
 
 export TRAP_ERRORS=false
 
