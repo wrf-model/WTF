@@ -62,11 +62,11 @@
  ra_lw_physics                       = 5,     5,     5,
  ra_sw_physics                       = 5,     5,     5,
  radt                                = 21,    21,    21,
- sf_sfclay_physics                   =2,    2,    2,
+ sf_sfclay_physics                   =10,    10,    10,
  sf_surface_physics                  = 7,     7,     7,
- bl_pbl_physics                      =9,    9,    9,
+ bl_pbl_physics                      =10,    10,    10,
  bldt                                = 0,     0,     0,
- cu_physics                          =14,    14,     0,
+ cu_physics                          =6,    6,     0,
  cudt                                = 0,     0,     0,
  isfflx                              = 1,
  ifsnow                              = 0,
@@ -116,7 +116,7 @@
  /
 
  &dfi_control
- dfi_opt                             = 0
+ dfi_opt                             = 3
  dfi_nfilter                         = 7
  dfi_write_filtered_input            = .false.
  dfi_write_dfi_history               = .false.
@@ -136,6 +136,6 @@
  dfi_fwdstop_second                  = 00  
  /
 
-LSF_TIME=0:10
-NQS_TIME=0:10:00
+LSF_TIME=0:15
+NQS_TIME=0:15:00
 NUM_PROCESSORS=8
