@@ -25,7 +25,7 @@ usage()
    echo >&2 "usage: $0 -f <tar_file> -d <build_dir> -ci <configure_choice> -ct <compile_type> -bs <build_string> [-ni <nesting_choice>] [-v] [-r8] [-N <#procs>]"
    echo >&2 "   (configure and nesting choices must be integers; -r8 sets double precision calculations; -v for verbose)"
    echo >&2 "   (-N <#nprocs> specifies the number of processors per build; default is 1)"
-   echo >&2 "   (<compile_type> can be one of: {em_real, em_b_wave, em_quarter_ss, nmm_real, nmm_nest})"
+   echo >&2 "   (<compile_type> can be one of: {em_real, em_b_wave, em_quarter_ss, nmm_real, nmm_nest, nmm_hwrf})"
 }
 
 
@@ -182,6 +182,15 @@ case $COMPILE_STRING in
                    export WRF_EM_CORE=0
                    export WRF_NMM_CORE=1
                    export WRF_NMM_NEST=1
+                   ;;
+    nmm_hwrf)
+		   COMPILE_STRING='nmm_real'    # For nmm_hwrf, "compile nmm_real" is needed. 
+                   NEST_OPTION=1
+                   COMPATIBLE_BUILD='nmm_hwrf'
+                   export WRF_EM_CORE=0
+                   export WRF_NMM_CORE=1
+                   export WRF_NMM_NEST=1
+                   export HWRF=1
                    ;;
     em_chem)
 		   COMPILE_STRING='em_real'    # For chemistry, "compile em_real" is needed. 

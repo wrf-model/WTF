@@ -75,6 +75,7 @@ getJobString()
         em_chem_kpp)     part1='ek'   ;;
         nmm_real)        part1='nr'   ;;
         nmm_nest)        part1='nn'   ;;
+        nmm_hwrf)        part1='nh'   ;;
         *)               echo "$0::getJobString: unknown wrfType '$wrfType'"
                          exit 2
    esac

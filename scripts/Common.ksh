@@ -81,7 +81,7 @@ getPreprocessorName()
          em_b_wave|em_quarter_ss)
                    PREPROCESSOR='ideal.exe' 
 		   ;;
-         nmm_real|nmm_nest)
+         nmm_real|nmm_nest|nmm_hwrf)
                    PREPROCESSOR='real_nmm.exe' 
 		   ;;
          *)        echo "$0: Unknown WRF type: '$wrfType'"
@@ -268,6 +268,12 @@ wipeUserBuildVars()
     unset WRF_EXP_CORE
     unset WRF_CONVERT
     unset WRF_SRC_ROOT_DIR
+ 
+    # these control how MPI jobs are run on Yellowstone
+    unset MP_RESD
+    unset MP_RMFILE
+    unset MP_LLFILE
+    unset MP_RMPOOL
 }
 
 
@@ -312,7 +318,7 @@ goodConfiguration()
    platf=$2
 
    # exclude OpenMP for nmm builds.
-   if [ "$wType" = "nmm_real" -o "$wType" = "nmm_nest" ]; then
+   if [ "$wType" = "nmm_real" -o "$wType" = "nmm_nest" -o "$wType" = "nmm_hwrf" ]; then
       if [ "$platf" = "openmp" ]; then
          echo false
          return 0
@@ -320,6 +326,13 @@ goodConfiguration()
    # exclude OpenMP for chemistry builds.
    elif [ "$wType" = "em_chem" -o "$wType" = "em_chem_kpp" ]; then
       if [ "$platf" = "openmp" ]; then
+         echo false
+         return 0
+      fi
+   fi
+   # exclude Serial for nmm_hwrf builds.
+   if [ "$wType" = "nmm_hwrf"  ]; then
+      if [ "$platf" = "serial" ]; then
          echo false
          return 0
       fi
