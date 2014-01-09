@@ -41,7 +41,7 @@
  s_vert                              = 1,     1,     1,
  e_vert                              = 30,    30,    30,
  p_top_requested                     = 5000,
- num_metgrid_levels                  = 27,
+ num_metgrid_levels                  = 26,
  num_metgrid_soil_levels             = 4,
  dx                                  = 30000, 10000,  3333,
  dy                                  = 30000, 10000,  3333,
@@ -75,6 +75,7 @@
  icloud                              = 1,
  surface_input_source                = 1,
  num_soil_layers                     = 4,
+ num_land_cat                        = 28,
  /
 
 
