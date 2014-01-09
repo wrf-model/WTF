@@ -62,9 +62,9 @@ export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/weekly
 # "serial", "openmp", and "mpi" communication frameworks, respectively.   Leave a blank string for any options
 # that you do not wish to build and test. 
 
-export CONFIGURE_SERIAL="17"
-export CONFIGURE_OPENMP="18"
-export CONFIGURE_MPI="19"
+export CONFIGURE_SERIAL="13"
+export CONFIGURE_OPENMP="14"
+export CONFIGURE_MPI="15"
 
 
 # If set to true, the tasks associated with building WRF and/or running tests using WRF will be submitted to a 
