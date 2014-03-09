@@ -53,7 +53,7 @@
  nrads                               =  9,
  nradl                               =  9,
  co2tf                               = 1,
- sf_sfclay_physics                   = 11,
+ sf_sfclay_physics                   = 91,
  sf_surface_physics                  = 2,
  bl_pbl_physics                      = 1,
  nphs                                = 2,
