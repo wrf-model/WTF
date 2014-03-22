@@ -1,9 +1,9 @@
 #!/bin/ksh
 
-ALL="             03 03DF 03FD 06 06BN 07 07NE 10            14         16 16BN 16DF 17 17AD 18 18BN    20 20NE                  31 31AD            38                    42    48 49 50 51 52 52DF 52FD global"
-PGI="             03 03DF 03FD 06 06BN 07 07NE 10            14         16 16BN 16DF 17 17AD 18 18BN    20 20NE                  31 31AD            38              40    42    48 49 50 51 52 52DF 52FD global"
-GNU="             03 03DF 03FD 06 06BN 07 07NE 10            14 15 15AD 16 16BN 16DF 17 17AD 18 18BN    20 20NE               30 31 31AD            38 38AD 39 39AD 40    42    48 49 50 51 52 52DF 52FD global"
-Intel="01 02 02GR 03 03DF 03FD 06 06BN 07 07NE 10 12 12GR 13 14 15 15AD 16 16BN 16DF 17 17AD 18 18BN 19 20 20NE 25 26 29 29QT 30 31 31AD 33 36 36GR 38 38AD 39 39AD    41 42 43 48 49 50 51 52 52DF 52FD global"
+ALL="             03 03DF 03FD 06 06BN 07 07NE 09 09QT 10            14         16 16BN 16DF 17 17AD 18 18BN    20 20NE                  31 31AD            38                    42    48 49 50 51 52 52DF 52FD global"
+PGI="             03 03DF 03FD 06 06BN 07 07NE 09 09QT 10            14         16 16BN 16DF 17 17AD 18 18BN    20 20NE                  31 31AD            38              40    42    48 49 50 51 52 52DF 52FD global"
+GNU="             03 03DF 03FD 06 06BN 07 07NE 09 09QT 10            14 15 15AD 16 16BN 16DF 17 17AD 18 18BN    20 20NE               30 31 31AD            38 38AD 39 39AD 40    42    48 49 50 51 52 52DF 52FD global"
+Intel="01 02 02GR 03 03DF 03FD 06 06BN 07 07NE 09 09QT 10 12 12GR 13 14 15 15AD 16 16BN 16DF 17 17AD 18 18BN 19 20 20NE 25 26 29 29QT 30 31 31AD 33 36 36GR 38 38AD 39 39AD    41 42 43 48 49 50 51 52 52DF 52FD global"
 
 if [[ $# -eq 0 ]] ; then
 
