@@ -1,7 +1,7 @@
  &time_control
  run_days = 0,
  run_hours = 0,
- run_minutes = 1,
+ run_minutes = 2,
  run_seconds                         = 0,
  start_year                          = 2014, 2000, 2000,
  start_month                         = 01,   01,   01,
@@ -17,7 +17,7 @@
  end_second                          = 00,   00,   00,
  interval_seconds                    = 10800
  input_from_file                     = .true.,.false.,.false.
- history_interval_s                  = 60,  60,   60,
+ history_interval                    = 2,  60,   60,
  frames_per_outfile                  = 1000, 1000, 1000,
  restart                             = .false.,
  restart_interval                    = 5000,
@@ -62,7 +62,7 @@
  mp_physics                          = 30,     1,     1,
  ra_lw_physics                       = 4,     1,     1,
  ra_sw_physics                       = 4,     1,     1,
- radt                                = 10,    21,    21,
+ radt                                = 1,     1,     1,
  sf_sfclay_physics                   = 1,     1,     1,
  sf_surface_physics                  = 2,     1,     1,
  bl_pbl_physics                      = 1,     1,     1,

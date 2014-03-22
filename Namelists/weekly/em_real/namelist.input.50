@@ -71,7 +71,7 @@
  isfflx                              = 1,
  ifsnow                              = 0,
  icloud                              = 1,
- icloud_cu                           = 1,
+ cu_rad_feedback                     = .true., .true., .true.,
  surface_input_source                = 1,
  num_soil_layers                     = 5,
  num_land_cat                        = 28,
