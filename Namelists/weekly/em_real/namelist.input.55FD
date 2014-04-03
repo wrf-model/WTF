@@ -60,7 +60,7 @@
  /
 
  &physics
- mp_physics                          = 3,     3,     3,
+ mp_physics                          = 17,    17,    17,
  ra_lw_physics                       = 4,     4,     4,
  ra_sw_physics                       = 4,     4,     4,
  radt                                = 21,    21,    21,
@@ -114,7 +114,7 @@
  if_ramping                          = 1,
  dtramp_min                          = 360.0,
  io_form_gfdda                       = 2,
- obs_nudge_opt                       = 0,0,0,0,0
+ obs_nudge_opt                       = 1,1,1,1,1
  max_obs                             = 150000,
  obs_nudge_wind                      = 1,1,1,1,1
  obs_coef_wind                       = 6.E-4,6.E-4,6.E-4,6.E-4,6.E-4
