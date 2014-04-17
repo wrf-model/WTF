@@ -76,6 +76,9 @@
  num_land_cat                        = 28,
  mp_zero_out                         = 0,
  ishallow                            = 0,
+ /
+
+ &stoch
  stoch_force_opt                     = 1,      1,      1,
  stoch_vertstruc_opt                 = 0,      0,      0,
  tot_backscat_t                      = 1.0E-6, 1.0E-6, 1.0E-6
