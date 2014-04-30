@@ -78,6 +78,14 @@
  ishallow                            = 0,
  /
 
+ &stoch
+ stoch_force_opt                     = 1,      1,      1,
+ stoch_vertstruc_opt                 = 0,      0,      0,
+ tot_backscat_t                      = 1.0E-6, 1.0E-6, 1.0E-6
+ tot_backscat_psi                    = 1.0E-5, 1.0E-5, 1.0E-5
+ nens                                = 1,
+ /
+
  &fdda
  grid_fdda                           = 2,     2,     2,
  gfdda_inname                        = "wrffdda_d<domain>",
