@@ -58,15 +58,15 @@
  /
 
  &physics
- mp_physics                          = 10,    10,    10,
+ mp_physics                          = 1,     1,     1, 
  ra_lw_physics                       = 1,     1,     1,
- ra_sw_physics                       = 2,     2,     2,
+ ra_sw_physics                       = 1,     1,     1,
  radt                                = 21,    21,    21,
- sf_sfclay_physics                   = 4,     4,     4,
- sf_surface_physics                  = 7,     7,     7,
- bl_pbl_physics                      = 4,     4,     4,
+ sf_sfclay_physics                   = 1,     1,     1,
+ sf_surface_physics                  = 1,     1,     1,
+ bl_pbl_physics                      = 1,     1,     1,
  bldt                                = 0,     0,     0,
- cu_physics                          = 2,     2,     0,
+ cu_physics                          = 1,     1,     0,
  cudt                                = 0,     0,     0,
  windfarm_opt                        = 1,     1,     1,
  isfflx                              = 1,
