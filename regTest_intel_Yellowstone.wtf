@@ -88,7 +88,7 @@ export BATCH_QUEUE_TYPE=LSF
 # Ignored when BATCH_COMPILE and BATCH_TEST are false.
 
 export BUILD_QUEUE=caldera
-export TEST_QUEUE=premium
+export TEST_QUEUE=caldera
 #export TEST_QUEUE=economy
 
 # Account charge code string for queue-managed computers.   Ignored when BATCH_COMPILE and 
