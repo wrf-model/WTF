@@ -5,12 +5,6 @@ echo
 echo Script will submit Intel, PGI, and GNU WTF jobs to Yellowstone
 echo
 
-echo First, we are modifying the namelists so that they should all give a PASS
-pushd Namelists/weekly/em_real >& /dev/null
-#../../../scripts/moveAround.ksh
-popd >& /dev/null
-echo
-
 scripts/checkModules intel >&! /dev/null
 set OK_intel = $status
 
@@ -22,12 +16,15 @@ set OK_gnu   = $status
 
 if      ( $OK_intel == 0 ) then
 	echo Already set up for intel environment
+	module swap intel intel/14.0.2 
 else if ( $OK_pgi   == 0 ) then
 	echo Changing from pgi to intel environment
-	module swap pgi intel >&! /dev/null
+	module swap pgi intel
+	module swap intel intel/14.0.2 
 else if ( $OK_gnu   == 0 ) then
 	echo Changing from gnu to intel environment
-	module swap gnu intel >&! /dev/null
+	module swap gnu intel
+	module swap intel intel/14.0.2 
 endif
 echo
 
@@ -40,8 +37,8 @@ sleep 10
 
 echo submit pgi WTF
 module swap intel pgi
+module swap pgi pgi/13.9
 module list
-#module swap intel pgi >&! /dev/null
 
 ( nohup scripts/run_WRF_Tests.ksh -R regTest_pgi_Yellowstone.wtf ) >&! foo_pgi &
 echo Waiting 10 seconds to submit next job ...
@@ -51,8 +48,8 @@ sleep 10
 
 echo submit gnu WTF
 module swap pgi gnu
+#module swap gnu gnu/4.8.2
 module list
-#module swap pgi gnu >&! /dev/null
 
 ( nohup scripts/run_WRF_Tests.ksh -R regTest_gnu_Yellowstone.wtf ) >&! foo_gnu &
 
