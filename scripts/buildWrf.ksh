@@ -119,18 +119,19 @@ fi
 
 case $CONFIG_OPTION in 
     [0-9]|[0-9][0-9])    # Do nothing if we have an integer
-        ;; 
+        ;;
     *)  echo $0: configure option '$CONFIG_OPTION' is not an integer; stopping.
         exit 1 ;;
 esac
 
+
 case $NEST_OPTION in 
-    [0-9])    # Do nothing if we have an integer
-        ;; 
-    *)  echo $0: nesting option '$NEST_OPTION' is not an integer; stopping.
-        exit 1 
-	;;
+    [0-3])    # Do nothing if we have an integer
+        ;;
+    *)  echo "$0: nesting option '$NEST_OPTION' is not an integer; stopping."
+        exit 1 ;;
 esac
+
 
 
 ##
@@ -239,6 +240,8 @@ if [ -z "$topDir" ]; then
    echo "$0: not a valid tarfile: '${tarFile}'; stopping."
    echo "Rebuild the tarfile so it unpacks everything into a local directory named 'WRFV3'"
    exit 2
+elif [[ "$topDir" = ._WRFV3 ]]; then
+   echo "$0: OK, we are fine"
 elif [[ "$topDir" = ._* ]]; then
    echo "$0: not a valid tarfile: '${tarFile}', since it unpacks into '$topDir'."
    echo "Please remake the tarfile with the command 'tar --exclude="._*" -cf myTarName.tar WRFV3'"
