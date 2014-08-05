@@ -62,9 +62,9 @@ export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/weekly
 # "serial", "openmp", and "mpi" communication frameworks, respectively.   Leave a blank string for any options
 # that you do not wish to build and test. 
 
-export CONFIGURE_SERIAL="1"
-export CONFIGURE_OPENMP="2"
-export CONFIGURE_MPI="3"
+export CONFIGURE_SERIAL="52"
+export CONFIGURE_OPENMP="53"
+export CONFIGURE_MPI="54"
 
 
 # If set to true, the tasks associated with building WRF and/or running tests using WRF will be submitted to a 
@@ -160,7 +160,7 @@ export METDATA_DIR=$WRF_TEST_ROOT/Data
 #  is often in /usr/lib, /usr/local/lib, or /lib, but it could be anywhere the computer administrator chooses to 
 #  install it.   If unsure of its location, ask your system administrator.  This option is ignored if the "em_chem_kpp"
 #  version of WRF is not built. 
-export FLEX_LIB_DIR='/usr/local/lib'
+export FLEX_LIB_DIR='/usr/lib64'
 
 #  This probably does not need to be modified.  Most WRF tests expect only basic nesting to be available within WRF.
 #  Recommended value: 1 (basic nesting).
