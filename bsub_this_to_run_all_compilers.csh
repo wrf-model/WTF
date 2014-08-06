@@ -7,8 +7,13 @@
 #BSUB -e reggie.err        # error filename
 #BSUB -J WRF_WTF           # job name
 #BSUB -q caldera           # queue: premium, regular, economy
-#BSUB -W 6:00              # wallclock time hh:mm
+#BSUB -W 12:00              # wallclock time hh:mm
 #BSUB -P P64000400
 
 unsetenv MP_PE_AFFINITY
+if ( ! -d /glade/scratch/${user}/TMPDIR_FOR_PGI_COMPILE ) then
+	mkdir /glade/scratch/${user}/TMPDIR_FOR_PGI_COMPILE
+endif
+setenv TMPDIR /glade/scratch/${user}/TMPDIR_FOR_PGI_COMPILE
+
 scripts/run_all_for_bsub.csh
