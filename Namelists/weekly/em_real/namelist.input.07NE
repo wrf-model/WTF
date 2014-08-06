@@ -17,7 +17,7 @@
  end_second                          = 00,   00,   00,
  interval_seconds                    = 21600
  input_from_file                     = .true.,.false.,.false.
- history_interval                    = 9,  60,   60,
+ history_interval                    = 9,  9,    60,
  frames_per_outfile = 200, 1000, 1000,
  restart                             = .false.,
  restart_interval                    = 5000,
@@ -66,7 +66,7 @@
  mp_physics                          = 7,     7,     7,
  ra_lw_physics                       = 7,     7,     7,
  ra_sw_physics                       = 7,     7,     7,
- radt                                = 21,    21,    21,
+ radt                                = 7,     7,     7,  
  sf_sfclay_physics                   =1,    1,    1,
  sf_surface_physics                  = 2,     2,     2,
  bl_pbl_physics                      =8,    8,    8,
