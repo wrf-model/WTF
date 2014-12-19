@@ -56,6 +56,7 @@
  time_step                           = 90,
  time_step_fract_num                 = 0,
  time_step_fract_den                 = 7,
+ time_step_dfi                       = 60,
  max_dom                             = 1,
  e_we                                = 20,
  e_sn                                = 40,
