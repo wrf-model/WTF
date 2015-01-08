@@ -36,14 +36,13 @@ if $CHECK_MODULES; then
 fi   
 
 # Specify which WRF target executables to build and test.  Choose some or all of the following: 
-# "em_real nmm_real nmm_nest em_chem em_chem_kpp em_b_wave em_quarter_ss".   The final two cases are 
+# "em_real nmm_nest em_chem em_chem_kpp em_b_wave em_quarter_ss".   The final two cases are 
 # idealized cases, and if either is specified, then "em_real" must also be included earlier in the list.
-# If "nmm_nest" is specified, then "nmm_real" must also appear earlier in the list. 
 
-export BUILD_TYPES="em_real nmm_real nmm_nest em_chem em_chem_kpp em_b_wave em_quarter_ss nmm_hwrf"
+export BUILD_TYPES="em_real nmm_nest em_chem em_chem_kpp em_b_wave em_quarter_ss nmm_hwrf"
 
 # Select one of the directories below.  This is the parent directory for all namelist.input files to be used for 
-# the tests.  Below this directory should be subdirectories "em_real", "nmm_real", etc with namelist.input files 
+# the tests.  Below this directory should be subdirectories "em_real", "nmm_nest", etc with namelist.input files 
 # that should be run for that flavor of WRF.  
 #
 # Code contributors: select the directory ending in "contributors".
@@ -68,7 +67,7 @@ export CONFIGURE_MPI="34"
 
 
 # If set to true, the tasks associated with building WRF and/or running tests using WRF will be submitted to a 
-# batch queue.   All logically independent WRF builds (em_real, nmm_real, nmm_nest, em_chem, em_chem_kpp) will 
+# batch queue.   All logically independent WRF builds (em_real, nmm_nest, em_chem, em_chem_kpp) will 
 # be built concurrently, each using NUM_PROC_BUILDS processors to build WRF.  Then the remaining builds 
 # (em_b_wave, em_quarter_ss) will be built consecutively in the em_real directory tree; these depend on the
 # existence of the "em_real" version of the WRF executable.  If BATCH_COMPILE is set to false, then each 
@@ -151,7 +150,7 @@ export TEST_DIR=$WRF_TEST_ROOT/Runs
 
 
 # The parent directory for all meteorological input data files to be used for the regression tests.  Below this directory
-# should be subdirectories "em_real", "nmm_real", etc with data files that should be part of the test for each
+# should be subdirectories "em_real", "nmm_nest", etc with data files that should be part of the test for each
 # flavor of WRF.  For idealized versions of WRF that use no observation data (e.g. em_b_wave), no input data are needed,
 # so the directories can be empty.
 export METDATA_DIR=$WRF_TEST_ROOT/Data
