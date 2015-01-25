@@ -1,17 +1,16 @@
 #!/bin/ksh
 
-ALL="             03 03DF 03FD 06 06BN 07 07NE 09 09QT 10            14         16 16BN 16DF 17 17AD 18 18BN    20 20NE                  31 31AD            38                    42    48 49 50 51 52 52DF 52FD 56 56NE 57 57NE 58 58NE global"
-PGI="             03 03DF 03FD 06 06BN 07 07NE 09 09QT 10            14         16 16BN 16DF 17 17AD 18 18BN    20 20NE                  31 31AD            38              40    42    48 49 50 51 52 52DF 52FD 56 56NE 57 57NE 58 58NE  global"
-GNU="             03 03DF 03FD 06 06BN 07 07NE 09 09QT 10            14 15 15AD 16 16BN 16DF 17 17AD 18 18BN    20 20NE               30 31 31AD            38 38AD 39 39AD 40    42    48 49 50 51 52 52DF 52FD 56 56NE 57 57NE 58 58NE  global"
-Intel="01 02 02GR 03 03DF 03FD 06 06BN 07 07NE 09 09QT 10 12 12GR 13 14 15 15AD 16 16BN 16DF 17 17AD 18 18BN 19 20 20NE 25 26 29 29QT 30 31 31AD 33 36 36GR 38 38AD 39 39AD    41 42 43 48 49 50 51 52 52DF 52FD 56 56NE 57 57NE 58 58NE  global"
+ALL="             03 03DF 03FD 03VN 06 06BN 06VN 07 07NE 07VN 09 09QT 10 10VN            14         16 16BN 16DF 16VN 17 17AD 17VN 18 18BN 18VN    20 20NE 20VN                  31 31AD 31VN            38      38VN               42 42VN    48 48VN 49 49VN 50 50VN 51 52 52DF 52FD 52VN 56 56NE 56VN 57 57NE 58 58NE 60 60NE 62 global"
+PGI="             03 03DF 03FD 03VN 06 06BN 06VN 07 07NE 07VN 09 09QT 10 10VN            14         16 16BN 16DF 16VN 17 17AD 17VN 18 18BN 18VN    20 20NE 20VN                  31 31AD 31VN            38      38VN         40    42 42VN    48 48VN 49 49VN 50 50VN 51 52 52DF 52FD 52VN 56 56NE 56VN 57 57NE 58 58NE 60 60NE 62 global"
+GNU="             03 03DF 03FD 03VN 06 06BN 06VN 07 07NE 07VN 09 09QT 10 10VN            14 15 15AD 16 16BN 16DF 16VN 17 17AD 17VN 18 18BN 18VN    20 20NE 20VN               30 31 31AD 31VN            38 38AD 38VN 39 39AD 40    42 42VN    48 48VN 49 49VN 50 50VN 51 52 52DF 52FD 52VN 56 56NE 56VN 57 57NE 58 58NE 60 60NE 62 global"
+Intel="01 02 02GR 03 03DF 03FD 03VN 06 06BN 06VN 07 07NE 07VN 09 09QT 10 10VN 12 12GR 13 14 15 15AD 16 16BN 16DF 16VN 17 17AD 17VN 18 18BN 18VN 19 20 20NE 20VN 25 26 29 29QT 30 31 31AD 31VN 33 36 36GR 38 38AD 38VN 39 39AD    41 42 42VN 43 48 48VN 49 49VN 50 50VN 51 52 52DF 52FD 52VN 56 56NE 56VN 57 57NE 58 58NE 60 60NE 62 global"
+
 
 if [[ $# -eq 0 ]] ; then
 
 	if [ -e PASS_SET_UP_ALL ];  then
 		exit 0 
 	fi
-
-	cp MPI/namelist.input.* .
 
 	\rm -rf PASS_* 2> /dev/null
 	\rm -rf MPI/*
@@ -32,7 +31,6 @@ elif [[ $# -eq 1 ]] ; then
 		if [ -e PASS_SET_UP_PGI ];  then
 			exit 0 
 		fi
-		cp MPI/namelist.input.* .
 		\rm -rf PASS_* 2> /dev/null
 		\rm -rf MPI/*
 		\rm -rf SERIAL/*
@@ -49,7 +47,6 @@ elif [[ $# -eq 1 ]] ; then
 		if [ -e PASS_SET_UP_GNU ];  then
 			exit 0 
 		fi
-		cp MPI/namelist.input.* .
 		\rm -rf PASS_* 2> /dev/null
 		\rm -rf MPI/*
 		\rm -rf SERIAL/*
@@ -67,7 +64,6 @@ elif [[ $# -eq 1 ]] ; then
 		if [ -e PASS_SET_UP_Intel ];  then
 			exit 0 
 		fi
-		cp MPI/namelist.input.* .
 		\rm -rf PASS_* 2> /dev/null
 		\rm -rf MPI/*
 		\rm -rf SERIAL/*
