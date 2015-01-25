@@ -73,7 +73,7 @@
  icloud                              = 1,
  cu_rad_feedback                     = .true., .true., .true.,
  surface_input_source                = 1,
- num_soil_layers                     = 5,
+ num_soil_layers                     = 4,
  num_land_cat                        = 28,
  mp_zero_out                         = 0,
  maxiens                             = 1,
