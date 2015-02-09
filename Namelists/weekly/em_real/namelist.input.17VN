@@ -149,6 +149,6 @@
  dfi_fwdstop_second                  = 00  
  /
 
-LSF_TIME=0:15
-NQS_TIME=0:15:00
+LSF_TIME=0:30
+NQS_TIME=0:30:00
 NUM_PROCESSORS=8
