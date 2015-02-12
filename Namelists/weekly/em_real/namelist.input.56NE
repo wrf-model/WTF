@@ -105,3 +105,8 @@
  nio_tasks_per_group = 0,
  nio_groups = 1,
  /
+
+LSF_TIME=0:50
+NQS_TIME=0:50:00
+NUM_PROCESSORS=8
+
