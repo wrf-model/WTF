@@ -61,7 +61,7 @@
  &physics
  mp_physics                          = 6,     1,     1,
  ra_lw_physics                       = 1,     1,     1,
- ra_sw_physics                       = 4,     1,     1,
+ ra_sw_physics                       = 24,     1,     1,
  radt                                = 1,     1,     1,
  sf_sfclay_physics                   = 1,     1,     1,
  sf_surface_physics                  = 2,     1,     1,
