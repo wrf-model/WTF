@@ -68,7 +68,7 @@
  /
 
  &dynamics
- use_theta_m                         = .true.
+ use_theta_m                         = .false.
  rk_ord                              = 3,
  diff_opt                            = 2,
  km_opt                              = 2,
