@@ -214,6 +214,14 @@ case $COMPILE_STRING in
 		       CONFIGURE_COMMAND="./configure -d "
 		   fi 
 		   ;;
+    wrfda_3dvar)
+                   COMPILE_STRING='all_wrfvar' # For WRFDA, "compile all_wrfvar" is needed
+                   COMPATIBLE_BUILD='wrfda_3dvar'
+                   CONFIGURE_COMMAND="./configure wrfda " # WRFDA can not be set with environment variable;
+                                                          # It MUST be set via "./configure wrfda"
+                                                          # Also, debugging/error trapping options do not work
+                   REAL8=false
+                   ;;
     *)             echo "$0: Unknown compile string: '$COMPILE_STRING'"
                    exit 2
                    ;;
@@ -357,11 +365,17 @@ echo "### RUN_CONFIGURE = $RUN_CONFIGURE"
 if $RUN_CONFIGURE; then
 
 # Put interactive "configure" options in a file, then pass to configure.
-cat > $targetDir/CONFIG_OPTIONS << EOF
-$CONFIG_OPTION
-$NEST_OPTION
+if [[ $COMPILE_STRING = "all_wrfvar" ]];then
+   cat > $targetDir/CONFIG_OPTIONS << EOF
+   $CONFIG_OPTION
+EOF
+else
+   cat > $targetDir/CONFIG_OPTIONS << EOF
+   $CONFIG_OPTION
+   $NEST_OPTION
 EOF
 
+fi
     # Run 'configure' and provide choices using shell "Here document" syntax.   Check exit status before continuing.
     #./configure < $targetDir/CONFIG_OPTIONS
     echo CONFIGURE_COMMAND==$CONFIGURE_COMMAND   # Diagnostic; remove once command works correctly.
@@ -431,27 +445,38 @@ EOF
       date > EndTime_${COMPILE_TYPE}.txt
    fi 
    
-   # Success means both wrf.exe and $PREPROCESSOR were created.
-   if [ -f  $targetDir/main/wrf.exe -a -f $targetDir/main/$PREPROCESSOR ]; then
+   if [[ $COMPILE_STRING = "all_wrfvar" ]];then
+      # Success means da_wrfvar.exe was created.
+      if [ -f  $targetDir/var/build/da_wrfvar.exe ]; then
          touch $targetDir/SUCCESS_COMPILE.tst
+      else
+         touch $targetDir/FAIL_COMPILE.tst
+         echo $0: compile failed to create wrf.exe and $PREPROCESSOR in $targetDir/main!
+         exit 2
+      fi
    else
-      touch $targetDir/FAIL_COMPILE.tst
-      echo $0: compile failed to create wrf.exe and $PREPROCESSOR in $targetDir/main!
-      exit 2
+      # Success means both wrf.exe and $PREPROCESSOR were created.
+      if [ -f  $targetDir/main/wrf.exe -a -f $targetDir/main/$PREPROCESSOR ]; then
+         touch $targetDir/SUCCESS_COMPILE.tst
+      else
+         touch $targetDir/FAIL_COMPILE.tst
+         echo $0: compile failed to create wrf.exe and $PREPROCESSOR in $targetDir/main!
+         exit 2
+      fi
    fi
-
 fi
 
 
-# Rename WRF preprocessing executable (real.exe/ideal.exe) to a consistently named file.
-PREPROCESSOR=$targetDir/main/$PREPROCESSOR
-TARGET_PREWRF=$targetDir/main/$TARGET_PREWRF
+if [[ $COMPILE_STRING != "all_wrfvar" ]];then
+   # Rename WRF preprocessing executable (real.exe/ideal.exe) to a consistently named file.
+   PREPROCESSOR=$targetDir/main/$PREPROCESSOR
+   TARGET_PREWRF=$targetDir/main/$TARGET_PREWRF
 
-echo PREPROCESSOR=$PREPROCESSOR
-echo TARGET_PREWRF=$TARGET_PREWRF
+   echo PREPROCESSOR=$PREPROCESSOR
+   echo TARGET_PREWRF=$TARGET_PREWRF
 
-\mv -f $PREPROCESSOR $TARGET_PREWRF
-
+   \mv -f $PREPROCESSOR $TARGET_PREWRF
+fi
 
 # Success; exit with no error. 
 

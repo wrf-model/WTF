@@ -18,18 +18,18 @@ set OK_gnu   = $status
 
 if      ( $OK_intel == 0 ) then
 	echo Already set up for intel environment
-	module swap intel intel/14.0.2 # internal compiler error with module_bl_tempf.F, as of 11 Nov 2014
-	module swap intel intel/15.0.0 # OK
-	module swap intel intel/13.1.2 # OK
-	module swap intel intel/13.0.1
+#	module swap intel intel/14.0.2 # internal compiler error with module_bl_tempf.F, as of 11 Nov 2014
+#	module swap intel intel/15.0.0 # OK
+#	module swap intel intel/13.1.2 # OK
+#	module swap intel intel/13.0.1
 else if ( $OK_pgi   == 0 ) then
 	echo Changing from pgi to intel environment
 	module swap pgi intel
-	module swap intel intel/15.0.0 
+#	module swap intel intel/15.0.0 
 else if ( $OK_gnu   == 0 ) then
 	echo Changing from gnu to intel environment
 	module swap gnu intel
-	module swap intel intel/15.0.0 
+#	module swap intel intel/15.0.0 
 endif
 echo
 

@@ -227,6 +227,66 @@ checkForecastResult()
 
 
 
+##
+## Usage: `checkDAResult $parallelType $test_dir`
+##
+## Same as "checkForecastResult" but for WRFDA tests
+## Returns true if $test_dir exists and the test appears to have run to completion.
+## Otherwise it returns false.
+##
+checkDAResult()
+{
+   set -x
+   parallelType=$1
+   test_dir=$2
+
+   success=false
+   reason=""
+
+   case $parallelType in
+      serial)  LOGFILE='wrfda.out'
+               ;;
+      mpi)     LOGFILE='rsl.out.0000'
+               ;;
+      *)       echo "$0::checkForecastResult():  unknown parallel type string."
+               exit 2
+   esac
+
+   if [ -f $test_dir/wrfvar_output  ]; then
+
+      # Test for non-zero cost function
+      grep "Final cost function J" $test_dir/$LOGFILE | grep '[1-9]' > /dev/null  2>&1
+      nonzeroCostFunction="( $? -eq 0 )"
+
+      # Test for no NaNs in output
+      ncdump $test_dir/wrfvar_output | grep -i NaN | grep -v description > /dev/null  2>&1
+      noNaNs="( $? -ne 0 )"
+
+      # Test for success message in log file.
+      grep "WRF-Var completed successfully" $test_dir/$LOGFILE > /dev/null  2>&1
+      foundSuccess="( $? -eq 0 )"
+
+      # Return true if all three conditions are met.
+      if [ $nonzeroCostFunction -a $noNaNs -a $foundSuccess ]; then
+         success=true
+      fi
+      if [ ! $nonzeroCostFunction ]; then
+         echo "Final cost function is zero." >> $test_dir/FAIL_FCST.tst
+      fi
+      if [ ! $foundSuccess ]; then
+         echo "Not found in WRFDA log file: 'WRF-Var completed successfully'." >> $test_dir/FAIL_FCST.tst
+      fi
+      if [ ! $noNaNs ]; then
+         echo "NaN values found in wrfvar_output file." >> $test_dir/FAIL_FCST.tst
+      fi
+   else
+         echo "No wrfvar_output file created." >> $test_dir/FAIL_FCST.tst
+   fi
+   echo $success
+}
+
+
+
 
 ##
 ## Usage: `wipeUserBuildVars` 
@@ -325,6 +385,12 @@ goodConfiguration()
       fi
    # exclude OpenMP for chemistry builds.
    elif [ "$wType" = "em_chem" -o "$wType" = "em_chem_kpp" ]; then
+      if [ "$platf" = "openmp" ]; then
+         echo false
+         return 0
+      fi
+   # exclude OpenMP for WRFDA builds.
+   elif [ "$wType" = "wrfda_3dvar" ]; then
       if [ "$platf" = "openmp" ]; then
          echo false
          return 0

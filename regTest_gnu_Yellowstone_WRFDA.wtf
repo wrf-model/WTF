@@ -21,7 +21,7 @@
 
 
 ##  A helpful check to make sure that the compiler is ready to use on yellowstone.
-export COMPILER_WTF=pgi
+export COMPILER_WTF=gnu
 CHECK_MODULES=true
 if $CHECK_MODULES; then
    if [ `hostname | cut -c1-2` == "ys" -o \
@@ -36,10 +36,10 @@ if $CHECK_MODULES; then
 fi   
 
 # Specify which WRF target executables to build and test.  Choose some or all of the following: 
-# "em_real nmm_nest em_chem em_chem_kpp em_b_wave em_quarter_ss".   The final two cases are 
+# "em_real nmm_nest em_chem em_chem_kpp em_b_wave em_quarter_ss nmm_hwrf wrfda_3dvar". "em_b_wave" and "em_quarter_ss" are 
 # idealized cases, and if either is specified, then "em_real" must also be included earlier in the list.
 
-export BUILD_TYPES="em_real nmm_nest em_chem em_chem_kpp em_b_wave em_quarter_ss nmm_hwrf wrfda_3dvar"
+export BUILD_TYPES="wrfda_3dvar"
 
 # Select one of the directories below.  This is the parent directory for all namelist.input files to be used for 
 # the tests.  Below this directory should be subdirectories "em_real", "nmm_nest", etc with namelist.input files 
@@ -61,9 +61,9 @@ export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/weekly
 # "serial", "openmp", and "mpi" communication frameworks, respectively.   Leave a blank string for any options
 # that you do not wish to build and test. 
 
-export CONFIGURE_SERIAL="52"
-export CONFIGURE_OPENMP="53"
-export CONFIGURE_MPI="54"
+export CONFIGURE_SERIAL="32"
+#export CONFIGURE_OPENMP="33" WRFDA can not use smpar options
+export CONFIGURE_MPI="34"
 
 
 # If set to true, the tasks associated with building WRF and/or running tests using WRF will be submitted to a 
@@ -117,6 +117,7 @@ export DEBUG_WTF=true
 
 # Whether to build WRF optimized or not.  Recommended value:  false for code contributors, since turning on full 
 # optimization can cause bit-for-bit differences when comparing output from serial and non-serial versions of WRF. 
+# Will not do anything for "wrfda_3dvar" tests
 
 export OPTIMIZE_WRF=false
 
@@ -132,6 +133,7 @@ export OPTIMIZE_WRF_CHEM=false
 #
 # Recommended value for contributors:  false, because several of the WRF microphysics options 
 # (e.g., CAM shortwave radiation) have spurious numerical exceptions occur as part of their expected behavior.
+# Will not do anything "wrfda_3dvar" tests
 
 export TRAP_ERRORS=false
 
@@ -159,16 +161,18 @@ export METDATA_DIR=$WRF_TEST_ROOT/Data
 #  is often in /usr/lib, /usr/local/lib, or /lib, but it could be anywhere the computer administrator chooses to 
 #  install it.   If unsure of its location, ask your system administrator.  This option is ignored if the "em_chem_kpp"
 #  version of WRF is not built. 
-export FLEX_LIB_DIR='/usr/lib64'
+export FLEX_LIB_DIR='/usr/local/lib'
 
 #  This probably does not need to be modified.  Most WRF tests expect only basic nesting to be available within WRF.
 #  Recommended value: 1 (basic nesting).
-export NEST_OPTION=1         
+#  Will not do anything "wrfda_3dvar" tests
+ export NEST_OPTION=1
 
 #  If true, all WRF variables of type "real" are double-precision instead of single-precision.  Most WRF users 
 #  do not use double-precision arithmetic, as single-precision roundoff errors are typically smaller than measurement 
 #  errors used to initialize the WRF model.   However, if iterative schemes are used, such as Thompson microphysics, 
 #  then single-precision roundoff errors can grow, and the user may want to consider using double-precision variables.
 #  Recommended value: false
-export REAL8=false          
+#  Will not do anything "wrfda_3dvar" tests
+export REAL8=false
 

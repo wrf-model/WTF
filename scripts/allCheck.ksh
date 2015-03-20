@@ -53,6 +53,8 @@ getVariationName()
           ;;
      BN)  variationName='Binary   ' 
           ;;
+     DA)  variationName='WRFDA    '
+          ;;
      DF)  variationName='DFI      ' 
           ;;
      FD)  variationName='FDDA     ' 
@@ -84,18 +86,34 @@ writeForecastResult()
    vtion_wf=$5
    testtype_wf=$6
 
-   if [[ ! -f $testDir_wf/wrf.exe ]]; then
-       touch $testDir_wf/FAIL_COMPILE.tst
-       result="FAIL_COMPILE"
+   if [ "$vtion_wf" = "WRFDA" ];  then
+      if [[ ! -f $testDir_wf/da_wrfvar.exe ]]; then
+          touch $testDir_wf/FAIL_COMPILE.tst
+          result="FAIL_COMPILE"
+      else
+          success_wf=`checkDAResult $parallelType_wf $testDir_wf`
+          if [ "$success_wf" = "true" ];  then
+              touch $testDir_wf/SUCCESS_FCST.tst
+              result="PASS"
+          else
+              touch $testDir_wf/FAIL_FCST.tst
+              result="FAIL"
+          fi
+      fi
    else
-       success_wf=`checkForecastResult $parallelType_wf $testDir_wf`
-       if [ "$success_wf" = "true" ];  then
-           touch $testDir_wf/SUCCESS_FCST.tst
-           result="PASS"
-       else
-           touch $testDir_wf/FAIL_FCST.tst
-           result="FAIL"
-       fi
+      if [[ ! -f $testDir_wf/wrf.exe ]]; then
+          touch $testDir_wf/FAIL_COMPILE.tst
+          result="FAIL_COMPILE"
+      else
+          success_wf=`checkForecastResult $parallelType_wf $testDir_wf`
+          if [ "$success_wf" = "true" ];  then
+              touch $testDir_wf/SUCCESS_FCST.tst
+              result="PASS"
+          else
+              touch $testDir_wf/FAIL_FCST.tst
+              result="FAIL"
+          fi
+      fi
    fi
    # Write a formatted line to the "results file". 
    writeTestSummary $wrftype_wf $nlist_wf $parallelType_wf $vtion_wf $testtype_wf $result
@@ -124,7 +142,11 @@ writeBitForBit()
     compareDir_wb=`dirname $compareFile_wb`
 
     cd $checkDir_wb
-    outputForm_wb=`grep io_form_history $checkDir_wb/namelist.input | cut -d '=' -f 2 | awk '{print $1;}'`
+    if [ "$variation_wb" = "WRFDA" ];  then
+       outputForm_wb=2 #WRFDA can only use netCDF I/O
+    else
+       outputForm_wb=`grep io_form_history $checkDir_wb/namelist.input | cut -d '=' -f 2 | awk '{print $1;}'`
+    fi
     case $outputForm_wb in 
         1) $checkDir_wb/diffwrf $compareFile_wb $checkFile_wb > /dev/null 2>&1            # Binary output
 	   ;;
@@ -317,10 +339,17 @@ for configOpt in $WRF_COMPARE_PLATFORMS; do
                   checkTest1=$checkDir/SUCCESS_FCST.tst
                   checkTest2=$compareDir/SUCCESS_FCST.tst
                   if [ -f $checkTest1 -a -f $checkTest2 ]; then
-                     checkFile=$checkDir/wrfout_d01*
-                     compareFile=$compareDir/wrfout_d01*
-                     writeBitForBit $checkFile $compareFile $wrfType $namelist $parType $variation $testType  &
-                     testCounter=$((testCounter + 1))
+                     if [[ $variation = "WRFDA" ]]; then
+                        checkFile=$checkDir/wrfvar_output
+                        compareFile=$compareDir/wrfvar_output
+                        writeBitForBit $checkFile $compareFile $wrfType $namelist $parType $variation $testType  &
+                        testCounter=$((testCounter + 1))
+                     else
+                        checkFile=$checkDir/wrfout_d01*
+                        compareFile=$compareDir/wrfout_d01*
+                        writeBitForBit $checkFile $compareFile $wrfType $namelist $parType $variation $testType  &
+                        testCounter=$((testCounter + 1))
+                     fi
                   else
                      # Create FAIL_BFB files as a way of triggering a test re-run next time. 
                      case $parType in

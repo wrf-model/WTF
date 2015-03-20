@@ -32,6 +32,8 @@ getBuildString()
                        ;;
        em_quarter_ss)  typeCode='eq'
                        ;;
+       wrfda_3dvar)    typeCode='3d'
+                       ;;
                    *)  echo $0:getBuildString:  unknown wrfType $wrfType
                        exit 2
                        ;;
@@ -52,7 +54,7 @@ if $BATCH_COMPILE; then
     WRF_SERIAL=""
     for f in $BUILD_TYPES; do
        case $f in 
-           em_real|nmm_real|nmm_nest|nmm_hwrf|em_chem|em_chem_kpp) WRF_PARALLEL="$WRF_PARALLEL $f"
+           em_real|nmm_real|nmm_nest|nmm_hwrf|em_chem|em_chem_kpp|wrfda_3dvar) WRF_PARALLEL="$WRF_PARALLEL $f"
 	                                                  ;;
            em_b_wave|em_quarter_ss)                       WRF_SERIAL="$WRF_SERIAL $f"
 	                                                  ;;

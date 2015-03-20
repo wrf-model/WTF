@@ -76,6 +76,7 @@ getJobString()
         nmm_real)        part1='nr'   ;;
         nmm_nest)        part1='nn'   ;;
         nmm_hwrf)        part1='nh'   ;;
+        wrfda_3dvar)     part1='3d'   ;;
         *)               echo "$0::getJobString: unknown wrfType '$wrfType'"
                          exit 2
    esac
@@ -190,34 +191,60 @@ else
 fi
 
 
-# Get the invocation strings for running prewrf.exe and wrf.exe.
-case $PARALLEL_TYPE in
-    serial) REAL_COMMAND="./prewrf.exe > prewrf.out 2>&1 "
-            WRF_COMMAND="./wrf.exe > wrf.out 2>&1 "
-            NUM_PROC=1
-            ;;
-    openmp) REAL_COMMAND="./prewrf.exe > prewrf.out 2>&1 "
-            WRF_COMMAND="./wrf.exe > wrf.out 2>&1 "
-            export OMP_NUM_THREADS=$NUM_PROC_TEST
-            ;;
-    mpi)    if $BATCH_TEST; then
-                case $BATCH_QUEUE_TYPE in
-                     LSF) REAL_COMMAND="mpirun.lsf ./prewrf.exe "
-                          WRF_COMMAND="mpirun.lsf  ./wrf.exe "
-        		  ;;
-                     NQS) REAL_COMMAND="mpirun ./prewrf.exe "
-                          WRF_COMMAND="mpirun ./wrf.exe "
-        		  ;;
-                esac
-            else
-                REAL_COMMAND="mpirun -machinefile machfile -np $NUM_PROC_TEST ./prewrf.exe "
-                WRF_COMMAND="mpirun -machinefile machfile -np $NUM_PROC_TEST ./wrf.exe " 
-            fi
-            ;;
-    *) echo "$0: Error, unknown parallel setting ${PARALLEL_TYPE}."
-       exit 2
-esac
+if [[ $WRF_TYPE = "wrfda_3dvar" ]];then
+   # For WRFDA, only one executable needs to be run
+   case $PARALLEL_TYPE in
+       serial) REAL_COMMAND=""
+               WRF_COMMAND="./da_wrfvar.exe > wrfda.out 2>&1 "
+               NUM_PROC=1
+               ;;
+       mpi)    if $BATCH_TEST; then
+                   case $BATCH_QUEUE_TYPE in
+                        LSF) REAL_COMMAND=""
+                             WRF_COMMAND="mpirun.lsf ./da_wrfvar.exe "
+                             ;;
+                        NQS) REAL_COMMAND=""
+                             WRF_COMMAND="mpirun ./da_wrfvar.exe "
+                             ;;
+                   esac
+               else
+                   REAL_COMMAND=""
+                   WRF_COMMAND="mpirun -machinefile machfile -np $NUM_PROC_TEST ./da_wrfvar.exe "
+               fi
+               ;;
+       *) echo "$0: Error, unknown parallel setting ${PARALLEL_TYPE}."
+          exit 2
+   esac
 
+else
+   # For WRF, Get the invocation strings for running prewrf.exe and wrf.exe.
+   case $PARALLEL_TYPE in
+       serial) REAL_COMMAND="./prewrf.exe > prewrf.out 2>&1 "
+               WRF_COMMAND="./wrf.exe > wrf.out 2>&1 "
+               NUM_PROC=1
+               ;;
+       openmp) REAL_COMMAND="./prewrf.exe > prewrf.out 2>&1 "
+               WRF_COMMAND="./wrf.exe > wrf.out 2>&1 "
+               export OMP_NUM_THREADS=$NUM_PROC_TEST
+               ;;
+       mpi)    if $BATCH_TEST; then
+                   case $BATCH_QUEUE_TYPE in
+                        LSF) REAL_COMMAND="mpirun.lsf ./prewrf.exe "
+                             WRF_COMMAND="mpirun.lsf  ./wrf.exe "
+           		  ;;
+                        NQS) REAL_COMMAND="mpirun ./prewrf.exe "
+                             WRF_COMMAND="mpirun ./wrf.exe "
+           		  ;;
+                   esac
+               else
+                   REAL_COMMAND="mpirun -machinefile machfile -np $NUM_PROC_TEST ./prewrf.exe "
+                   WRF_COMMAND="mpirun -machinefile machfile -np $NUM_PROC_TEST ./wrf.exe " 
+               fi
+               ;;
+       *) echo "$0: Error, unknown parallel setting ${PARALLEL_TYPE}."
+          exit 2
+   esac
+fi
 
 
 
@@ -288,46 +315,64 @@ if $CREATE_DIR; then
 fi    
 
 
+if [[ $WRF_TYPE = "wrfda_3dvar" ]];then
+   # Link in the WRFDA executable if it exists.
+   wrfdaFile=$WRF_ROOT_DIR/var/build/da_wrfvar.exe
 
-# Link in the preprocessor and WRF executables if they exist.
-realFile=$WRF_ROOT_DIR/main/prewrf_${WRF_TYPE}.exe
-wrfFile=$WRF_ROOT_DIR/main/wrf.exe
-
-
-if [ -f $realFile ]; then
-   ln -sf $realFile $testDir/prewrf.exe
+   if [ -f $wrfdaFile ]; then
+      ln -sf $wrfdaFile $testDir/da_wrfvar.exe
+   else
+      echo "Compile failure: File does not exist: $wrfdaFile"
+      touch $testDir/FAIL_COMPILE.tst
+      exit 2
+   fi
 else
-   echo "Compile failure: File does not exist: $realFile"
-   touch $testDir/FAIL_COMPILE.tst
-   exit 2
+   # Link in the preprocessor and WRF executables if they exist.
+   realFile=$WRF_ROOT_DIR/main/prewrf_${WRF_TYPE}.exe
+   wrfFile=$WRF_ROOT_DIR/main/wrf.exe
+
+
+   if [ -f $realFile ]; then
+      ln -sf $realFile $testDir/prewrf.exe
+   else
+      echo "Compile failure: File does not exist: $realFile"
+      touch $testDir/FAIL_COMPILE.tst
+      exit 2
+   fi
+
+
+   if [ -f $wrfFile ]; then
+      ln -sf $wrfFile $testDir/wrf.exe
+   else
+      echo "Compile failure: File does not exist: $wrfFile"
+      touch $testDir/FAIL_COMPILE.tst
+      exit 2
+   fi
 fi
 
-
-if [ -f $wrfFile ]; then
-   ln -sf $wrfFile $testDir/wrf.exe
+if [[ $WRF_TYPE = "wrfda_3dvar" ]];then
+   # WRFDA only supports netCDF I/O
+   ln -sf $WRF_ROOT_DIR/external/io_netcdf/diffwrf $testDir
 else
-   echo "Compile failure: File does not exist: $wrfFile"
-   touch $testDir/FAIL_COMPILE.tst
-   exit 2
+
+   # Link in the utilities for checking WRF output; depends on the output format.
+   outputForm=`grep io_form_history $testDir/namelist.input | cut -d '=' -f 2 | awk '{print $1;}'`
+   case $outputForm in
+       1) # Binary
+          ln -sf $WRF_ROOT_DIR/external/io_int/diffwrf $testDir
+          ;;
+       2) # NetCDF
+          ln -sf $WRF_ROOT_DIR/external/io_netcdf/diffwrf $testDir
+          ;;
+       5) # Grib1
+          ln -sf $WRF_ROOT_DIR/external/io_grib1/wgrib.exe $testDir
+          ln -sf $WRF_ROOT_DIR/external/io_grib1/diffwrf $testDir
+          ;;
+       *) echo "$0:  unknown WRF output format: $outputForm"
+          exit 2
+   esac
+
 fi
-
-
-# Link in the utilities for checking WRF output; depends on the output format.
-outputForm=`grep io_form_history $testDir/namelist.input | cut -d '=' -f 2 | awk '{print $1;}'`
-case $outputForm in
-    1) # Binary
-       ln -sf $WRF_ROOT_DIR/external/io_int/diffwrf $testDir
-       ;;
-    2) # NetCDF
-       ln -sf $WRF_ROOT_DIR/external/io_netcdf/diffwrf $testDir
-       ;;
-    5) # Grib1
-       ln -sf $WRF_ROOT_DIR/external/io_grib1/wgrib.exe $testDir
-       ln -sf $WRF_ROOT_DIR/external/io_grib1/diffwrf $testDir
-       ;;
-    *) echo "$0:  unknown WRF output format: $outputForm"
-       exit 2
-esac
 
 # Create a script to actually run the test.
 if $CREATE_DIR; then
