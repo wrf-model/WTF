@@ -65,6 +65,8 @@ getVariationName()
           ;;
      QT)  variationName='Quilting ' 
           ;;
+     ST)  variationName='Stoch    ' 
+          ;;
      *)   variationName='Standard ' 
           ;;
    esac
