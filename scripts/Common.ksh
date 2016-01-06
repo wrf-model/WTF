@@ -165,7 +165,7 @@ checkForecastResult()
                ;;
       openmp)  LOGFILE='wrf.out'
                ;;
-      mpi)     LOGFILE='rsl.error.0000'
+      mpi)     LOGFILE='rsl.out.0000'
                ;;
       *)       echo "$0::checkForecastResult():  unknown parallel type string."
                exit 2
