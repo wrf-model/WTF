@@ -76,7 +76,7 @@
  icloud                              = 1,
  surface_input_source                = 1,
  num_soil_layers                     = 4,
- num_land_cat                        = 40,
+ num_land_cat                        = 21,
  mp_zero_out                         = 0,
  levsiz                              = 59
  paerlev                             = 29

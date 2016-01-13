@@ -42,7 +42,7 @@
  s_vert                              = 1,     1,     1,
  e_vert                              = 60,    30,    30,
  p_top_requested                     = 5000,
- num_metgrid_levels                  = 40,
+ num_metgrid_levels                  = 27,
  num_metgrid_soil_levels             = 4,
  dx                                  = 2000, 10000,  3333,
  dy                                  = 2000, 10000,  3333,
@@ -72,9 +72,10 @@
  isfflx                              = 1,
  ifsnow                              = 0,
  icloud                              = 1,
- surface_input_source                = 1,
+ surface_input_source                = 3,
  num_soil_layers                     = 6,
  mp_zero_out                         = 0,
+ num_land_cat                        = 21,
  /
 
  &fdda

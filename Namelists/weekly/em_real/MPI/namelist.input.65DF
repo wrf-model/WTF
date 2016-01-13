@@ -59,8 +59,8 @@
 
  &physics
  mp_physics                          = 28,    28,    28,
- ra_lw_physics                       = 5,     5,     5,
- ra_sw_physics                       = 5,     5,     5,
+ ra_lw_physics                       = 4,     4,     4,
+ ra_sw_physics                       = 4,     4,     4,
  radt                                = 21,    21,    21,
  sf_sfclay_physics                   = 2,     2,     2,
  sf_surface_physics                  = 3,     3,     3,
@@ -75,6 +75,8 @@
  num_soil_layers                     = 6,
  num_land_cat                        = 28,
  mp_zero_out                         = 0,
+ aer_opt                             = 3,
+ use_aero_icbc                       = .TRUE.
  /
 
  &fdda
@@ -116,7 +118,7 @@
  /
 
  &dfi_control
- dfi_opt                             = 0
+ dfi_opt                             = 3
  dfi_nfilter                         = 7
  dfi_write_filtered_input            = .false.
  dfi_write_dfi_history               = .false.
