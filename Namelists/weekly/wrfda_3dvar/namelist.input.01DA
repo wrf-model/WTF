@@ -88,6 +88,7 @@ i_parent_start = 0,
  cu_physics=1,
  cudt=5,
  num_soil_layers=5,
+ num_land_cat=24,
  mp_zero_out=2,
  co2tf=0,
 /
