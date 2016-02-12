@@ -21,7 +21,7 @@
 
 
 ##  A helpful check to make sure that the compiler is ready to use on yellowstone.
-export COMPILER_WTF=gnu
+export COMPILER_WTF=intel
 CHECK_MODULES=true
 if $CHECK_MODULES; then
    if [ `hostname | cut -c1-2` == "ys" -o \
@@ -64,9 +64,8 @@ export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/weekly
 # that you do not wish to build and test. 
 
 #NOTE: WRFDA cannot use smpar options
-#export CONFIGURE_SERIAL="17"
-export CONFIGURE_MPI="18"
-
+#export CONFIGURE_SERIAL="7"
+export CONFIGURE_MPI="8"
 
 # If set to true, the tasks associated with building WRF and/or running tests using WRF will be submitted to a 
 # batch queue.   All logically independent WRF builds (em_real, nmm_nest, em_chem, em_chem_kpp) will 
