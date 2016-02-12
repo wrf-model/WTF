@@ -70,7 +70,7 @@
  /
 
  &physics
- mp_physics                          = 5,
+ mp_physics                          = 95,
  ra_lw_physics                       = 99,
  ra_sw_physics                       = 99,
  nrads                               =  9,
