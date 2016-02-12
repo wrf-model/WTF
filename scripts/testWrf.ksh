@@ -37,9 +37,15 @@ usage(){
 ##
 getTableNames()
 {
+   wrfType=$1
    # grep in the Makefile for 'ln -s' commands, remove non-table names, split lines into individual commands.
-   WRF_TABLES=`grep 'ln -s' ${WRF_ROOT_DIR}/Makefile | egrep -v '=|input|DBL|namelist|.exe' | tr ";" "\n" | grep 'ln -s' | awk '{print $3}' | sort -u`
-
+   # for WRFDA and WRFLPLUS, we need the "DBL" tables
+#  if [[ $WRF_TYPE = "wrfda_3dvar" ]] || [[ "wrfda_4dvar" ]] || [[ "wrfplus" ]];then
+   if [[ $WRF_TYPE = "wrfda_3dvar" ]] || [[ $WRF_TYPE = "wrfda_4dvar" ]] || [[ $WRF_TYPE = "wrfplus" ]];then
+      WRF_TABLES=`grep 'ln -s' ${WRF_ROOT_DIR}/Makefile | egrep -v '=|input|namelist|.exe' | tr ";" "\n" | grep 'ln -s' | awk '{print $3}' | sort -u`
+   else
+      WRF_TABLES=`grep 'ln -s' ${WRF_ROOT_DIR}/Makefile | egrep -v '=|input|DBL|namelist|.exe' | tr ";" "\n" | grep 'ln -s' | awk '{print $3}' | sort -u`
+   fi
    TABLE_NAMES=''
    # Now isolate just the filenames from their parent directory pathnames. 
    for f in `echo $WRF_TABLES`; do
@@ -77,6 +83,8 @@ getJobString()
         nmm_nest)        part1='nn'   ;;
         nmm_hwrf)        part1='nh'   ;;
         wrfda_3dvar)     part1='3d'   ;;
+        wrfplus)         part1='wp'   ;;
+        wrfda_4dvar)     part1='4d'   ;;
         *)               echo "$0::getJobString: unknown wrfType '$wrfType'"
                          exit 2
    esac
@@ -191,25 +199,51 @@ else
 fi
 
 
-if [[ $WRF_TYPE = "wrfda_3dvar" ]];then
-   # For WRFDA, only one executable needs to be run
+if [[ $WRF_TYPE = "wrfda_3dvar" ]] || [[ $WRF_TYPE = "wrfda_4dvar" ]];then
+   # Getting hacky here; for WRFDA, only one executable needs to be run, so we can use 
+   # $REAL_COMMAND to replace some data files that need to be 8-bit for 4dvar and WRFPLUS
    case $PARALLEL_TYPE in
-       serial) REAL_COMMAND=""
+       serial) REAL_COMMAND="\mv RRTM_DATA_DBL RRTM_DATA"
                WRF_COMMAND="./da_wrfvar.exe > wrfda.out 2>&1 "
                NUM_PROC=1
                ;;
        mpi)    if $BATCH_TEST; then
                    case $BATCH_QUEUE_TYPE in
-                        LSF) REAL_COMMAND=""
+                        LSF) REAL_COMMAND="\mv RRTM_DATA_DBL RRTM_DATA"
                              WRF_COMMAND="mpirun.lsf ./da_wrfvar.exe "
                              ;;
-                        NQS) REAL_COMMAND=""
+                        NQS) REAL_COMMAND="\mv RRTM_DATA_DBL RRTM_DATA"
                              WRF_COMMAND="mpirun ./da_wrfvar.exe "
                              ;;
                    esac
                else
-                   REAL_COMMAND=""
+                   REAL_COMMAND="\mv RRTM_DATA_DBL RRTM_DATA"
                    WRF_COMMAND="mpirun -machinefile machfile -np $NUM_PROC_TEST ./da_wrfvar.exe "
+               fi
+               ;;
+       *) echo "$0: Error, unknown parallel setting ${PARALLEL_TYPE}."
+          exit 2
+   esac
+
+elif [[ $WRF_TYPE = "wrfplus" ]];then
+   # For WRFPLUS, only run wrf.exe
+   case $PARALLEL_TYPE in
+       serial) REAL_COMMAND="\mv RRTM_DATA_DBL RRTM_DATA"
+               WRF_COMMAND="./wrf.exe > wrfplus.out 2>&1 "
+               NUM_PROC=1
+               ;;
+       mpi)    if $BATCH_TEST; then
+                   case $BATCH_QUEUE_TYPE in
+                        LSF) REAL_COMMAND="\mv RRTM_DATA_DBL RRTM_DATA"
+                             WRF_COMMAND="mpirun.lsf ./wrf.exe "
+                             ;;
+                        NQS) REAL_COMMAND="\mv RRTM_DATA_DBL RRTM_DATA"
+                             WRF_COMMAND="mpirun ./wrf.exe "
+                             ;;
+                   esac
+               else
+                   REAL_COMMAND="\mv RRTM_DATA_DBL RRTM_DATA"
+                   WRF_COMMAND="mpirun -machinefile machfile -np $NUM_PROC_TEST ./wrf.exe "
                fi
                ;;
        *) echo "$0: Error, unknown parallel setting ${PARALLEL_TYPE}."
@@ -278,7 +312,7 @@ fi
 
 if $CREATE_DIR; then
     mkdir -p $testDir
-    if [[ $? != 0 ]]; then
+    if [[ $? -ne 0 ]]; then
        echo "Unable to create test directory '${testDir}'; exiting test." 
        exit 2
     fi
@@ -286,7 +320,7 @@ if $CREATE_DIR; then
     for f in $REGDATA_FILES; do
        fullpath=`makeFullPath $f $CURRENT_DIR`
        ln -sf $fullpath $testDir
-       if [[ $? != 0 ]]; then
+       if [[ $? -ne 0 ]]; then
           echo "Unable to link regression data file $fullpath into '${testDir}'; exiting test." 
           exit 2
        fi
@@ -296,13 +330,13 @@ if $CREATE_DIR; then
     # Don't link namelist file, so user can experiment with settings in the working directory.
     #ln -sf $NAMELIST_PATH $testDir/namelist.input
     cp $NAMELIST_PATH $testDir/namelist.input
-    if [[ $? != 0 ]]; then
+    if [[ $? -ne 0 ]]; then
        echo "Unable to copy namelist.input file into '${testDir}'; exiting test." 
        exit 2
     fi
 
     # Assume data tables exist in $WRF_ROOT_DIR/run for now; link them into the test directory.
-    TBL_FILES=$(getTableNames)
+    TBL_FILES=$(getTableNames WRF_TYPE)
     for f in $TBL_FILES; do
        fullPath=${WRF_ROOT_DIR}/run/$f 
        if [ ! -f $fullPath ]; then
@@ -315,14 +349,25 @@ if $CREATE_DIR; then
 fi    
 
 
-if [[ $WRF_TYPE = "wrfda_3dvar" ]];then
+if [[ $WRF_TYPE = "wrfda_3dvar" ]] || [[ $WRF_TYPE = "wrfda_4dvar" ]];then
    # Link in the WRFDA executable if it exists.
    wrfdaFile=$WRF_ROOT_DIR/var/build/da_wrfvar.exe
 
    if [ -f $wrfdaFile ]; then
       ln -sf $wrfdaFile $testDir/da_wrfvar.exe
    else
-      echo "Compile failure: File does not exist: $wrfdaFile"
+      echo "WRFDA Compile failure: File does not exist: $wrfdaFile"
+      touch $testDir/FAIL_COMPILE.tst
+      exit 2
+   fi
+elif [[ $WRF_TYPE = "wrfplus" ]];then
+   # Link in the WRFPLUS executable if it exists.
+   wrfplusFile=$WRF_ROOT_DIR/main/wrf.exe
+
+   if [ -f $wrfplusFile ]; then
+      ln -sf $wrfplusFile $testDir/wrf.exe
+   else
+      echo "WRFPLUS Compile failure: File does not exist: $wrfplusFile"
       touch $testDir/FAIL_COMPILE.tst
       exit 2
    fi
@@ -350,8 +395,10 @@ else
    fi
 fi
 
-if [[ $WRF_TYPE = "wrfda_3dvar" ]];then
+if [[ $WRF_TYPE = "wrfda_3dvar" ]] || [[ $WRF_TYPE = "wrfda_4dvar" ]];then
    # WRFDA only supports netCDF I/O
+   ln -sf $WRF_ROOT_DIR/external/io_netcdf/diffwrf $testDir
+elif [[ $WRF_TYPE = "wrfplus" ]];then
    ln -sf $WRF_ROOT_DIR/external/io_netcdf/diffwrf $testDir
 else
 

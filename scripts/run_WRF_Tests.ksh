@@ -128,7 +128,7 @@ for TARFILE in $tarFiles; do
     if ! $debug_allCheck; then
         ## Run top-level build script
         . $WRF_TEST_ROOT/scripts/allBuild.ksh  
-        if [ $? != 0 ]; then
+        if [ $? -ne 0 ]; then
            echo "$WRF_TEST_ROOT/scripts/allBuild.ksh returned $?; aborting!"
            exit 255
         fi 
@@ -136,7 +136,7 @@ for TARFILE in $tarFiles; do
         ## Run top-level testing script
         . $WRF_TEST_ROOT/scripts/allTest.ksh  
         retCode=$?
-        if [ $retCode != 0 ]; then
+        if [ $retCode -ne 0 ]; then
            echo "$WRF_TEST_ROOT/scripts/allTest.ksh returned $retCode; aborting!"
            exit 255
         fi 

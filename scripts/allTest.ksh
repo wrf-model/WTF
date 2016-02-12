@@ -29,7 +29,11 @@ for choice in $CONFIGURE_CHOICES; do
       goodConfig=`goodConfiguration $type $parallelType`
 
       if $goodConfig; then
-          wrfDir=$BUILD_DIR/${wrfTarName}.${choice}/$type/WRFV3
+          if [ $type = "wrfplus" ]; then
+             wrfDir=$BUILD_DIR/${wrfTarName}.${choice}/$type/WRFPLUSV3
+          else
+             wrfDir=$BUILD_DIR/${wrfTarName}.${choice}/$type/WRFV3
+          fi
           regDataDir=$METDATA_DIR/$type
           NAMELIST_FILES=`getNamelists $NAMELIST_DIR/$type $parallelType`
     

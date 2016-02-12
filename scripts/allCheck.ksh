@@ -67,6 +67,8 @@ getVariationName()
           ;;
      ST)  variationName='Stoch    ' 
           ;;
+     WP)  variationName='WRFPLUS  '
+          ;;
      *)   variationName='Standard ' 
           ;;
    esac
@@ -101,6 +103,15 @@ writeForecastResult()
               touch $testDir_wf/FAIL_FCST.tst
               result="FAIL"
           fi
+      fi
+   elif [ "$vtion_wf" = "WRFPLUS" ];  then
+      success_wf=`checkWRFPLUSResult $parallelType_wf $testDir_wf`
+      if [ "$success_wf" = "true" ];  then
+          touch $testDir_wf/SUCCESS_FCST.tst
+          result="PASS"
+      else
+          touch $testDir_wf/FAIL_FCST.tst
+          result="FAIL"
       fi
    else
       if [[ ! -f $testDir_wf/wrf.exe ]]; then
@@ -194,7 +205,9 @@ mkdir -p ${TEST_DIR}/RESULTS
 TEST_ID=`basename $TARFILE .tar`
 
 # The path to the file containing a summary of all test results
-export SUMMARY_FILE=${TEST_DIR}/RESULTS/${TEST_ID}_${COMPILER_WTF}.`date +"%Y-%m-%d_%T"`
+#export SUMMARY_FILE=${TEST_DIR}/RESULTS/${TEST_ID}_${COMPILER_WTF}.`date +"%Y-%m-%d_%T"`
+export SUMMARY_FILE=${TEST_DIR}/RESULTS/${TEST_ID}_${COMPILER_WTF}_${CONFIGURE_CHOICES}.`date +"%Y-%m-%d_%T"`
+export SUMMARY_FILE=`echo $SUMMARY_FILE | sed 's/ /_/g'`
 
 echo "Test results will be summarized in '$SUMMARY_FILE'."
 
@@ -340,27 +353,29 @@ for configOpt in $WRF_COMPARE_PLATFORMS; do
                   # test fails trivially, so only report a bit-for-bit test result if both forecasts succeeded. 
                   checkTest1=$checkDir/SUCCESS_FCST.tst
                   checkTest2=$compareDir/SUCCESS_FCST.tst
-                  if [ -f $checkTest1 -a -f $checkTest2 ]; then
-                     if [[ $variation = "WRFDA" ]]; then
-                        checkFile=$checkDir/wrfvar_output
-                        compareFile=$compareDir/wrfvar_output
-                        writeBitForBit $checkFile $compareFile $wrfType $namelist $parType $variation $testType  &
-                        testCounter=$((testCounter + 1))
+                  if [[ $variation != "WRFPLUS" ]]; then # No output files for WRFPLUS tests, so don't run BFB test
+                     if [ -f $checkTest1 -a -f $checkTest2 ]; then
+                        if [[ $variation = "WRFDA" ]]; then
+                           checkFile=$checkDir/wrfvar_output
+                           compareFile=$compareDir/wrfvar_output
+                           writeBitForBit $checkFile $compareFile $wrfType $namelist $parType $variation $testType  &
+                           testCounter=$((testCounter + 1))
+                        else
+                           checkFile=$checkDir/wrfout_d01*
+                           compareFile=$compareDir/wrfout_d01*
+                           writeBitForBit $checkFile $compareFile $wrfType $namelist $parType $variation $testType  &
+                           testCounter=$((testCounter + 1))
+                        fi
                      else
-                        checkFile=$checkDir/wrfout_d01*
-                        compareFile=$compareDir/wrfout_d01*
-                        writeBitForBit $checkFile $compareFile $wrfType $namelist $parType $variation $testType  &
-                        testCounter=$((testCounter + 1))
+                        # Create FAIL_BFB files as a way of triggering a test re-run next time. 
+                        case $parType in
+                           openmp)   touch $checkDir/FAIL_BFB_OMP.tst
+                                     touch $compareDir/FAIL_BFB_OMP.tst  ;;
+                           mpi)      touch $checkDir/FAIL_BFB_MPI.tst
+                                     touch $compareDir/FAIL_BFB_MPI.tst  ;;
+                           *)
+                        esac
                      fi
-                  else
-                     # Create FAIL_BFB files as a way of triggering a test re-run next time. 
-                     case $parType in
-           		    openmp)   touch $checkDir/FAIL_BFB_OMP.tst
-           		              touch $compareDir/FAIL_BFB_OMP.tst  ;;
-           		    mpi)      touch $checkDir/FAIL_BFB_MPI.tst
-           		              touch $compareDir/FAIL_BFB_MPI.tst  ;;
-           		    *)
-    		     esac
                   fi
         
                   if [ $testCounter -ge $NUM_PROC_TEST ]; then

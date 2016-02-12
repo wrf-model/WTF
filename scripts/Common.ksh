@@ -75,7 +75,7 @@ getPreprocessorName()
 {
     wrfType=$1
     case $wrfType in 
-         em_real|em_chem|em_chem_kpp)
+         em_real|em_chem|em_chem_kpp|wrfplus)
                    PREPROCESSOR='real.exe' 
 		   ;;
          em_b_wave|em_quarter_ss)
@@ -84,6 +84,9 @@ getPreprocessorName()
          nmm_real|nmm_nest|nmm_hwrf)
                    PREPROCESSOR='real_nmm.exe' 
 		   ;;
+         all_wrfvar)
+                   PREPROCESSOR='NONE'
+                   ;;
          *)        echo "$0: Unknown WRF type: '$wrfType'"
                    exit 2
                    ;;
@@ -227,6 +230,42 @@ checkForecastResult()
 
 
 
+checkWRFPLUSResult()
+{
+   set -x
+   parallelType=$1
+   test_dir=$2
+
+   success=false
+   reason=""
+
+   case $parallelType in
+      serial)  LOGFILE='wrfplus.out'
+               ;;
+      openmp)  echo "WRFPLUS NOT SET UP FOR OPENMP. TEST SHOULD NEVER GET THIS FAR. BAD FAIL."
+               exit 1
+               ;;
+      mpi)     LOGFILE='rsl.out.0000'
+               ;;
+      *)       echo "$0::checkWRFPLUSResult():  unknown parallel type string."
+               exit 2
+   esac
+
+  #Perhaps later we can add checks to explicitly look at TL_CHECK and AD_CHECK results, 
+  # but for now let's just look for a success message
+   grep "SUCCESS COMPLETE WRF" $test_dir/$LOGFILE > /dev/null  2>&1
+   foundSuccess="( $? -eq 0 )"
+
+   if [ ! $foundSuccess ]; then
+      echo "Not found in WRF log file: 'SUCCESS COMPLETE WRF'." >> $test_dir/FAIL_FCST.tst
+   else
+      success=true
+   fi
+
+
+   echo $success
+}
+
 ##
 ## Usage: `checkDAResult $parallelType $test_dir`
 ##
@@ -246,9 +285,12 @@ checkDAResult()
    case $parallelType in
       serial)  LOGFILE='wrfda.out'
                ;;
+      openmp)  echo "WRFDA NOT SET UP FOR OPENMP. TEST SHOULD NEVER GET THIS FAR. BAD FAIL."
+               exit 1
+               ;;
       mpi)     LOGFILE='rsl.out.0000'
                ;;
-      *)       echo "$0::checkForecastResult():  unknown parallel type string."
+      *)       echo "$0::checkDAResult():  unknown parallel type string."
                exit 2
    esac
 
@@ -315,6 +357,7 @@ wipeUserBuildVars()
     unset WRFIO_NCD_LARGE_FILE_SUPPORT
 
     unset HDF5_PATH
+    unset HDF5
     unset ZLIB_PATH
     unset GPFS_PATH
     unset CURL_PATH
@@ -390,7 +433,7 @@ goodConfiguration()
          return 0
       fi
    # exclude OpenMP for WRFDA builds.
-   elif [ "$wType" = "wrfda_3dvar" ]; then
+   elif [ "$wType" = "wrfda_3dvar" -o "$wType" = "wrfda_4dvar" -o "$wType" = "wrfplus" ]; then
       if [ "$platf" = "openmp" ]; then
          echo false
          return 0

@@ -215,12 +215,33 @@ case $COMPILE_STRING in
 		   fi 
 		   ;;
     wrfda_3dvar)
-                   COMPILE_STRING='all_wrfvar' # For WRFDA, "compile all_wrfvar" is needed
+                   COMPILE_STRING='all_wrfvar'            # For WRFDA, "compile all_wrfvar" is needed
                    COMPATIBLE_BUILD='wrfda_3dvar'
                    CONFIGURE_COMMAND="./configure wrfda " # WRFDA can not be set with environment variable;
                                                           # It MUST be set via "./configure wrfda"
                                                           # Also, debugging/error trapping options do not work
-                   REAL8=false
+                   REAL8=false                            # WRFDA is automatically compiled as REAL8, so
+                                                          # setting this variable might mess things up
+                   ;;
+    wrfplus)
+                   wallTime="3:00"
+                   COMPILE_STRING='em_real'                 # For WRFPLUS, "compile em_real" is needed
+                   COMPATIBLE_BUILD='wrfplus'
+                   CONFIGURE_COMMAND="./configure wrfplus " # WRFPLUS can not be set with environment variable;
+                                                            # It MUST be set via "./configure wrfplus"
+                                                            # Also, debugging/error trapping options do not work
+                   REAL8=false                              # WRFPLUS is automatically compiled as REAL8, so
+                                                            # setting this variable might mess things up
+                   ;;
+    wrfda_4dvar)
+                   export WRFPLUS_DIR="${buildDir}/wrfplus/WRFPLUSV3"
+                   COMPILE_STRING='all_wrfvar'            # For WRFDA, "compile all_wrfvar" is needed
+                   COMPATIBLE_BUILD='wrfda_4dvar'
+                   CONFIGURE_COMMAND="./configure 4dvar " # WRFDA can not be set with environment variable;
+                                                          # It MUST be set via "./configure wrfda"
+                                                          # Also, debugging/error trapping options do not work
+                   REAL8=false                            # WRFDA is automatically compiled as REAL8, so
+                                                          # setting this variable might mess things up
                    ;;
     *)             echo "$0: Unknown compile string: '$COMPILE_STRING'"
                    exit 2
@@ -230,6 +251,11 @@ esac
 ##
 ## Verify existence of files and directories.
 ##
+
+# For wrfplus compile, need to point to wrfplus tar file
+if [[ "$COMPILE_TYPE" = wrfplus ]]; then
+   tarFile="$WRF_TEST_ROOT/Data/wrfplus.tar"
+fi
 
 # tarFile must point to an existing file.  
 if [ ! -f $tarFile ]; then
@@ -274,9 +300,13 @@ if ( ! $goodConfig ); then
    exit 0
 fi
 
-banner "Building WRF $COMPILE_TYPE, option $CONFIG_OPTION in $buildDir .... "
-
-
+if [[ "$COMPILE_TYPE" = wrfplus ]]; then
+   banner "Building WRFPLUS $COMPILE_TYPE, option $CONFIG_OPTION in $buildDir .... "
+elif [[ "$COMPILE_STRING" = all_wrfvar ]]; then
+   banner "Building WRFDA $COMPILE_TYPE, option $CONFIG_OPTION in $buildDir .... "
+else
+   banner "Building WRF $COMPILE_TYPE, option $CONFIG_OPTION in $buildDir .... "
+fi
 ## Decide whether we have already built the target executables; if not, decide if we have
 ## available an existing build directory, a re-usable directory, or 
 ## we are unpacking from a tar file.   In the first two cases, we check that settings are 
@@ -301,7 +331,7 @@ elif [ -d $REUSE_DIR -a -f $REUSE_DIR/SUCCESS_TAR.tst ]; then
    if $USABLE_REUSE_DIR; then
        echo "Linking to reusable directory $REUSE_DIR"
        mkdir -p $buildDir/$COMPILE_TYPE
-       if [ $? != 0 ]; then
+       if [ $? -ne 0 ]; then
           echo $0: unable to create directory $buildDir/$COMPILE_TYPE; exiting.
           exit 2
        fi
@@ -324,7 +354,7 @@ if $UNPACK_WRF; then
    ## 
 
    mkdir -p $buildDir/$COMPILE_TYPE
-   if [ $? != 0 ]; then
+   if [ $? -ne 0 ]; then
       echo "$0: Unable to create target build directory '$buildDir/$COMPILE_TYPE'; stopping."
       exit 2
    fi
@@ -334,7 +364,7 @@ if $UNPACK_WRF; then
    cd $buildDir/$COMPILE_TYPE 
    tar -xf $tarFile
    tarSuccess=$?
-   if [ $? != 0 ]; then
+   if [ $? -ne 0 ]; then
       echo "$0: Unable to untar '${tarFile}' in '$buildDir/$COMPILE_TYPE'; stopping."
       exit 2
    fi
@@ -344,7 +374,7 @@ if $UNPACK_WRF; then
    cd $oldDir
 
    # Indicate that untarring was a success and does not need to be repeated again. 
-   if [ $tarSuccess == 0 ]; then
+   if [ $tarSuccess -eq 0 ]; then
       touch $targetDir/SUCCESS_TAR.tst
    fi
 
@@ -424,7 +454,7 @@ if $RUN_COMPILE; then
           export J="-j ${NUM_PROCS}"
           date > StartTime_${COMPILE_TYPE}.txt
           \rm -f *COMPILE.tst   # Remove previous compile test results
-          if [ "$COMPATIBLE_BUILD" -eq em_real ]; then
+          if [ "$COMPATIBLE_BUILD" = "em_real" ]; then
              sed -e 's/WRF_USE_CLM/WRF_USE_CLM -DCLWRFGHG/' configure.wrf 2>&1 .foofoo
              mv .foofoo configure.wrf
           fi
@@ -437,7 +467,7 @@ EOF
       export J="-j ${NUM_PROCS}"
       date > StartTime_${COMPILE_TYPE}.txt
       \rm -f *COMPILE.tst   # Remove previous compile test results
-      if [ "$COMPATIBLE_BUILD" -eq em_real ]; then
+      if [ "$COMPATIBLE_BUILD" = "em_real" ]; then
          sed -e 's/WRF_USE_CLM/WRF_USE_CLM -DCLWRFGHG/' configure.wrf 2>&1 .foofoo
          mv .foofoo configure.wrf
       fi
@@ -451,7 +481,7 @@ EOF
          touch $targetDir/SUCCESS_COMPILE.tst
       else
          touch $targetDir/FAIL_COMPILE.tst
-         echo $0: compile failed to create wrf.exe and $PREPROCESSOR in $targetDir/main!
+         echo $0: compile failed to create da_wrfvar.exe in $targetDir/var/build!
          exit 2
       fi
    else

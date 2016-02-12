@@ -36,8 +36,6 @@ echo
 
 echo submit intel WTF
 ( nohup scripts/run_WRF_Tests.ksh -R regTest_intel_Yellowstone.wtf ) >&! foo_intel &
-echo submit intel WRFDA WTF
-( nohup scripts/run_WRF_Tests.ksh -R regTest_intel_Yellowstone_WRFDA.wtf ) >&! foo_intel_WRFDA &
 echo Waiting 10 seconds to submit next job ...
 echo
 
@@ -52,9 +50,9 @@ module swap intel pgi
 module swap pgi pgi/15.1
 module list
 
-( nohup scripts/run_WRF_Tests.ksh -R regTest_pgi_Yellowstone.wtf ) >&! foo_pgi &
-echo Waiting 10 seconds to submit next job ...
-echo
+#( nohup scripts/run_WRF_Tests.ksh -R regTest_pgi_Yellowstone.wtf ) >&! foo_pgi &
+#echo Waiting 10 seconds to submit next job ...
+#echo
 
 sleep 10
 
@@ -68,7 +66,4 @@ module swap gnu gnu/4.8.1   # trying this one
 module swap gnu gnu/4.9.2
 module list
 
-( nohup scripts/run_WRF_Tests.ksh -R regTest_gnu_Yellowstone.wtf ) >&! foo_gnu &
-echo submit gnu WRFDA WTF
 ( nohup scripts/run_WRF_Tests.ksh -R regTest_gnu_Yellowstone_WRFDA.wtf ) >&! foo_gnu_WRFDA &
-

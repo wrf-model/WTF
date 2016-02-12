@@ -34,6 +34,10 @@ getBuildString()
                        ;;
        wrfda_3dvar)    typeCode='3d'
                        ;;
+       wrfplus)        typeCode='wp'
+                       ;;
+       wrfda_4dvar)    typeCode='4d'
+                       ;;
                    *)  echo $0:getBuildString:  unknown wrfType $wrfType
                        exit 2
                        ;;
@@ -46,6 +50,9 @@ if $DEBUG_WTF; then
    set -x
 fi
 
+# Special case for WRFDA 4DVAR test: need to compile wrfplus, then 4dvar
+#BUILD_TYPES=$(echo $BUILD_TYPES | sed 's/wrfda_4dvar/wrfplus wrfda_4dvar/g')
+#NEVERMIND, RELY ON USER TO DO THIS
 
 if $BATCH_COMPILE; then
     ## From the user-specified list of WRF executables, create two lists: those that can be built in parallel, 
@@ -54,9 +61,9 @@ if $BATCH_COMPILE; then
     WRF_SERIAL=""
     for f in $BUILD_TYPES; do
        case $f in 
-           em_real|nmm_real|nmm_nest|nmm_hwrf|em_chem|em_chem_kpp|wrfda_3dvar) WRF_PARALLEL="$WRF_PARALLEL $f"
+           em_real|nmm_real|nmm_nest|nmm_hwrf|em_chem|em_chem_kpp|wrfda_3dvar|wrfplus) WRF_PARALLEL="$WRF_PARALLEL $f"
 	                                                  ;;
-           em_b_wave|em_quarter_ss)                       WRF_SERIAL="$WRF_SERIAL $f"
+           em_b_wave|em_quarter_ss|wrfda_4dvar)           WRF_SERIAL="$WRF_SERIAL $f"
 	                                                  ;;
            *) echo "$0: unknown executable type: '$f'; aborting!"
               exit 255
