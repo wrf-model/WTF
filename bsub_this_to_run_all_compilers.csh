@@ -5,10 +5,11 @@
 #BSUB -n 8                 # number of total tasks
 #BSUB -o reggie.out        # output filename
 #BSUB -e reggie.err        # error filename
-#BSUB -J WRF_WTF           # job name
+#BSUB -J WTF_v02.13        # job name
 #BSUB -q caldera           # queue: premium, regular, economy
 #BSUB -W 12:00              # wallclock time hh:mm
 #BSUB -P P64000400
+#BSUB -N
 
 unsetenv MP_PE_AFFINITY
 if ( ! -d /glade/scratch/${user}/TMPDIR_FOR_PGI_COMPILE ) then
