@@ -7,8 +7,9 @@
 #BSUB -e compare.err              # error filename
 #BSUB -J COMPARISON            # job name
 #BSUB -q caldera               # queue: premium, regular, economy
-#BSUB -W 0:20                  # wallclock time hh:mm
+#BSUB -W 1:00                  # wallclock time hh:mm
 #BSUB -P P64000400
 
 unsetenv MP_PE_AFFINITY
+source ~/CSHRC
 ./compare.csh
