@@ -78,7 +78,7 @@ getPreprocessorName()
          em_real|em_chem|em_chem_kpp|wrfplus)
                    PREPROCESSOR='real.exe' 
 		   ;;
-         em_b_wave|em_quarter_ss)
+         em_b_wave|em_quarter_ss|em_hill2d_x)
                    PREPROCESSOR='ideal.exe' 
 		   ;;
          nmm_real|nmm_nest|nmm_hwrf)
@@ -438,10 +438,23 @@ goodConfiguration()
          echo false
          return 0
       fi
+   # exclude OpenMP for 2d ideal builds.
+   elif [ "$wType" = "em_hill2d_x" ]; then
+      if [ "$platf" = "openmp" ]; then
+         echo false
+         return 0
+      fi
    fi
    # exclude Serial for nmm_hwrf builds.
    if [ "$wType" = "nmm_hwrf"  ]; then
       if [ "$platf" = "serial" ]; then
+         echo false
+         return 0
+      fi
+   fi
+   # exclude MPI for 2d ideal builds.
+   if [ "$wType" = "em_hill2d_x"  ]; then
+      if [ "$platf" = "mpi" ]; then
          echo false
          return 0
       fi

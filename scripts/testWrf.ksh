@@ -25,7 +25,7 @@ usage(){
    echo >&2 "   (-G BATCH_ACCOUNT uses the given account number/string for mpi and openmp runs.)"
    echo >&2 "   (specifying -C will 'clobber' a test that may have been done in the past.)"
    echo >&2 "   (<parallel_type> is one of the strings in {serial, openmp, mpi}.)"
-   echo >&2 "   (<wrf_type> is one of the strings in {em_real, em_b_wave, em_quarter_ss, nmm_real, nmm_nest}.)"
+   echo >&2 "   (<wrf_type> is one of the strings in {em_real, em_hill2d_x, em_b_wave, em_quarter_ss, nmm_real, nmm_nest}.)"
 }
 
 
@@ -40,7 +40,6 @@ getTableNames()
    wrfType=$1
    # grep in the Makefile for 'ln -s' commands, remove non-table names, split lines into individual commands.
    # for WRFDA and WRFLPLUS, we need the "DBL" tables
-#  if [[ $WRF_TYPE = "wrfda_3dvar" ]] || [[ "wrfda_4dvar" ]] || [[ "wrfplus" ]];then
    if [[ $WRF_TYPE = "wrfda_3dvar" ]] || [[ $WRF_TYPE = "wrfda_4dvar" ]] || [[ $WRF_TYPE = "wrfplus" ]];then
       WRF_TABLES=`grep 'ln -s' ${WRF_ROOT_DIR}/Makefile | egrep -v '=|input|namelist|.exe' | tr ";" "\n" | grep 'ln -s' | awk '{print $3}' | sort -u`
    else
@@ -77,6 +76,7 @@ getJobString()
         em_real)         part1='er'   ;;
         em_b_wave)       part1='eb'   ;;
         em_quarter_ss)   part1='eq'   ;;
+        em_hill2d_x)     part1='eh'   ;;
         em_chem)         part1='ec'   ;;
         em_chem_kpp)     part1='ek'   ;;
         nmm_real)        part1='nr'   ;;
@@ -160,16 +160,10 @@ fi
 OS_NAME=`uname`
 
 
-# WRF root directory must exist and Makefile must contain at least one ".TBL" file.
+# WRF root directory must exist, top-level Makefile must exist, test/em_real directory must exist.
 if [[ ! -d $WRF_ROOT_DIR ]] || [[ ! -f $WRF_ROOT_DIR/Makefile ]] || [[ ! -d $WRF_ROOT_DIR/test/em_real ]]; then
    echo "WRF source root directory '${WRF_ROOT_DIR}' not found or missing files; exiting."
    exit 2
-#else
-#   TBL_FILES=$(getTableNames)
-#   if [ -z $TBL_FILES ]; then
-#       echo "WRF Table directory '${WRF_ROOT_DIR}' did not contain any *.TBL files; check and run again."
-#       exit 2
-#   fi
 fi
 
 # Namelist file must exist and have nonzero size. 

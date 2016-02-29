@@ -32,6 +32,8 @@ getBuildString()
                        ;;
        em_quarter_ss)  typeCode='eq'
                        ;;
+       em_hill2d_x)    typeCode='eh'
+                       ;;
        wrfda_3dvar)    typeCode='3d'
                        ;;
        wrfplus)        typeCode='wp'
@@ -61,7 +63,7 @@ if $BATCH_COMPILE; then
     WRF_SERIAL=""
     for f in $BUILD_TYPES; do
        case $f in 
-           em_real|nmm_real|nmm_nest|nmm_hwrf|em_chem|em_chem_kpp|wrfda_3dvar|wrfplus) WRF_PARALLEL="$WRF_PARALLEL $f"
+           em_real|em_hill2d_x|nmm_real|nmm_nest|nmm_hwrf|em_chem|em_chem_kpp|wrfda_3dvar|wrfplus) WRF_PARALLEL="$WRF_PARALLEL $f"
 	                                                  ;;
            em_b_wave|em_quarter_ss|wrfda_4dvar)           WRF_SERIAL="$WRF_SERIAL $f"
 	                                                  ;;
@@ -85,9 +87,17 @@ for wrfType in $WRF_PARALLEL; do
       buildDir=${BUILD_DIR}/$wrfTarName.$platform
       buildString=`getBuildString $wrfType $platform`
       if $BATCH_COMPILE; then
-         $WRF_TEST_ROOT/scripts/buildWrf.ksh -f $TARFILE -d $buildDir -ci $platform -ct $wrfType -bs $buildString -N $NUM_PROC_BUILD &
+         if [[ $wrfType = "em_hill2d_x" ]]; then 
+            $WRF_TEST_ROOT/scripts/buildWrf.ksh -f $TARFILE -d $buildDir -ci $platform -ct $wrfType -bs $buildString -N $NUM_PROC_BUILD -ni 0 &
+         else
+            $WRF_TEST_ROOT/scripts/buildWrf.ksh -f $TARFILE -d $buildDir -ci $platform -ct $wrfType -bs $buildString -N $NUM_PROC_BUILD &
+         fi
       else
-         $WRF_TEST_ROOT/scripts/buildWrf.ksh -f $TARFILE -d $buildDir -ci $platform -ct $wrfType -bs $buildString -N $NUM_PROC_BUILD
+         if [[ $wrfType = "em_hill2d_x" ]]; then 
+            $WRF_TEST_ROOT/scripts/buildWrf.ksh -f $TARFILE -d $buildDir -ci $platform -ct $wrfType -bs $buildString -N $NUM_PROC_BUILD -ni 0 
+         else
+            $WRF_TEST_ROOT/scripts/buildWrf.ksh -f $TARFILE -d $buildDir -ci $platform -ct $wrfType -bs $buildString -N $NUM_PROC_BUILD
+         fi
       fi
    done
 done
