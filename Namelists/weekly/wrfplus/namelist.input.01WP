@@ -103,3 +103,7 @@ nested=.false.,
  max_denom     = 3,
  scenario_type = 0,
  /
+
+LSF_TIME=0:10
+NQS_TIME=0:10:00
+

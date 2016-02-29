@@ -64,7 +64,7 @@ export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/weekly
 # that you do not wish to build and test. 
 
 #NOTE: WRFDA cannot use smpar options
-#export CONFIGURE_SERIAL="17"
+export CONFIGURE_SERIAL="17"
 export CONFIGURE_MPI="18"
 
 
