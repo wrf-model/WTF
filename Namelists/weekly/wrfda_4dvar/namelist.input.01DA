@@ -150,3 +150,10 @@ jcdfi_use=true,
 jcdfi_diag=1,
 jcdfi_penalty=1000.0,
 /
+
+
+
+LSF_TIME=0:10
+NQS_TIME=0:10:00
+NUM_PROCESSORS=8
+
