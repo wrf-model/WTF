@@ -82,6 +82,11 @@
  maxens2                             = 3,
  maxens3                             = 16,
  ensdim                              = 144,
+ numBins                             = 21,    21,    21,
+ thBinSize                           = 0.1,   0.1,   0.1,
+ rBinSize                            = 0.0001,0.0001,0.0001,
+ minDeepFreq                         = 0.333, 0.333, 0.333,
+ minShallowFreq                      = 0.01,  0.01,  0.01,
  /
 
  &fdda
