@@ -69,6 +69,7 @@
  bl_pbl_physics                      = 2,     2,     2,
  bldt                                = 0,     0,     0,
  cu_physics                          = 93,    93,    0,
+ sf_urban_physics                    = 0,     0,     0,
  shcu_physics                        = 0,     0,     0,
  cudt                                = 5,     5,     5,
  sf_ocean_physics                    = 1,

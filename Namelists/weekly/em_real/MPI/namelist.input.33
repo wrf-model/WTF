@@ -68,6 +68,8 @@
  bl_pbl_physics                      = 9,     9,     9,
  bldt                                = 0,     0,     0,
  cu_physics                          = 7,     0,     0,
+ sf_urban_physics                    = 0,     0,     0,
+ topo_shading                        = 0,     0,     0,
  shcu_physics                        = 2,     2,     2,
  cudt                                = 0,     0,     0,
  isfflx                              = 1,

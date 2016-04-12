@@ -67,6 +67,8 @@
  bl_pbl_physics                      = 8,     8,     8,
  bldt                                = 0,     0,     0,
  cu_physics                          = 3,     3,     0,
+ shcu_physics                        = 0,     0,     0,
+ topo_shading                        = 0,     0,     0,
  cudt                                = 0,     0,     0,
  isfflx                              = 1,
  ifsnow                              = 0,
