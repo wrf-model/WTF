@@ -75,7 +75,7 @@ getPreprocessorName()
 {
     wrfType=$1
     case $wrfType in 
-         em_real|em_chem|em_chem_kpp|wrfplus)
+         em_real|em_move|em_chem|em_chem_kpp|wrfplus)
                    PREPROCESSOR='real.exe' 
 		   ;;
          em_b_wave|em_quarter_ss|em_hill2d_x)
@@ -444,6 +444,20 @@ goodConfiguration()
          echo false
          return 0
       fi
+   # exclude OpenMP for ARW moving nest.
+   elif [ "$wType" = "em_move" ]; then
+      if [ "$platf" = "openmp" ]; then
+         echo false
+         return 0
+      fi
+   fi
+
+   # exclude Serial for ARW moving nest.
+   if [ "$wType" = "em_move" ]; then
+      if [ "$platf" = "serial" ]; then
+         echo false
+         return 0
+      fi
    fi
    # exclude Serial for nmm_hwrf builds.
    if [ "$wType" = "nmm_hwrf"  ]; then
@@ -452,6 +466,7 @@ goodConfiguration()
          return 0
       fi
    fi
+
    # exclude MPI for 2d ideal builds.
    if [ "$wType" = "em_hill2d_x"  ]; then
       if [ "$platf" = "mpi" ]; then
@@ -459,6 +474,7 @@ goodConfiguration()
          return 0
       fi
    fi
+
    echo true
    return 0
 }

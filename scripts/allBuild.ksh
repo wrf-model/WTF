@@ -34,6 +34,8 @@ getBuildString()
                        ;;
        em_hill2d_x)    typeCode='eh'
                        ;;
+       em_move)        typeCode='em'
+                       ;;
        wrfda_3dvar)    typeCode='3d'
                        ;;
        wrfplus)        typeCode='wp'
@@ -63,7 +65,7 @@ if $BATCH_COMPILE; then
     WRF_SERIAL=""
     for f in $BUILD_TYPES; do
        case $f in 
-           em_real|em_hill2d_x|nmm_real|nmm_nest|nmm_hwrf|em_chem|em_chem_kpp|wrfda_3dvar|wrfplus) WRF_PARALLEL="$WRF_PARALLEL $f"
+           em_real|em_hill2d_x|em_move|nmm_real|nmm_nest|nmm_hwrf|em_chem|em_chem_kpp|wrfda_3dvar|wrfplus) WRF_PARALLEL="$WRF_PARALLEL $f"
 	                                                  ;;
            em_b_wave|em_quarter_ss|wrfda_4dvar)           WRF_SERIAL="$WRF_SERIAL $f"
 	                                                  ;;
@@ -83,18 +85,25 @@ wrfTarName=`basename $TARFILE .tar`
 for wrfType in $WRF_PARALLEL; do
 
    # Loop over platform choices for this WRF type. 
+   # The "ni" option is the type of nesting.  The default is "1" - standard nesting.  The hill2d case is
+   # built with "0" (i.e. without nesting, which is actually the entire purpose for including this ideal case in the mix).  The
+   # ARW moving nest case is vortex following, and requires the nest option to be "3".
    for platform in $CONFIGURE_CHOICES; do
       buildDir=${BUILD_DIR}/$wrfTarName.$platform
       buildString=`getBuildString $wrfType $platform`
       if $BATCH_COMPILE; then
          if [[ $wrfType = "em_hill2d_x" ]]; then 
             $WRF_TEST_ROOT/scripts/buildWrf.ksh -f $TARFILE -d $buildDir -ci $platform -ct $wrfType -bs $buildString -N $NUM_PROC_BUILD -ni 0 &
+         elif [[ $wrfType = "em_move" ]]; then 
+            $WRF_TEST_ROOT/scripts/buildWrf.ksh -f $TARFILE -d $buildDir -ci $platform -ct $wrfType -bs $buildString -N $NUM_PROC_BUILD -ni 3 &
          else
             $WRF_TEST_ROOT/scripts/buildWrf.ksh -f $TARFILE -d $buildDir -ci $platform -ct $wrfType -bs $buildString -N $NUM_PROC_BUILD &
          fi
       else
          if [[ $wrfType = "em_hill2d_x" ]]; then 
             $WRF_TEST_ROOT/scripts/buildWrf.ksh -f $TARFILE -d $buildDir -ci $platform -ct $wrfType -bs $buildString -N $NUM_PROC_BUILD -ni 0 
+         elif [[ $wrfType = "em_move" ]]; then 
+            $WRF_TEST_ROOT/scripts/buildWrf.ksh -f $TARFILE -d $buildDir -ci $platform -ct $wrfType -bs $buildString -N $NUM_PROC_BUILD -ni 3 
          else
             $WRF_TEST_ROOT/scripts/buildWrf.ksh -f $TARFILE -d $buildDir -ci $platform -ct $wrfType -bs $buildString -N $NUM_PROC_BUILD
          fi

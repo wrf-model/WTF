@@ -25,7 +25,7 @@ usage(){
    echo >&2 "   (-G BATCH_ACCOUNT uses the given account number/string for mpi and openmp runs.)"
    echo >&2 "   (specifying -C will 'clobber' a test that may have been done in the past.)"
    echo >&2 "   (<parallel_type> is one of the strings in {serial, openmp, mpi}.)"
-   echo >&2 "   (<wrf_type> is one of the strings in {em_real, em_hill2d_x, em_b_wave, em_quarter_ss, nmm_real, nmm_nest}.)"
+   echo >&2 "   (<wrf_type> is one of the strings in {em_real, em_move, em_hill2d_x, em_b_wave, em_quarter_ss, nmm_real, nmm_nest}.)"
 }
 
 
@@ -77,6 +77,7 @@ getJobString()
         em_b_wave)       part1='eb'   ;;
         em_quarter_ss)   part1='eq'   ;;
         em_hill2d_x)     part1='eh'   ;;
+        em_move)         part1='em'   ;;
         em_chem)         part1='ec'   ;;
         em_chem_kpp)     part1='ek'   ;;
         nmm_real)        part1='nr'   ;;
@@ -374,8 +375,7 @@ else
    if [ -f $realFile ]; then
       ln -sf $realFile $testDir/prewrf.exe
    else
-      echo "Compile failure: File does not exist: $realFile"
-      touch $testDir/FAIL_COMPILE.tst
+      echo "Compile failure: File does not exist(real): $realFile" > $testDir/FAIL_COMPILE.tst
       exit 2
    fi
 
