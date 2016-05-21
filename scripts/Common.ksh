@@ -75,10 +75,10 @@ getPreprocessorName()
 {
     wrfType=$1
     case $wrfType in 
-         em_real|em_move|em_chem|em_chem_kpp|wrfplus)
+         em_real|em_real8|em_move|em_chem|em_chem_kpp|wrfplus)
                    PREPROCESSOR='real.exe' 
 		   ;;
-         em_b_wave|em_quarter_ss|em_hill2d_x)
+         em_b_wave|em_quarter_ss|em_quarter_ss8|em_hill2d_x)
                    PREPROCESSOR='ideal.exe' 
 		   ;;
          nmm_real|nmm_nest|nmm_hwrf)

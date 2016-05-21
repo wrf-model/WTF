@@ -25,7 +25,7 @@ usage(){
    echo >&2 "   (-G BATCH_ACCOUNT uses the given account number/string for mpi and openmp runs.)"
    echo >&2 "   (specifying -C will 'clobber' a test that may have been done in the past.)"
    echo >&2 "   (<parallel_type> is one of the strings in {serial, openmp, mpi}.)"
-   echo >&2 "   (<wrf_type> is one of the strings in {em_real, em_move, em_hill2d_x, em_b_wave, em_quarter_ss, nmm_real, nmm_nest}.)"
+   echo >&2 "   (<wrf_type> is one of the strings in {em_real, em_real8, em_move, em_hill2d_x, em_b_wave, em_quarter_ss, em_quarter_ss8, nmm_real, nmm_nest}.)"
 }
 
 
@@ -40,7 +40,7 @@ getTableNames()
    wrfType=$1
    # grep in the Makefile for 'ln -s' commands, remove non-table names, split lines into individual commands.
    # for WRFDA and WRFLPLUS, we need the "DBL" tables
-   if [[ $WRF_TYPE = "wrfda_3dvar" ]] || [[ $WRF_TYPE = "wrfda_4dvar" ]] || [[ $WRF_TYPE = "wrfplus" ]];then
+   if [[ $WRF_TYPE = "wrfda_3dvar" ]] || [[ $WRF_TYPE = "wrfda_4dvar" ]] || [[ $WRF_TYPE = "wrfplus" ]] || [[ $REAL8 ]] ;then
       WRF_TABLES=`grep 'ln -s' ${WRF_ROOT_DIR}/Makefile | egrep -v '=|input|namelist|.exe' | tr ";" "\n" | grep 'ln -s' | awk '{print $3}' | sort -u`
    else
       WRF_TABLES=`grep 'ln -s' ${WRF_ROOT_DIR}/Makefile | egrep -v '=|input|DBL|namelist|.exe' | tr ";" "\n" | grep 'ln -s' | awk '{print $3}' | sort -u`
@@ -74,8 +74,10 @@ getJobString()
 
    case $wrfType in
         em_real)         part1='er'   ;;
+        em_real8)        part1='eR'   ;;
         em_b_wave)       part1='eb'   ;;
         em_quarter_ss)   part1='eq'   ;;
+        em_quarter_ss8)  part1='eQ'   ;;
         em_hill2d_x)     part1='eh'   ;;
         em_move)         part1='em'   ;;
         em_chem)         part1='ec'   ;;

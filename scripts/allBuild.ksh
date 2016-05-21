@@ -18,6 +18,8 @@ getBuildString()
     case $wrfType in
        em_real)        typeCode='er'
                        ;;
+       em_real8)       typeCode='eR'
+                       ;;
        nmm_real)       typeCode='nr'
                        ;;
        nmm_nest)       typeCode='nn'
@@ -31,6 +33,8 @@ getBuildString()
        em_b_wave)      typeCode='eb'
                        ;;
        em_quarter_ss)  typeCode='eq'
+                       ;;
+       em_quarter_ss8) typeCode='eQ'
                        ;;
        em_hill2d_x)    typeCode='eh'
                        ;;
@@ -54,20 +58,16 @@ if $DEBUG_WTF; then
    set -x
 fi
 
-# Special case for WRFDA 4DVAR test: need to compile wrfplus, then 4dvar
-#BUILD_TYPES=$(echo $BUILD_TYPES | sed 's/wrfda_4dvar/wrfplus wrfda_4dvar/g')
-#NEVERMIND, RELY ON USER TO DO THIS
-
 if $BATCH_COMPILE; then
-    ## From the user-specified list of WRF executables, create two lists: those that can be built in parallel, 
-    ## and those that must be built consecutively.   
+    ## From the user-specified list of WRF executables, create two lists: those that can be built in parallel (independently, all building at the same time)
+    ## and those that must be built consecutively (usually relying on pre-built code, such as em_real is built first, then em_quarter_ss).
     WRF_PARALLEL=""
     WRF_SERIAL=""
     for f in $BUILD_TYPES; do
        case $f in 
-           em_real|em_hill2d_x|em_move|nmm_real|nmm_nest|nmm_hwrf|em_chem|em_chem_kpp|wrfda_3dvar|wrfplus) WRF_PARALLEL="$WRF_PARALLEL $f"
+           em_real|em_real8|em_hill2d_x|em_move|nmm_real|nmm_nest|nmm_hwrf|em_chem|em_chem_kpp|wrfda_3dvar|wrfplus) WRF_PARALLEL="$WRF_PARALLEL $f"
 	                                                  ;;
-           em_b_wave|em_quarter_ss|wrfda_4dvar)           WRF_SERIAL="$WRF_SERIAL $f"
+           em_b_wave|em_quarter_ss|em_quarter_ss8|wrfda_4dvar)           WRF_SERIAL="$WRF_SERIAL $f"
 	                                                  ;;
            *) echo "$0: unknown executable type: '$f'; aborting!"
               exit 255

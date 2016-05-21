@@ -25,7 +25,7 @@ usage()
    echo >&2 "usage: $0 -f <tar_file> -d <build_dir> -ci <configure_choice> -ct <compile_type> -bs <build_string> [-ni <nesting_choice>] [-v] [-r8] [-N <#procs>]"
    echo >&2 "   (configure and nesting choices must be integers; -r8 sets double precision calculations; -v for verbose)"
    echo >&2 "   (-N <#nprocs> specifies the number of processors per build; default is 1)"
-   echo >&2 "   (<compile_type> can be one of: {em_real, em_hill2d_x, em_move, em_b_wave, em_quarter_ss, nmm_real, nmm_nest, nmm_hwrf})"
+   echo >&2 "   (<compile_type> can be one of: {em_real, em_real8, em_hill2d_x, em_move, em_b_wave, em_quarter_ss, em_quarter_ss8, nmm_real, nmm_nest, nmm_hwrf})"
 }
 
 
@@ -147,7 +147,7 @@ wipeUserBuildVars
 ##
 
 # In most cases, $COMPILE_TYPE is the string passed to the "compile" command.  
-# The exceptions are "nmm_nest", "em_move", "em_chem", and "em_chem_kpp". 
+# The exceptions are "nmm_nest", "em_move", "em_real8", "em_quarter_ss8", "em_chem", and "em_chem_kpp". 
 COMPILE_STRING=$COMPILE_TYPE
 
 if $TRAP_ERRORS; then
@@ -168,6 +168,17 @@ case $COMPILE_STRING in
                    ;;
     em_b_wave|em_quarter_ss)
                    COMPATIBLE_BUILD='em_real'
+                   wallTime="0:10"
+                   ;;
+    em_real8)       
+		   COMPILE_STRING='em_real'
+                   COMPATIBLE_BUILD='em_real8'
+                   REAL8=true
+                   ;;
+    em_quarter_ss8)
+		   COMPILE_STRING='em_quarter_ss'
+                   COMPATIBLE_BUILD='em_real8'
+                   REAL8=true
                    wallTime="0:10"
                    ;;
     em_move)
@@ -425,8 +436,8 @@ fi
     #       as the default floating precision.
     
     if $REAL8; then
-        #sed -e '/^RWORDSIZE/s/\$(NATIVE_RWORDSIZE)/8/'  configure.wrf > ! foo ; /bin/mv foo configure.wrf
-        sed -e '/^RWORDSIZE/s/\$(NATIVE_RWORDSIZE)/8/'  configure.wrf > foo ; /bin/mv foo configure.wrf
+        sed -e '/^RWORDSIZE/s/\$(NATIVE_RWORDSIZE)/8/' \
+            -e '/^PROMOTION/s/#//'  configure.wrf > foo ; /bin/mv foo configure.wrf
     fi
     
 fi 
