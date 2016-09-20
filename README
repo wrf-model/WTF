@@ -33,7 +33,7 @@ The file structure of the WRF Test Framework is as follows:
      regTest_intel_Yellowstone.wtf    --  WTF config file for Yellowstone Intel ifort regtests
      regTest_pgi_Yellowstone.wtf      --  WTF config file for Yellowstone PGI compiler regtests
      scripts/                         --  Control programs 
-     tarFiles_WRF/                    --  User must place WRF source tar files here (initially empty)
+     tarballs/                        --  User must place WRF source tar files here (initially empty)
      Builds/                          --  All WRF builds are performed here  (initially empty)
      Data/                            --  Metgrid files for tests  (user can add files for new tests)
      Namelists/                       --  Namelists for tests (user can add namelists for new tests)
@@ -44,7 +44,7 @@ The file structure of the WRF Test Framework is as follows:
                                        STEPS TO RUN
 =================================================================================================
 
-1)   Place one or more WRF source tar files in the "tarFiles_WRF" directory.  Each file
+1)   Place one or more WRF source tar files in the "tarballs" directory.  Each file
      must end in "*.tar" (case sensitive), and the tarfile names should not contain spaces. 
      IMPORTANT: each WRF tarfile must create the directory "WRFV3" when unpacked.  Otherwise, 
      the script will fail.  
@@ -76,7 +76,7 @@ WHAT'S HAPPENING BEHIND THE SCENES
 ------------------------------------------------------------------------------------------------------
 
 The WRF Test Framework (WTF) performs three major steps, in consecutive order, for each WRF
-source tar file placed in "tarFiles_WRF": 
+source tar file placed in "tarballs": 
 
 1)  Unpacks and compiles all desired WRF flavors.  On a computer with a batch queue, these 
     happen simultaneously.   On a personal computer, each WRF build is performed consecutively.
@@ -122,13 +122,13 @@ own designated directory location.   Each WRF source tarfile is unpacked in a di
 
 "Builds/<WRF_TARFILE_NAME>.<CONFIGURE_OPTION>/<WRF_FLAVOR>/WRFV3".  
 
-For example, suppose you place the WRF tarfile "wrf_Goober.tar" in the directory "tarFiles_WRF", and 
+For example, suppose you place the WRF tarfile "wrf_Goober.tar" in the directory "tarballs", and 
 you intend to build WRF-ARW serially using the Intel compiler on Yellowstone.  It turns out that 
 configure expects you to enter the number "17" (as of January 10, 2013) to build this version of WRF.  
 Then the WRF source will be unpacked in the directory "Builds/wrf_Goober.17/em_real/WRFV3".  
  
 As another example, suppose you place another WRF tarfile "wrf_trunk_122112_05_dg.tar" in the 
-directory "tarFiles_WRF", and you intend to build WRF-CHEM with MPI using the PGI compiler on 
+directory "tarballs", and you intend to build WRF-CHEM with MPI using the PGI compiler on 
 Yellowstone.  It turns out that configure expects you to enter the number "3" (as of January 10, 2013) 
 to build this version of WRF.  Then the WRF source will be unpacked in the directory 
 "Builds/wrf_trunk_122112_05_dg.3/em_chem/WRFV3".  
