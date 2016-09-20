@@ -10,7 +10,7 @@
 ##
 ##  1)  Familiarize yourself with the directory structure of the test suite by reading the README file in
 ##      the top-level directory of the test suite.  
-##  2)  Place one or more WRF source tar-files in the top-level "tarFiles_WRF" directory.  These tar-files 
+##  2)  Place one or more WRF source tar-files in the top-level "tarballs" directory.  These tar-files 
 ##      must have the case-sensitive suffix ".tar".  The rest of each tar-file name is used to label builds and test results.
 ##  3)  Modify the variables in this WRF Test File.   Variables near the top are most likely to require modification.
 ##  4)  After checking the settings in this file to confirm they are correct for your needs, type the following at the command 
@@ -140,7 +140,7 @@ export TRAP_ERRORS=false
 #
 
 # Directory where the WRF source tar files should be placed for testing. 
-export TARFILE_DIR=$WRF_TEST_ROOT/tarFiles_WRF
+export TARFILE_DIR=$WRF_TEST_ROOT/tarballs
 
 # Directory where all the WRF source builds take place. 
 export BUILD_DIR=$WRF_TEST_ROOT/Builds
