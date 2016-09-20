@@ -1,0 +1,5 @@
+# The only thing that should be in this directory are WRF builds from the various WTF tests    #
+# Therefore, let's "gitignore" everything in this directory (except the .gitignore file itself #
+################################################################################################
+*
+!.gitignore

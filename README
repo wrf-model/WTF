@@ -37,7 +37,7 @@ The file structure of the WRF Test Framework is as follows:
      Builds/                          --  All WRF builds are performed here  (initially empty)
      Data/                            --  Metgrid files for tests  (user can add files for new tests)
      Namelists/                       --  Namelists for tests (user can add namelists for new tests)
-     Runs/                            --  All WRF tests are performed here  (initially empty)
+     Runs/                            --  All WRF tests are performed here
 
 
 =================================================================================================
