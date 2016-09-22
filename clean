@@ -77,6 +77,7 @@ def main():
     # Build directories
     del_dirs = [dir for dir in os.listdir(build_dir) if re.search(r'\S+\.\d+$', dir)]
     for f in del_dirs:
+       f = build_dir + '/' + f
        if dryrun:
           print(f + ' would be moved to ' + trash_dir)
        else:
@@ -86,6 +87,7 @@ def main():
     # Run directories
     del_dirs = [dir for dir in os.listdir(runs_dir) if re.search(r'\S+\.\d+$', dir)]
     for f in del_dirs:
+       f = runs_dir + '/' + f
        if dryrun:
           print(f + ' would be moved to ' + trash_dir)
        else:
@@ -101,7 +103,6 @@ def main():
        del_struct = full_dir.split('/')     # decompose directory structure into del_struct
        del_dir = '/'.join(del_struct[:-3])  # recompose "del_struct" (minus 3 lowest level directories) into path "del_dir"
        del_dirs.append(del_dir)             # Add path "del_dir" to list "del_dirs"
-    print(del_dirs)
 
     del_dirs = list(set(del_dirs))  # Removes duplicate items on the list
 
@@ -114,7 +115,7 @@ def main():
 
  if not dryrun:
      print("Deleting everything in " + trash_dir)
-     Popen(os.system("rm -rf " + trash_dir + "/*"), stdin=None, stdout=None, stderr=None, close_fds=True)
+     proc = subprocess.Popen("rm -rf " + trash_dir + "/* &", shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
 
 if __name__ == "__main__":
     main()
