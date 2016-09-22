@@ -1,0 +1,6 @@
+# The only thing that should be in this directory are WRF builds from the various WTF tests and   #
+# some .csh scripts for comparing runs. Therefore, let's "gitignore" everything in this directory #
+# except the .csh scripts and the .gitignore file itself                                          #
+###################################################################################################
+Data
+
