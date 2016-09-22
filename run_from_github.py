@@ -1,4 +1,16 @@
 #!/usr/bin/python
+#
+# A python script for running a WTF straight from Github, just specifying a URL and branch name.
+# For now, this only works on Yellowstone. Future modifications will allow for use on local machines.
+#
+# Usage: ./run_from_github.py
+#        When prompted, enter a repository URL.
+#        When prompted, enter a branch name.
+# 
+# Author: Michael Kavulich, Jr. (September 2016)
+#
+
+
 import os
 import shutil
 import tarfile
