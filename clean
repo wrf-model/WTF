@@ -1,0 +1,123 @@
+#!/usr/bin/python
+import os
+import shutil
+import tarfile
+import sys
+import getopt
+import re
+import shutil
+import glob
+import subprocess
+
+##  clean
+##  
+##  Script for deleting prior builds, tests, and results.   The script has three options:
+##
+##       1.  "clean all":    delete all prior WRF builds and tests; does not delete test result summaries
+##       2.  "clean fail":   delete all WRF build directories whose compilations failed, and
+##                           also delete all test directories where there was some kind of failure. 
+##       3.  "clean check":  list the directories that will be deleted when running "clean fail".
+##
+##  Author: Brian Bonnlander
+##  Modification history:
+##          Sep 2016, Michael Kavulich, Jr.: Ported original ksh script to python, fixed errors
+
+def usage():
+   print("usage: " + __file__ + " all|fail|check")
+   print("")
+   print("       " + __file__ + " all   : delete all WRF build directories and test directories (keeps RESULTS)")
+   print("       " + __file__ + " fail  : delete only WRF build directories and test directories with failures")
+   print("       " + __file__ + " check : show what '" + __file__ + " fail' would delete.")
+   sys.exit(1)
+
+
+def main():
+ # Start of main script: check for valid options
+ # A single parameter must be passed in, and it must be "all","fail", or "check".
+ if not len(sys.argv)==2:
+    usage()
+ 
+ cleantype=sys.argv[1]
+ if cleantype=="all":
+    cleanall=True
+    dryrun=False
+ elif cleantype=="fail":
+    cleanall=False
+    dryrun=False
+ elif cleantype=="check":
+    cleanall=False
+    dryrun=True
+ else:
+    print("unrecognized option: " + cleantype)
+    usage()
+ 
+ 
+ # Define relevant directories.
+ wtf_rootdir=os.getcwd()
+ build_dir=wtf_rootdir + "/Builds"
+ runs_dir=wtf_rootdir + "/Runs"
+ trash_dir=wtf_rootdir + "/.Trash"
+ 
+ # Make sure builds and runs directories exist.
+ if not os.path.isdir(build_dir):
+    print "Error: " + build_dir + " does not exist"
+    print "Be sure you are running this script from the top-level WTF directory"
+    sys.exit(2)
+ elif not os.path.isdir(runs_dir):
+    print "Error: " + runs_dir + " does not exist"
+    print "Be sure you are running this script from the top-level WTF directory"
+    sys.exit(2)
+ 
+ # Create trash if it does not exist
+ if not os.path.isdir(trash_dir):
+    os.mkdir(trash_dir)
+ 
+ # If "clean all", move all code builds and test runs directories to the trash
+ if cleanall:
+    # Build directories
+    del_dirs = [dir for dir in os.listdir(build_dir) if re.search(r'\S+\.\d+$', dir)]
+    for f in del_dirs:
+       f = build_dir + '/' + f
+       if dryrun:
+          print(f + ' would be moved to ' + trash_dir)
+       else:
+          os.system('mv ' + f + ' ' + trash_dir)
+          print(f + ' is being moved to ' + trash_dir)
+ 
+    # Run directories
+    del_dirs = [dir for dir in os.listdir(runs_dir) if re.search(r'\S+\.\d+$', dir)]
+    for f in del_dirs:
+       f = runs_dir + '/' + f
+       if dryrun:
+          print(f + ' would be moved to ' + trash_dir)
+       else:
+          os.system('mv ' + f + ' ' + trash_dir)
+          print(f + ' is being moved to ' + trash_dir)
+ else: # If "clean fail" or "clean check", find build directories with FAIL*.tst in them
+    print("Searching for failed builds and runs to delete...")
+    del_dirs = []
+    failbuilds = glob.glob(build_dir + "/*/*/*/FAIL*.tst") #First check build failures
+    failruns   = glob.glob(runs_dir  + "/*/*/*/FAIL*.tst") #Then check run failures
+    allfails   = failbuilds + failruns
+    for full_dir in allfails:               # For each parallelism type
+       del_struct = full_dir.split('/')     # decompose directory structure into del_struct
+       del_dir = '/'.join(del_struct[:-3])  # recompose "del_struct" (minus 3 lowest level directories) into path "del_dir"
+       del_dirs.append(del_dir)             # Add path "del_dir" to list "del_dirs"
+
+    del_dirs = list(set(del_dirs))  # Removes duplicate items on the list
+
+    for f in del_dirs:
+       if dryrun:
+          print(f + ' would be moved to ' + trash_dir)
+       else:
+          os.system('mv ' + f + ' ' + trash_dir)
+          print(f + ' is being moved to ' + trash_dir)
+
+ if not dryrun:
+     print("Deleting everything in " + trash_dir)
+     proc = subprocess.Popen("rm -rf " + trash_dir + "/* &", shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
+
+if __name__ == "__main__":
+    main()
+
+
