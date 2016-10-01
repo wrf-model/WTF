@@ -17,31 +17,30 @@
 
 
 def usage():
-   print("In script __file__\nUsage: __file__ -R TEST_FILE.wtf")
+   print("\nUsage: " + __file__ + " TEST_FILE.wtf")
+   sys.exit(1)
+## Start of main program
 
+def main():
 
+ print("Starting script " + __file__)
 ##
 ## Parse command line and set WRF test file name.
-## A test file name is required to continue. 
+## Check that the file exists and has a ".wtf" extension
 ##
 
-WRF_TEST_FILE=''
+ if not len(sys.argv)==2:
+    print("\nError: you must specify a test file\n")
+    usage()
 
-while [ $# -gt 0 ]
-do
-    case "$1" in
-        -R)   shift;  WRF_TEST_FILE=$1;;
-        *)  usage
-            exit 1;;
-    esac
-    shift
-done
-
-if [[ -z $WRF_TEST_FILE ]]; then
-   usage
-   exit 1
-fi
-
+ testfile=sys.argv[1]
+ if testfile.rsplit('.', 1)=="wtf":
+    if not os.path.isfile(testfile)
+       print("\nError: test file " + testfile + " does not exist!\n")
+       usage()
+ else:
+    print("Error: Test files must end in '.wtf' extension")
+    usage()
 
 ## Include common functions.
 . $WRF_TEST_ROOT/scripts/Common.ksh
