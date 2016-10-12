@@ -1,14 +1,16 @@
 #!/usr/bin/env python
 
 import os
-import time;
+import time
+
+import run_wrf_tests
 
 starttime = time.asctime( time.localtime(time.time()) )
 print "Starting WTF :", starttime
 
-WRF_TEST_ROOT = os.getcwd()
+wrf_test_root = os.getcwd()
 
-scripts/run_wrf_tests.py -R regTest_gnu_Darwin.wtf >& run_wtf.log
+run_test("regTest_gnu_Darwin.wtf")
 
 endtime = time.asctime( time.localtime(time.time()) )
 print "Starting WTF :", endtime

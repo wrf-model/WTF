@@ -1,5 +1,16 @@
 #!/usr/bin/env python
 
+import os
+import sys
+import getopt
+import re
+import shutil
+import subprocess
+import time
+
+# Import common functions
+import common
+
 ## run_WRF_Tests.ksh
 ##
 ## Top-level script for running a set of regression tests for WRF. 
@@ -13,13 +24,23 @@
 ##  Author: Brian Bonnlander
 ##  Modification history:
 ##          Sep 2016, Michael Kavulich, Jr.: Ported original ksh script to python
-##
+##          Oct 2016, "                    : Script can be run directly from command line, or the function run_test can be
+##                                              called from any other script
 
+get_local_code=False
+get_github_code=True
+list_of_wrfs_to_test=["/Users/kavulich/WRFDA_REGTEST/WRF"]
+list_of_github_urls=["https://github.com/wrf-model/WRF"]
+list_of_github_branches=["master"]
 
 def usage():
    print("\nUsage: " + __file__ + " TEST_FILE.wtf")
    sys.exit(1)
 ## Start of main program
+
+if __name__ == "__main__":
+    # execute only if run as a script
+    main()
 
 def main():
 
@@ -42,30 +63,19 @@ def main():
     print("Error: Test files must end in '.wtf' extension")
     usage()
 
-## Include common functions.
-. $WRF_TEST_ROOT/scripts/Common.ksh
+ starttime = time.asctime( time.localtime(time.time()) )
+ print "Starting WTF :", starttime
+
+ run_test(testfile)
+
+ endtime = time.asctime( time.localtime(time.time()) )
+ print "WTF done:", endtime
 
 
-##
-## Verify that the test file exists and ends in *.wtf, then run the shell commands in the test file. 
-## 
-
-if [ ! -f $WRF_TEST_FILE ]; then
-   echo "$0: nonexistent WRF Test File: '${WRF_TEST_FILE}'; stopping."
-   exit 2
-fi
-
-fileSuffix=`getFileSuffix $WRF_TEST_FILE`
-if [[ $fileSuffix != "wtf" ]]; then
-   echo "WRF test file '$WRF_TEST_FILE' must end in *.wtf extension; aborting."
-   exit 2
-fi
+def run_test(testfile):
 
 ##  Import settings from the WTF master control file. 
-currDir=`pwd`
-export TEST_FILE_FULL=`makeFullPath $WRF_TEST_FILE $currDir`
-. $TEST_FILE_FULL
-
+   read_wtf(testfile)
 
 
 ##
@@ -73,15 +83,27 @@ export TEST_FILE_FULL=`makeFullPath $WRF_TEST_FILE $currDir`
 ##  If so, run the top-level build script, and verify no error before continuing. 
 ## 
 
-if [[ -z $NUM_PROC_BUILD ]]  || [[ -z $TARFILE_DIR ]]; then 
-   echo "$0: Error: specified WRF Test File failed to specify key variables; exiting."
-   exit 1
-fi
+#if [[ -z $NUM_PROC_BUILD ]]  || [[ -z $TARFILE_DIR ]]; then 
+#   echo "$0: Error: specified WRF Test File failed to specify key variables; exiting."
+#   exit 1
+#fi
 
 
 ##  Create a list of all build options to pass to "configure". 
-export CONFIGURE_CHOICES=`echo $CONFIGURE_SERIAL $CONFIGURE_OPENMP $CONFIGURE_MPI`
+#export CONFIGURE_CHOICES=`echo $CONFIGURE_SERIAL $CONFIGURE_OPENMP $CONFIGURE_MPI`
 
+
+## Get WRF copies to build
+
+if get_local_code:
+   get_wrfs_local(list_of_wrfs_to_test)
+
+if get_github_code:
+   get_wrfs_github(list_of_github_urls,list_of_github_branches)
+
+if not (get_local_code or get_github_code):
+   print("You must test either local code or code from github")
+   sys.exit(1)
 
 tarFiles=`ls $TARFILE_DIR/*.tar`
 if [ -z "$tarFiles" ]; then
