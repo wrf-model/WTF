@@ -21,6 +21,9 @@ branch = raw_input('Enter branch name (leave blank for master): ')
 if not url:
    url = "https://github.com/wrf-model/WRF"
 
+urlsplit = url.split("/")
+fork = urlsplit[3]
+
 if not branch:
    branch = "master"
 
@@ -37,7 +40,9 @@ os.chdir("WRFV3")
 os.system("git checkout " + branch)
 os.chdir("../")
 
-out = tarfile.open("github_" + branch + ".tar", mode='w')
+
+
+out = tarfile.open("github_" + fork + "_" + branch + ".tar", mode='w')
 try:
     out.add('WRFV3') # Adding "WRFV3" directory to tar file
 finally:
