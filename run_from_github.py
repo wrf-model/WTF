@@ -21,13 +21,21 @@ branch = raw_input('Enter branch name (leave blank for master): ')
 if not url:
    url = "https://github.com/wrf-model/WRF"
 
+#In the future we hope to run tests from multiple forks, so we should disambiguate the tar files by adding the fork name
 urlsplit = url.split("/")
-fork = urlsplit[3]
+if (urlsplit[0] is "https:") or (urlsplit[0] is "http:"):
+   fork = urlsplit[3]
+   print(fork)
+else: # Assume if it is not http then user is using ssh
+   urlsplitagain = urlsplit[0].split(":")
+   fork = urlsplitagain[1]
 
 if not branch:
    branch = "master"
 
 print "Repository URL is %s." % url
+if "wrf-model" not in fork:
+   print "Fork is %s." % fork
 print "Branch name is %s." % branch
 
 os.chdir("tarballs")
