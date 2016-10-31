@@ -11,6 +11,8 @@ import time
 # Import common functions and definitions
 import common
 
+# Import functions for building, testing, and checking test results
+#import build_code
 
 ## run_wrf_tests.py
 ##
@@ -30,8 +32,6 @@ import common
 
 #list_of_codes_to_test[0]=code_to_test(False,"/Users/kavulich/WRFDA_REGTEST/WRF")
 #list_of_codes_to_test[1]=code_to_test(True,"https://github.com/wrf-model/WRF","master")
-list_of_codes_to_test=list() #initialize empty list
-tardir = "/Users/kavulich/WTF/WTF/tarballs"
 
 
 # First, we need to define some sub-functions
@@ -44,9 +44,11 @@ def usage():
 
 ##########################################################################
 
-def run_wrf_tests():
+def run_wrf_tests(rootdir):
 
  print("Starting script " + __file__)
+ print("Root dir is " + rootdir)
+
 ##
 ## Parse command line and set WRF test file name.
 ## Check that the file exists and has a ".wtf" extension
@@ -68,7 +70,7 @@ def run_wrf_tests():
  starttime = time.asctime( time.localtime(time.time()) )
  print "Starting WTF :", starttime
 
- run_test(testfile)
+ run_test(testfile,rootdir)
 
  endtime = time.asctime( time.localtime(time.time()) )
  print "WTF done:", endtime
@@ -86,23 +88,21 @@ def read_wtf(testfile):
     for line in tf:
        line = line.lstrip()               # "lstrip()" strips any leading whitespace from the line
        if regexp.search(line) is not None:
-          line = line.replace("export","",1) # Remove "export" from start of line
+          line = line.replace("export ","",1) # Remove "export" from start of line
           if "BUILD_TYPES" in line:       # "BUILD_TYPES" is a space-separated string, need to convert to list
              print("Found a BUILD_TYPE")
-#             regex2 = re.compile(r'("|\').+("|\')') # This regex is a little intimidating I know, but it's just looking for 
-#             line = re.findall(regex2,line)
-             build_string = line.replace("BUILD_TYPES=","",1)
-#             build_string = line[0]
-             print("Line is")
-             print(line)
-             print("Build string is")
-             print(build_string)
-             new_test.build_types = build_string.split(" ")
+             line = line.replace("BUILD_TYPES=","",1) # Remove "BUILD_TYPES=" from start of line
+             line = line.replace("\"","")             # Remove literal quotes in string
+             line = line.rstrip()                     # Remove trailing whitespace
+             new_test.build_types = line.split(" ")
 
+ print("Build types:")
+ print(new_test.build_types)
  return new_test
 
 # run_test: Reads test file, finds code, runs tests, prints results. This is the main guy!
-def run_test(testfile):
+def run_test(testfile,rootdir):
+ tardir = rootdir + "tarballs/"
 
  ##  Import settings from the WTF master control file. 
  test_from_file = read_wtf(testfile)
@@ -118,6 +118,8 @@ def run_test(testfile):
  tar_ls_lines = out.splitlines() # Since ls -l returns files separated by line, we'll split the output by line
 
  del tar_ls_lines[0] # Get rid of the first element of our list; the first line returned by "ls -l" is unimportant
+
+ list_of_codes_to_test=list() #initialize empty list
  for tar_line in tar_ls_lines:
     tar_name = tar_line.split(" ")[-1] # "tar_name" is the last column of this line from the "ls -l" command: the filename!
     regexp = re.compile(r'tar$')       # This regex checks if the last three characters of the filename are "tar"
@@ -145,8 +147,8 @@ def run_test(testfile):
 
     ## Run top-level build script
     print("Building " + code_to_test)
-#    build_code(code_to_test,test_from_file)
- #   . $WRF_TEST_ROOT/scripts/allBuild.ksh  
+#    build_code.build(code_to_test,test_from_file,rootdir)
+ #   . $WRF_TEST_ROOT/scripts/allBuild.ksh
  #   if [ $? -ne 0 ]; then
  #      echo "$WRF_TEST_ROOT/scripts/allBuild.ksh returned $?; aborting!"
  #      exit 255
@@ -173,5 +175,6 @@ def run_test(testfile):
 
 if __name__ == "__main__":
     # execute only if run as a script
-    run_wrf_tests()
+    wtf_dir = os.path.dirname(os.path.abspath(__file__))[:-7]
+    run_wrf_tests(wtf_dir)
 
