@@ -171,12 +171,20 @@ is a two-letter code, one for each flavor of WRF, and <CONFIG#> is the value giv
 script.  Codes for different flavors or WRF are: 
 
        em_real)        typeCode='er'
+       em_real8)       typeCode='eR'
        nmm_real)       typeCode='nr'
        nmm_nest)       typeCode='nn'
+       nmm_hwrf)       typeCode='nh'
        em_chem)        typeCode='ec'
        em_chem_kpp)    typeCode='ek'
        em_b_wave)      typeCode='eb'
        em_quarter_ss)  typeCode='eq'
+       em_quarter_ss8) typeCode='eQ'
+       em_hill2d_x)    typeCode='eh'
+       em_move)        typeCode='em'
+       wrfda_3dvar)    typeCode='3d'
+       wrfplus)        typeCode='wp'
+       wrfda_4dvar)    typeCode='4d'
 
 For example, the job string given for building the MPI version of "em_real" using the PGI compiler 
 on yellowstone would be "bld.er.3", since "3" is the value passed to "configure" to select the PGI

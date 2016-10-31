@@ -23,9 +23,8 @@ if not url:
 
 #In the future we hope to run tests from multiple forks, so we should disambiguate the tar files by adding the fork name
 urlsplit = url.split("/")
-if (urlsplit[0] is "https:") or (urlsplit[0] is "http:"):
+if "http" in urlsplit[0]:
    fork = urlsplit[3]
-   print(fork)
 else: # Assume if it is not http then user is using ssh
    urlsplitagain = urlsplit[0].split(":")
    fork = urlsplitagain[1]

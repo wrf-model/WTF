@@ -56,7 +56,7 @@ def main():
  wtf_rootdir=os.getcwd()
  build_dir=wtf_rootdir + "/Builds"
  runs_dir=wtf_rootdir + "/Runs"
- trash_dir=wtf_rootdir + "/.Trash"
+ trash_dir=wtf_rootdir + "/.Trash/"
  
  # Make sure builds and runs directories exist.
  if not os.path.isdir(build_dir):
@@ -77,21 +77,21 @@ def main():
     # Build directories
     del_dirs = [dir for dir in os.listdir(build_dir) if re.search(r'\S+\.\d+$', dir)]
     for f in del_dirs:
-       f = build_dir + '/' + f
+       fullf = build_dir + '/' + f
        if dryrun:
-          print(f + ' would be moved to ' + trash_dir)
+          print(fullf + ' would be moved to ' + trash_dir + "build" + f)
        else:
-          os.system('mv ' + f + ' ' + trash_dir)
-          print(f + ' is being moved to ' + trash_dir)
+          os.system('mv ' + fullf + ' ' + trash_dir + "build" + f)
+          print(fullf + ' is being moved to ' + trash_dir)
  
     # Run directories
     del_dirs = [dir for dir in os.listdir(runs_dir) if re.search(r'\S+\.\d+$', dir)]
     for f in del_dirs:
-       f = runs_dir + '/' + f
+       fullf = runs_dir + '/' + f
        if dryrun:
-          print(f + ' would be moved to ' + trash_dir)
+          print(f + ' would be moved to ' + trash_dir + "run" + f)
        else:
-          os.system('mv ' + f + ' ' + trash_dir)
+          os.system('mv ' + fullf + ' ' + trash_dir + "run" + f)
           print(f + ' is being moved to ' + trash_dir)
  else: # If "clean fail" or "clean check", find build directories with FAIL*.tst in them
     print("Searching for failed builds and runs to delete...")
