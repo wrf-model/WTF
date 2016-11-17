@@ -94,7 +94,14 @@ def read_wtf(testfile):
              line = line.replace("BUILD_TYPES=","",1) # Remove "BUILD_TYPES=" from start of line
              line = line.replace("\"","")             # Remove literal quotes in string
              line = line.rstrip()                     # Remove trailing whitespace
-             new_test.build_types = line.split(" ")
+             build_types = line.split(" ")
+             new_test.build_types=build_types
+             
+             for bt in build_types:
+                new_build_type = common.build_type(bt)
+                print(new_build_type.name)
+                print(new_build_type.depend)
+#                new_test.build_types = new_test.build_types.append(common.build_type(bt))
 
  print("Build types:")
  print(new_test.build_types)
@@ -147,7 +154,7 @@ def run_test(testfile,rootdir):
 
     ## Run top-level build script
     print("Building " + code_to_test)
-#    build_code.build(code_to_test,test_from_file,rootdir)
+    build_code.build(code_to_test,test_from_file,rootdir)
  #   . $WRF_TEST_ROOT/scripts/allBuild.ksh
  #   if [ $? -ne 0 ]; then
  #      echo "$WRF_TEST_ROOT/scripts/allBuild.ksh returned $?; aborting!"
