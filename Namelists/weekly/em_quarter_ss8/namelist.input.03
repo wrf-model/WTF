@@ -68,7 +68,7 @@
  /
 
  &dynamics
- use_theta_m                         = 0
+ use_theta_m                         = 1
  rk_ord                              = 3,
  diff_opt                            = 2,
  km_opt                              = 2,
