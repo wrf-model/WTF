@@ -19,6 +19,7 @@ import re
 import sys
 import shutil
 import tarfile
+import subprocess
 
 
 def usage(exit_code=0): #If no exit code is specified, this indicates successful execution, so return exit code "0" per convention
@@ -32,6 +33,8 @@ def usage(exit_code=0): #If no exit code is specified, this indicates successful
 
 def main():
 
+ tardir = "tarballs"
+
  if len(sys.argv) > 1:
     for arg in sys.argv[1:]:
        if "--url=" in arg:
@@ -44,7 +47,42 @@ def main():
           print("Unrecognized option: " + arg)
           usage(1)
 
- url = raw_input('Enter github URL (leave blank for https://github.com/wrf-model/WRF): ')
+ ls_proc = subprocess.Popen(["ls", "-l", tardir], stdout=subprocess.PIPE)
+ (out, err) = ls_proc.communicate()
+ if err:
+    sys.exit("There was an error: " + err)
+
+ tardirfiles = out.splitlines()
+
+ i = 0
+ for tardirfile in tardirfiles:
+    maybetarfile = tardirfile.split(" ")
+    maybetarfile = maybetarfile[-1]            # need to extract "testname", which is in the last column of the "ls" output
+    regexp = re.compile(r'tar$')
+    if regexp.search(maybetarfile) is not None:
+       if i == 0:
+          print("\nWARNING:\nFound existing tar file(s):")
+       print(maybetarfile)
+       i =+ 1
+       continue
+
+
+ if i > 0:
+    cont = ''
+    print("\nIf you choose to continue, tests will be run using these existing files AS WELL AS your github-specified test\n")
+    while not cont:
+       cont = raw_input("Do you wish to continue? (y/n) ")
+       if re.match('y', cont, re.IGNORECASE) is not None:
+          break
+       elif re.match('n', cont, re.IGNORECASE) is not None:
+          print("User specified exit.\nRemove tar files in the '" + tardir + "'directory if you do not wish to run tests using those tar files.")
+          sys.exit(0)
+       else:
+          print("Unrecognized input: " + cont)
+          cont=''
+
+
+ url = raw_input('\nEnter github URL (leave blank for https://github.com/wrf-model/WRF): ')
  branch = raw_input('Enter branch name (leave blank for master): ')
 
  url = url.strip()
@@ -80,7 +118,7 @@ def main():
     print "Fork is %s." % fork
  print "Branch name is %s." % branch
  
- os.chdir("tarballs")
+ os.chdir(tardir)
 
  if os.path.isdir("WRFV3"):
     shutil.rmtree("WRFV3")
@@ -91,8 +129,23 @@ def main():
  os.chdir("../")
 
 
+ tarname = "github_" + fork + "_" + branch + ".tar"
+ if os.path.isfile(tarname):
+    cont = ''
+    print("\nWARNING: \n" + tardir + "/" + tarname + " already exists, so you have probably already run this test.\nIf you continue, this file will be overwritten.\n")
+    while not cont:
+       cont = raw_input("Do you wish to continue? (y/n) ")
+       if re.match('y', cont, re.IGNORECASE) is not None:
+          break
+       elif re.match('n', cont, re.IGNORECASE) is not None:
+          print("User specified exit.")
+          sys.exit(0)
+       else:
+          print("Unrecognized input: " + cont)
+          cont=''
 
- out = tarfile.open("github_" + fork + "_" + branch + ".tar", mode='w')
+
+ out = tarfile.open(tarname, mode='w')
  try:
     out.add('WRFV3') # Adding "WRFV3" directory to tar file
  finally:
