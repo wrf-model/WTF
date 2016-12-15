@@ -57,7 +57,7 @@
  sf_surface_physics                  = 88,
  bl_pbl_physics                      = 3,
  nphs                                = 2,
- cu_physics                          = 4,
+ cu_physics                          = 95,
  ncnvc                               = 2,
  tprec                               = 3,
  theat                               = 6,
