@@ -12,6 +12,15 @@
 #BSUB -N
 
 unsetenv MP_PE_AFFINITY
+
+if ( ! -e Data  ) then
+   echo "ERROR ERROR ERROR"
+   echo ""
+   echo "'Data' directory not found"
+   echo "If on Yellowstone, link /glade/p/wrf/Data into your WTF directory"
+   exit 1
+endif
+
 if ( ! -d /glade/scratch/${user}/TMPDIR_FOR_PGI_COMPILE ) then
 	mkdir /glade/scratch/${user}/TMPDIR_FOR_PGI_COMPILE
 endif

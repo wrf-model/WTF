@@ -33,6 +33,15 @@ def usage(exit_code=0): #If no exit code is specified, this indicates successful
 
 def main():
 
+ # First things first: check if user has a "Data" directory, quit with helpful message if they don't
+ if not os.path.isfile("Data"):
+    print("\nERROR ERROR ERROR\n")
+    print("'Data' directory not found")
+    print("If on Yellowstone, link /glade/p/wrf/Data into your WTF directory")
+    print("If you do not have access to Yellowstone, contact kavulich@ucar.edu for help")
+    sys.exit("\nExiting script")
+
+
  tardir = "tarballs"
 
  if len(sys.argv) > 1:
