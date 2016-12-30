@@ -27,18 +27,22 @@ def usage(exit_code=0): #If no exit code is specified, this indicates successful
    print("usage: " + __file__ + " --url=https://github.com/wrf-model/WRF --branch=branch_name")
    print("")
    print("       " + __file__ + " url   : The main URL of the Github repository you wish to test (e.g. https://github.com/username/WRF for your fork)")
-   print("       " + __file__ + " fail  : The name of the branch you wish to test")
+   print("       " + __file__ + " branch : The name of the branch you wish to test")
    sys.exit(exit_code)
 
 
 def main():
+
+ # Define these as "None" for future checks
+ url=None
+ branch=None
 
  # First things first: check if user has a "Data" directory, quit with helpful message if they don't
  if not os.path.isdir("Data"):
     print("\nERROR ERROR ERROR\n")
     print("'Data' directory not found")
     print("If on Yellowstone, link /glade/p/wrf/Data into your WTF directory")
-    print("If you do not have access to Yellowstone, contact kavulich@ucar.edu for help")
+    print("If you do not have access to Yellowstone, you can download the data from http://www2.mmm.ucar.edu/wrf/tmp/data_v03.01.tar")
     sys.exit("\nExiting script")
 
 
@@ -75,7 +79,6 @@ def main():
        i =+ 1
        continue
 
-
  if i > 0:
     cont = ''
     print("\nIf you choose to continue, tests will be run using these existing files AS WELL AS your github-specified test\n")
@@ -91,11 +94,13 @@ def main():
           cont=''
 
 
- url = raw_input('\nEnter github URL (leave blank for https://github.com/wrf-model/WRF): ')
- branch = raw_input('Enter branch name (leave blank for master): ')
+ if url is None:
+    url = raw_input('\nEnter github URL (leave blank for https://github.com/wrf-model/WRF): ')
+    url = url.strip()
 
- url = url.strip()
- branch = branch.strip()
+ if branch is None:
+    branch = raw_input('Enter branch name (leave blank for master): ')
+    branch = branch.strip()
 
  spaces = re.compile(r'\s')
  if (re.search(spaces, url) is not None):
