@@ -55,7 +55,7 @@
  co2tf                               = 1,
  sf_sfclay_physics                   = 88,
  sf_surface_physics                  = 88,
- bl_pbl_physics                      = 3,
+ bl_pbl_physics                      = 93,
  nphs                                = 2,
  cu_physics                          = 95,
  ncnvc                               = 2,
