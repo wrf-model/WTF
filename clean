@@ -23,17 +23,19 @@ import subprocess
 ##          Sep 2016, Michael Kavulich, Jr.: Ported original ksh script to python, fixed errors
 
 def usage():
-   print("usage: " + __file__ + " all|fail|check")
+   print("usage: " + __file__ + " all|fail|check|name='name_of_build'|namecheck='name_of_build'")
    print("")
    print("       " + __file__ + " all   : delete all WRF build directories and test directories (keeps RESULTS)")
    print("       " + __file__ + " fail  : delete only WRF build directories and test directories with failures")
    print("       " + __file__ + " check : show what '" + __file__ + " fail' would delete.")
+   print("       " + __file__ + " name  : delete only WRF build directories starting with the specified name")
+   print("       " + __file__ + " namecheck : show what '" + __file__ + " name' would delete.")
    sys.exit(1)
 
 
 def main():
  # Start of main script: check for valid options
- # A single parameter must be passed in, and it must be "all","fail", or "check".
+ # A single parameter must be passed in, and it must be "all","fail", "check", "name='name_of_build'", or "namecheck='name_of_build'.
  if not len(sys.argv)==2:
     usage()
  
@@ -41,16 +43,34 @@ def main():
  if cleantype=="all":
     cleanall=True
     dryrun=False
+    cleanname=None
  elif cleantype=="fail":
     cleanall=False
     dryrun=False
+    cleanname=None
  elif cleantype=="check":
     cleanall=False
     dryrun=True
+    cleanname=None
+ elif "name=" in cleantype:
+    cleantypename = cleantype.split('=',1)
+    cleanall=True
+    dryrun=False
+    cleanname=cleantypename[1]
+ elif "namecheck=" in cleantype:
+    cleantypename = cleantype.split('=',1)
+    cleanall=True
+    dryrun=True
+    cleanname=cleantypename[1]
  else:
-    print("unrecognized option: " + cleantype)
+    print("unrecognized option: " + cleantype.split('=',1)[0])
     usage()
- 
+
+ if dryrun==True:
+    print("\nThis is a dry run: nothing will actually be deleted!!\n")
+
+ if cleanname is not None:
+    print("\nOnly builds and runs from a test named '" + cleanname + "' will be deleted\n")
  
  # Define relevant directories.
  wtf_rootdir=os.getcwd()
@@ -75,7 +95,10 @@ def main():
  # If "clean all", move all code builds and test runs directories to the trash
  if cleanall:
     # Build directories
-    del_dirs = [dir for dir in os.listdir(build_dir) if re.search(r'\S+\.\d+$', dir)]
+    if cleanname is None:
+       del_dirs = [dir for dir in os.listdir(build_dir) if re.search(r'\S+\.\d+$', dir)]
+    else:
+       del_dirs = [dir for dir in os.listdir(build_dir) if re.search(r'^'+cleanname+'\.\d+$', dir)]
     for f in del_dirs:
        fullf = build_dir + '/' + f
        if dryrun:
@@ -85,7 +108,10 @@ def main():
           print(fullf + ' is being moved to ' + trash_dir)
  
     # Run directories
-    del_dirs = [dir for dir in os.listdir(runs_dir) if re.search(r'\S+\.\d+$', dir)]
+    if cleanname is None:
+       del_dirs = [dir for dir in os.listdir(runs_dir) if re.search(r'\S+\.\d+$', dir)]
+    else:
+       del_dirs = [dir for dir in os.listdir(runs_dir) if re.search(r'^'+cleanname+'\.\d+$', dir)]
     for f in del_dirs:
        fullf = runs_dir + '/' + f
        if dryrun:
@@ -96,8 +122,12 @@ def main():
  else: # If "clean fail" or "clean check", find build directories with FAIL*.tst in them
     print("Searching for failed builds and runs to delete...")
     del_dirs = []
-    failbuilds = glob.glob(build_dir + "/*/*/*/FAIL*.tst") #First check build failures
-    failruns   = glob.glob(runs_dir  + "/*/*/*/FAIL*.tst") #Then check run failures
+    if cleanname is None:
+       failbuilds = glob.glob(build_dir + "/*/*/*/FAIL*.tst") #First check build failures
+       failruns   = glob.glob(runs_dir  + "/*/*/*/FAIL*.tst") #Then check run failures
+    else:
+       failbuilds = glob.glob(build_dir + "/" + cleanname + "*/*/*/FAIL*.tst") #First check build failures
+       failruns   = glob.glob(runs_dir  + "/" + cleanname + "*/*/*/FAIL*.tst") #Then check run failures
     allfails   = failbuilds + failruns
     for full_dir in allfails:               # For each parallelism type
        del_struct = full_dir.split('/')     # decompose directory structure into del_struct

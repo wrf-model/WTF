@@ -47,7 +47,8 @@ def main():
 
 
  tardir = "tarballs"
-
+ builddir = "Builds"
+ rundir = "Runs"
  if len(sys.argv) > 1:
     for arg in sys.argv[1:]:
        if "--url=" in arg:
@@ -143,10 +144,11 @@ def main():
  os.chdir("../")
 
 
- tarname = "github_" + fork + "_" + branch + ".tar"
+ testname = "github_" + fork + "_" + branch
+ tarname = testname + ".tar"
  if os.path.isfile(tarname):
     cont = ''
-    print("\nWARNING: \n" + tardir + "/" + tarname + " already exists, so you have probably already run this test.\nIf you continue, this file will be overwritten.\n")
+    print("\nWARNING: \n" + tardir + "/" + tarname + " already exists, so you have probably already run this test.\nIf you continue, this file will be overwritten, and all old test directories deleted.\n")
     while not cont:
        cont = raw_input("Do you wish to continue? (y/n) ")
        if re.match('y', cont, re.IGNORECASE) is not None:
@@ -157,7 +159,29 @@ def main():
        else:
           print("Unrecognized input: " + cont)
           cont=''
-
+ os.chdir("../")
+ del_dirs = None
+ del_dirs = [dir for dir in os.listdir(builddir) if re.search(r'^'+testname+'\.\d+$', dir)]
+ if del_dirs is None:
+    del_dirs = [dir for dir in os.listdir(rundir) if re.search(r'^'+testname+'\.\d+$', dir)]
+ os.chdir(tardir)
+ print(del_dirs)
+ if del_dirs is not None:
+    cont = ''
+    print("\nWARNING WARNING WARNING: \nYou have existing builds/runs for a test named " + testname + ": If you continue, these old test directories deleted!\n")
+    while not cont:
+       cont = raw_input("Do you wish to continue? (y/n) ")
+       if re.match('y', cont, re.IGNORECASE) is not None:
+          break
+       elif re.match('n', cont, re.IGNORECASE) is not None:
+          print("User specified exit.")
+          sys.exit(0)
+       else:
+          print("Unrecognized input: " + cont)
+          cont=''
+    os.chdir("../")
+    os.system('./clean --name=' + testname)
+    os.chdir(tardir)
 
  out = tarfile.open(tarname, mode='w')
  try:
