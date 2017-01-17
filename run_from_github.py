@@ -37,18 +37,27 @@ def main():
  url=None
  branch=None
 
+ # Keep track of version number for Data directory
+ version="v03.07"
+
  # First things first: check if user has a "Data" directory, quit with helpful message if they don't
  if not os.path.isdir("Data"):
     print("\nERROR ERROR ERROR\n")
     print("'Data' directory not found")
     print("If on Yellowstone, link /glade/p/wrf/Data into your WTF directory")
-    print("If you do not have access to Yellowstone, you can download the data from http://www2.mmm.ucar.edu/wrf/tmp/data_v03.01.tar")
+    print("If you do not have access to Yellowstone, you can download the data from http://www2.mmm.ucar.edu/wrf/tmp/data_"+version+".tar")
     sys.exit("\nExiting script")
-
+ elif not os.path.isfile("Data/" + version):
+    print("\nERROR ERROR ERROR\n")
+    print("Your 'Data' directory is too old to work with this version of the WTF. You need version " + version)
+    print("If on Yellowstone, link /glade/p/wrf/Data into your WTF directory")
+    print("If you do not have access to Yellowstone, you can download the data from http://www2.mmm.ucar.edu/wrf/tmp/data_"+version+".tar")
+    sys.exit("\nExiting script")
 
  tardir = "tarballs"
  builddir = "Builds"
  rundir = "Runs"
+
  if len(sys.argv) > 1:
     for arg in sys.argv[1:]:
        if "--url=" in arg:
@@ -88,7 +97,7 @@ def main():
        if re.match('y', cont, re.IGNORECASE) is not None:
           break
        elif re.match('n', cont, re.IGNORECASE) is not None:
-          print("User specified exit.\nRemove tar files in the '" + tardir + "'directory if you do not wish to run tests using those tar files.")
+          print("User specified exit.\nRemove tar files in the '" + tardir + "' directory if you do not wish to run tests using those tar files.")
           sys.exit(0)
        else:
           print("Unrecognized input: " + cont)
