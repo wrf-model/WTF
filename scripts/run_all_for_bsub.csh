@@ -5,8 +5,8 @@ set RUN_DA = NO
 set RUN_DA = YEPPERS
 
 set INTELversion = 16.0.2
-set PGIversion = 15.10
-set GNUversion = 5.3.0
+set PGIversion = 16.1
+set GNUversion = 6.1.0
 
 set INTELversion = 15.0.1
 set PGIversion = 15.1
@@ -55,6 +55,10 @@ module swap intel pgi/${PGIversion}
 module list
 
 ( nohup scripts/run_WRF_Tests.ksh -R regTest_pgi_Yellowstone.wtf ) >&! foo_pgi &
+if ( $RUN_DA != NO ) then
+	echo submit pgi WRFDA WTF
+	( nohup scripts/run_WRF_Tests.ksh -R regTest_pgi_Yellowstone_WRFDA.wtf ) >&! foo_pgi_WRFDA &
+endif
 echo Waiting 10 seconds to submit next job ...
 echo
 

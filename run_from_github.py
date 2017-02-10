@@ -174,7 +174,6 @@ def main():
  if del_dirs is None:
     del_dirs = [dir for dir in os.listdir(rundir) if re.search(r'^'+testname+'\.\d+$', dir)]
  os.chdir(tardir)
- print(del_dirs)
  if del_dirs is not None:
     cont = ''
     print("\nWARNING WARNING WARNING: \nYou have existing builds/runs for a test named " + testname + ": If you continue, these old test directories deleted!\n")
