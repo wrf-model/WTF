@@ -285,7 +285,14 @@ fi
 
 CREATE_DIR=true
 if [ -d $testDir ]; then
-    if $CLOBBER; then
+    if [ ! -f ${testDir}/test.sh ]; then
+       # If the directory exists but does not contain test.sh, the whole testing workflow will fail
+       # Need to re-create the directory for this case (can happen for re-running compile fails)
+       echo "Test file 'test.sh' does not exist for existing test directory"
+       echo $testDir
+       echo "Re-creating the test directory"
+       \rm -rf $testDir
+    elif $CLOBBER; then
        newDir=${testDir}.$$
        echo "Moving existing directory '$testDir' to '$newDir'."
        mv $testDir $newDir
