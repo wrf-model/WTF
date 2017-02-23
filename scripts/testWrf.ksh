@@ -39,8 +39,8 @@ getTableNames()
 {
    wrfType=$1
    # grep in the Makefile for 'ln -s' commands, remove non-table names, split lines into individual commands.
-   # for WRFDA and WRFLPLUS, we need the "DBL" tables
-   if [[ $WRF_TYPE = "wrfda_3dvar" ]] || [[ $WRF_TYPE = "wrfda_4dvar" ]] || [[ $WRF_TYPE = "wrfplus" ]] || [[ $REAL8 ]] ;then
+   # for 8-bit executables, we need the "DBL" tables
+   if [[ $WRF_TYPE = "wrfda_3dvar" ]] || [[ $WRF_TYPE = "wrfda_4dvar" ]] || [[ $WRF_TYPE = "wrfplus" ]] || [[ $WRF_TYPE = "em_real8" ]] || [[ $REAL8 ]]; then
       WRF_TABLES=`grep 'ln -s' ${WRF_ROOT_DIR}/Makefile | egrep -v '=|input|namelist|.exe' | tr ";" "\n" | grep 'ln -s' | awk '{print $3}' | sort -u`
    else
       WRF_TABLES=`grep 'ln -s' ${WRF_ROOT_DIR}/Makefile | egrep -v '=|input|DBL|namelist|.exe' | tr ";" "\n" | grep 'ln -s' | awk '{print $3}' | sort -u`
@@ -197,24 +197,23 @@ fi
 
 
 if [[ $WRF_TYPE = "wrfda_3dvar" ]] || [[ $WRF_TYPE = "wrfda_4dvar" ]];then
-   # Getting hacky here; for WRFDA, only one executable needs to be run, so we can use 
-   # $REAL_COMMAND to replace some data files that need to be 8-bit for 4dvar and WRFPLUS
+   # For WRFDA, only run da_wrfvar.exe
    case $PARALLEL_TYPE in
-       serial) REAL_COMMAND="\mv RRTM_DATA_DBL RRTM_DATA"
+       serial) REAL_COMMAND=""
                WRF_COMMAND="./da_wrfvar.exe > wrfda.out 2>&1 "
                NUM_PROC=1
                ;;
        mpi)    if $BATCH_TEST; then
                    case $BATCH_QUEUE_TYPE in
-                        LSF) REAL_COMMAND="\mv RRTM_DATA_DBL RRTM_DATA"
+                        LSF) REAL_COMMAND=""
                              WRF_COMMAND="mpirun.lsf ./da_wrfvar.exe "
                              ;;
-                        NQS) REAL_COMMAND="\mv RRTM_DATA_DBL RRTM_DATA"
+                        NQS) REAL_COMMAND=""
                              WRF_COMMAND="mpirun ./da_wrfvar.exe "
                              ;;
                    esac
                else
-                   REAL_COMMAND="\mv RRTM_DATA_DBL RRTM_DATA"
+                   REAL_COMMAND=""
                    WRF_COMMAND="mpirun -machinefile machfile -np $NUM_PROC_TEST ./da_wrfvar.exe "
                fi
                ;;
@@ -225,21 +224,21 @@ if [[ $WRF_TYPE = "wrfda_3dvar" ]] || [[ $WRF_TYPE = "wrfda_4dvar" ]];then
 elif [[ $WRF_TYPE = "wrfplus" ]];then
    # For WRFPLUS, only run wrf.exe
    case $PARALLEL_TYPE in
-       serial) REAL_COMMAND="\mv RRTM_DATA_DBL RRTM_DATA"
+       serial) REAL_COMMAND=""
                WRF_COMMAND="./wrf.exe > wrfplus.out 2>&1 "
                NUM_PROC=1
                ;;
        mpi)    if $BATCH_TEST; then
                    case $BATCH_QUEUE_TYPE in
-                        LSF) REAL_COMMAND="\mv RRTM_DATA_DBL RRTM_DATA"
+                        LSF) REAL_COMMAND=""
                              WRF_COMMAND="mpirun.lsf ./wrf.exe "
                              ;;
-                        NQS) REAL_COMMAND="\mv RRTM_DATA_DBL RRTM_DATA"
+                        NQS) REAL_COMMAND=""
                              WRF_COMMAND="mpirun ./wrf.exe "
                              ;;
                    esac
                else
-                   REAL_COMMAND="\mv RRTM_DATA_DBL RRTM_DATA"
+                   REAL_COMMAND=""
                    WRF_COMMAND="mpirun -machinefile machfile -np $NUM_PROC_TEST ./wrf.exe "
                fi
                ;;
@@ -349,6 +348,18 @@ if $CREATE_DIR; then
        fi
        ln -sf $fullPath $testDir
     done
+
+    # For tests requiring double-precision data tables, delete the single-precision table and link it to the double-precision one
+    if [[ $WRF_TYPE = "wrfda_3dvar" ]] || [[ $WRF_TYPE = "wrfda_4dvar" ]] || [[ $WRF_TYPE = "wrfplus" ]] || [[ $WRF_TYPE = "em_real8" ]] || [[ $REAL8 ]]; then
+       DBL_FILES=`ls ${testDir}/*_DBL`
+       for dbl in $DBL_FILES; do
+          sgl=${dbl%????} # set "sgl" as "dbl" minus last 4 characters (for example: if dbl is RRTM_DATA_DBL, sgl will be RRTM_DATA
+          \rm $sgl
+          echo "Linking $dbl to $sgl"
+          ln -sf $dbl $sgl
+       done
+    fi
+    
 
 fi    
 
