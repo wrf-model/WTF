@@ -167,11 +167,3 @@ export FLEX_LIB_DIR='/usr/local/lib'
 # Will not do anything "wrfda_3dvar", "wrfplus", or "wrfda_4dvar" tests
 export NEST_OPTION=1
 
-#  If true, all WRF variables of type "real" are double-precision instead of single-precision.  Most WRF users 
-#  do not use double-precision arithmetic, as single-precision roundoff errors are typically smaller than measurement 
-#  errors used to initialize the WRF model.   However, if iterative schemes are used, such as Thompson microphysics, 
-#  then single-precision roundoff errors can grow, and the user may want to consider using double-precision variables.
-#  Recommended value: false
-# Will not do anything "wrfda_3dvar", "wrfplus", or "wrfda_4dvar" tests
-export REAL8=false
-

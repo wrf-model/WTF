@@ -40,7 +40,7 @@ getTableNames()
    wrfType=$1
    # grep in the Makefile for 'ln -s' commands, remove non-table names, split lines into individual commands.
    # for 8-bit executables, we need the "DBL" tables
-   if [[ $WRF_TYPE = "wrfda_3dvar" ]] || [[ $WRF_TYPE = "wrfda_4dvar" ]] || [[ $WRF_TYPE = "wrfplus" ]] || [[ $WRF_TYPE = "em_real8" ]] || [[ $REAL8 ]]; then
+   if [[ $WRF_TYPE = "wrfda_3dvar" || $WRF_TYPE = "wrfda_4dvar" || $WRF_TYPE = "wrfplus" || $WRF_TYPE = "em_real8" ]]; then
       WRF_TABLES=`grep 'ln -s' ${WRF_ROOT_DIR}/Makefile | egrep -v '=|input|namelist|.exe' | tr ";" "\n" | grep 'ln -s' | awk '{print $3}' | sort -u`
    else
       WRF_TABLES=`grep 'ln -s' ${WRF_ROOT_DIR}/Makefile | egrep -v '=|input|DBL|namelist|.exe' | tr ";" "\n" | grep 'ln -s' | awk '{print $3}' | sort -u`
@@ -350,7 +350,7 @@ if $CREATE_DIR; then
     done
 
     # For tests requiring double-precision data tables, delete the single-precision table and link it to the double-precision one
-    if [[ $WRF_TYPE = "wrfda_3dvar" ]] || [[ $WRF_TYPE = "wrfda_4dvar" ]] || [[ $WRF_TYPE = "wrfplus" ]] || [[ $WRF_TYPE = "em_real8" ]] || [[ $REAL8 ]]; then
+    if [[ $WRF_TYPE = "wrfda_3dvar" || $WRF_TYPE = "wrfda_4dvar" || $WRF_TYPE = "wrfplus" || $WRF_TYPE = "em_real8" ]]; then
        DBL_FILES=`ls ${testDir}/*_DBL`
        for dbl in $DBL_FILES; do
           sgl=${dbl%????} # set "sgl" as "dbl" minus last 4 characters (for example: if dbl is RRTM_DATA_DBL, sgl will be RRTM_DATA
