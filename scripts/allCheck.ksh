@@ -198,8 +198,13 @@ writeBitForBit()
 }
 
 
-mkdir -p ${TEST_DIR}/RESULTS
+mkdir -p ${TEST_DIR}/RESULTS/old
 
+#Move old results into "old" directory to avoid confusion
+OLD_RESULTS=`\ls ${TEST_DIR}/RESULTS/`
+for oldr in $OLD_RESULTS; do
+   mv ${TEST_DIR}/RESULTS/$oldr ${TEST_DIR}/RESULTS/old/
+done 
 
 # The ID string for this particular test; it is typically something like "wrf_<svn#>"
 TEST_ID=`basename $TARFILE .tar`
