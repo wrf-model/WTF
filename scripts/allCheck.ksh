@@ -200,14 +200,16 @@ writeBitForBit()
 
 mkdir -p ${TEST_DIR}/RESULTS/old
 
-#Move old results into "old" directory to avoid confusion
-OLD_RESULTS=`\ls ${TEST_DIR}/RESULTS/`
-for oldr in $OLD_RESULTS; do
-   mv ${TEST_DIR}/RESULTS/$oldr ${TEST_DIR}/RESULTS/old/
-done 
-
 # The ID string for this particular test; it is typically something like "wrf_<svn#>"
 TEST_ID=`basename $TARFILE .tar`
+
+#Move old results into "old" directory to avoid confusion
+export OLD_RESULT_FILE=${TEST_DIR}/RESULTS/${TEST_ID}_${COMPILER_WTF}_${CONFIGURE_CHOICES}
+export OLD_RESULT_FILE=`echo $OLD_RESULT_FILE | sed 's/ /_/g'`
+OLD_RESULTS=`\ls ${OLD_RESULT_FILE}*`
+for oldr in $OLD_RESULTS; do
+   mv $oldr ${TEST_DIR}/RESULTS/old/
+done
 
 # The path to the file containing a summary of all test results
 #export SUMMARY_FILE=${TEST_DIR}/RESULTS/${TEST_ID}_${COMPILER_WTF}.`date +"%Y-%m-%d_%T"`
