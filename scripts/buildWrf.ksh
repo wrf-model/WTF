@@ -234,33 +234,33 @@ case $COMPILE_STRING in
 		   fi 
 		   ;;
     wrfda_3dvar)
-                   COMPILE_STRING='all_wrfvar'            # For WRFDA, "compile all_wrfvar" is needed
+                   COMPILE_STRING='all_wrfvar'               # For WRFDA, "compile all_wrfvar" is needed
                    COMPATIBLE_BUILD='wrfda_3dvar'
-                   CONFIGURE_COMMAND="./configure wrfda " # WRFDA can not be set with environment variable;
-                                                          # It MUST be set via "./configure wrfda"
-                                                          # Also, debugging/error trapping options do not work
-                   REAL8=false                            # WRFDA is automatically compiled as REAL8, so
-                                                          # setting this variable might mess things up
+                   CONFIGURE_COMMAND="./configure -d wrfda " # WRFDA can not be set with environment variable;
+                                                             # It MUST be set via "./configure -d wrfda"
+                                                             # Always use "-d" otherwise ifort compilation takes forever
+                   REAL8=false                               # WRFDA is automatically compiled as REAL8, so
+                                                             # setting this variable might mess things up
                    ;;
     wrfplus)
                    wallTime="3:00"
-                   COMPILE_STRING='em_real'                 # For WRFPLUS, "compile em_real" is needed
+                   COMPILE_STRING='em_real'                    # For WRFPLUS, "compile em_real" is needed
                    COMPATIBLE_BUILD='wrfplus'
-                   CONFIGURE_COMMAND="./configure wrfplus " # WRFPLUS can not be set with environment variable;
-                                                            # It MUST be set via "./configure wrfplus"
-                                                            # Also, debugging/error trapping options do not work
-                   REAL8=false                              # WRFPLUS is automatically compiled as REAL8, so
-                                                            # setting this variable might mess things up
+                   CONFIGURE_COMMAND="./configure -d wrfplus " # WRFPLUS can not be set with environment variable;
+                                                               # It MUST be set via "./configure -d wrfplus"
+                                                               # Always use "-d" otherwise ifort compilation takes forever
+                   REAL8=false                                 # WRFPLUS is automatically compiled as REAL8, so
+                                                               # setting this variable might mess things up
                    ;;
     wrfda_4dvar)
                    export WRFPLUS_DIR="${buildDir}/wrfplus/WRFPLUSV3"
-                   COMPILE_STRING='all_wrfvar'            # For WRFDA, "compile all_wrfvar" is needed
+                   COMPILE_STRING='all_wrfvar'               # For WRFDA, "compile all_wrfvar" is needed
                    COMPATIBLE_BUILD='wrfda_4dvar'
-                   CONFIGURE_COMMAND="./configure 4dvar " # WRFDA can not be set with environment variable;
-                                                          # It MUST be set via "./configure wrfda"
-                                                          # Also, debugging/error trapping options do not work
-                   REAL8=false                            # WRFDA is automatically compiled as REAL8, so
-                                                          # setting this variable might mess things up
+                   CONFIGURE_COMMAND="./configure -d 4dvar " # WRFDA can not be set with environment variable;
+                                                             # It MUST be set via "./configure wrfda"
+                                                             # Always use "-d" otherwise ifort compilation takes forever
+                   REAL8=false                               # WRFDA is automatically compiled as REAL8, so
+                                                             # setting this variable might mess things up
                    ;;
     *)             echo "$0: Unknown compile string: '$COMPILE_STRING'"
                    exit 2
