@@ -32,7 +32,7 @@ check_max_iv=true,
 /
 &wrfvar6
 max_ext_its=1,
-ntmax=5,
+ntmax=1,
 /
 &wrfvar7
 cv_options=5,
@@ -48,7 +48,7 @@ test_transforms=false,
 cv_options_hum=1,
 check_rh=0,
 sfc_assi_options=1,
-calculate_cg_cost_fn=true,
+calculate_cg_cost_fn=false,
 /
 &wrfvar12
 /
@@ -153,7 +153,7 @@ jcdfi_penalty=1000.0,
 
 
 
-LSF_TIME=0:10
-NQS_TIME=0:10:00
+LSF_TIME=0:15
+NQS_TIME=0:15:00
 NUM_PROCESSORS=8
 
