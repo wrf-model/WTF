@@ -105,6 +105,7 @@
  momentum_adv_opt                    = 3,      3,      3,      
  chem_adv_opt                        = 0,      0,      0,     
  tke_adv_opt                         = 0,      0,      0,     
+ gwd_opt                             = 1,
  /
 
  &bdy_control
