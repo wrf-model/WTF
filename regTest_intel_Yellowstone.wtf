@@ -159,7 +159,7 @@ export METDATA_DIR=$WRF_TEST_ROOT/Data
 #  is often in /usr/lib, /usr/local/lib, or /lib, but it could be anywhere the computer administrator chooses to 
 #  install it.   If unsure of its location, ask your system administrator.  This option is ignored if the "em_chem_kpp"
 #  version of WRF is not built. 
-export FLEX_LIB_DIR='/usr/local/lib'
+export FLEX_LIB_DIR='/usr/lib64'
 
 #  This probably does not need to be modified.  Most WRF tests expect only basic nesting to be available within WRF.
 #  Recommended value: 1 (basic nesting).
