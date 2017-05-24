@@ -5,7 +5,7 @@
 #BSUB -n 16                # number of total tasks
 #BSUB -o reggie.out        # output filename
 #BSUB -e reggie.err        # error filename
-#BSUB -J WTF_v03.07        # job name
+#BSUB -J WTF_v03.08        # job name
 #BSUB -q caldera           # queue: premium, regular, economy
 #BSUB -W 6:00              # wallclock time hh:mm
 #BSUB -P P64000400
