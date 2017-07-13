@@ -484,27 +484,30 @@ goodConfiguration()
 #  Waits for all batch jobs matching a given string to finish.
 #  Only call this function if you are running batch jobs.
 #  The first parameter indicates the type of batch queue manager used.
+#  The second parameter is the string to match to job names
+#  The third parameter is the wait time in seconds between checks
 #
 #  NOTE: job string must escape special characters like ".", i.e. "\."
 #
-#  usage: batchWait <LSF_NSQ> <jobstring> 
+#  usage: batchWait <LSF_NSQ> <jobstring> waitTime 
 #   
 batchWait()
 {
    queueType=$1
    jobString=$2
+   waitTime=$3
 
    case $queueType in
       LSF)   JOBS=`bjobs -w | grep $jobString`
              while [ -n "$JOBS" ]; do
-                  sleep 60
+                  sleep $waitTime
                   JOBS=`bjobs -w | grep $jobString`
              done
              ;;
       NQS)   userName=`whoami`
              JOBS=`qstat -u $userName | grep $userName | grep $jobString | awk '{print $10}' | grep -v C`
              while [ -n "$JOBS" ]; do
-                  sleep 60
+                  sleep $waitTime
                   JOBS=`qstat -u bonnland | grep bonnland | grep $jobString | awk '{print $10}' | grep -v C`
                   echo JOBS="$JOBS"
              done

@@ -71,7 +71,7 @@ done   # loop over $CONFIGURE_CHOICES
 # this script with another that checks the results of the tests. 
 # Note that on personal computers, reaching this point means that all tests are done.
 if $BATCH_TEST; then
-    batchWait $BATCH_QUEUE_TYPE 't\.'
+    batchWait $BATCH_QUEUE_TYPE 't\.' 60
 fi
 
 #  Do not exit!   This code gets "sourced" by a parent shell, and exiting causes the parent to quit. 
