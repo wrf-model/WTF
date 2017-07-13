@@ -158,11 +158,12 @@ for wrfType in $WRF_SERIAL; do
    done
    # Wait for builds in each separate build space to finish.
    wait
-   for platform in $CONFIGURE_CHOICES; do
-      if $BATCH_COMPILE; then
+   if $BATCH_COMPILE; then
+      for platform in $CONFIGURE_CHOICES; do
          batchWait $BATCH_QUEUE_TYPE "bld\.${wrfType}.${platform}" 10
-      fi
-   done
+      done
+   fi
+
 done
 
 echo ALL BUILDS APPEAR TO BE DONE!

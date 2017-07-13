@@ -223,6 +223,7 @@ case $COMPILE_STRING in
 		   fi 
 		   ;;
     em_chem_kpp)
+                   wallTime="2:00"
 		   COMPILE_STRING='em_real'    # For KPP chemistry, "compile em_real" is needed. 
                    COMPATIBLE_BUILD='em_chem_kpp'
 		   export WRF_CHEM=1
@@ -243,7 +244,7 @@ case $COMPILE_STRING in
                                                              # setting this variable might mess things up
                    ;;
     wrfplus)
-                   wallTime="3:00"
+                   wallTime="2:00"
                    COMPILE_STRING='em_real'                    # For WRFPLUS, "compile em_real" is needed
                    COMPATIBLE_BUILD='wrfplus'
                    CONFIGURE_COMMAND="./configure -d wrfplus " # WRFPLUS can not be set with environment variable;
