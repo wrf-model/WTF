@@ -115,9 +115,8 @@ for wrfType in $WRF_PARALLEL; do
 done
 
 # Special case to speed up 4DVAR build: wait for WRFPLUS specifically, then move on
-if WRFDA_4DVAR; then
+if $WRFDA_4DVAR; then
    for platform in $CONFIGURE_CHOICES; do
-      wait
       batchWait $BATCH_QUEUE_TYPE "bld\.wp\.$platform" 60
       buildDir=${BUILD_DIR}/$wrfTarName.$platform
       buildString=`getBuildString wrfda_4dvar $platform`
@@ -134,15 +133,14 @@ fi
 #  Make sure all batch jobs have been submitted, then wait for them to finish.
 # 
 
-wait
 if $BATCH_COMPILE; then
    batchWait $BATCH_QUEUE_TYPE 'bld\.' 60
+else
+   wait
 fi
 
 # Then, when all the above builds have finished, fire off the builds that cannot
 # be run in parallel.   These should complete quickly, since they re-use prior WRF builds.
-
-wait
 
 # Loop over WRF flavors (e.g. em_b_wave, em_quarter_ss, etc.)
 for wrfType in $WRF_SERIAL; do
@@ -157,7 +155,6 @@ for wrfType in $WRF_SERIAL; do
       fi
    done
    # Wait for builds in each separate build space to finish.
-   wait
    if $BATCH_COMPILE; then
       for platform in $CONFIGURE_CHOICES; do
          batchWait $BATCH_QUEUE_TYPE "bld\.${wrfType}.${platform}" 10
