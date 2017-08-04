@@ -503,7 +503,7 @@ if $BATCH_TEST; then
             if [ -z "$runTime" ]; then
                runTime="0:05:00"
             fi
-            BSUB="qsub -w block=true -q $TEST_QUEUE -l select=1:ncpus=$NUM_PROC -l walltime=$runTime -N $jobString -o test.out -e test.err"
+            BSUB="qsub -w block=true -q $TEST_QUEUE -l select=1:ncpus=$NUM_PROC -l walltime=$runTime:00 -N $jobString -o test.out -e test.err"
             cd $testDir
             echo $BSUB > submitCommand
             $BSUB test.sh

@@ -457,21 +457,26 @@ if $RUN_COMPILE; then
    
    echo BATCH_COMPILE==$BATCH_COMPILE
    if $BATCH_COMPILE; then
+       origDir=`pwd`
+       cd $targetDir
        case $BATCH_QUEUE_TYPE in
-          LSF)  BSUB="bsub -K -q $BUILD_QUEUE -P $BATCH_ACCOUNT -n $NUM_PROCS -a poe -W $wallTime -J $BUILD_STRING -o build.out -e build.err -cwd $targetDir "
+          LSF)  BSUB="bsub -K -q $BUILD_QUEUE -P $BATCH_ACCOUNT -n $NUM_PROCS -a poe -W $wallTime -J $BUILD_STRING -o build.out -e build.err"
                 ;;
-          PBS)  BSUB="qsub -w block=true -q $BUILD_QUEUE -A $BATCH_ACCOUNT -l select=1:ncpus=$NUM_PROCS -l walltime=$wallTime -N $BUILD_STRING -o build.out -e build.err"
+          PBS)  BSUB="qsub -q $BUILD_QUEUE -A $BATCH_ACCOUNT -l select=1:ncpus=$NUM_PROCS -l walltime=${wallTime}:00 -N $BUILD_STRING -o build.out -e build.err"
+                thisUser=`whoami`
+                export TMPDIR="/glade/scratch/$thisuser/tmp" # CISL-recommended hack for Cheyenne builds
+
                 ;;
           NQS)  export MSUBQUERYINTERVAL=30
                 export PNETCDF="/curc/tools/free/redhat_5_x86_64/parallel-netcdf-1.2.0_openmpi-1.4.5_intel-12.1.4/"
-                BSUB="msub -K -V -q janus-debug -l nodes=1:ppn=$NUM_PROCS,walltime=${wallTime}:00 -N $BUILD_STRING -o $targetDir/build.out -e $targetDir/build.err -d $targetDir "
+                BSUB="msub -K -V -q janus-debug -l nodes=1:ppn=$NUM_PROCS,walltime=${wallTime}:00 -N $BUILD_STRING -o build.out -e build.err "
                 ;;
           *)    echo "$0: unknown BATCH_QUEUE_TYPE '$BATCH_QUEUE_TYPE'; aborting!"
                 exit 3
        esac
 
        # Put num processors and "compile" command in a file, then submit as a batch job. 
-       cat > $targetDir/build.sh << EOF
+       cat > build.sh << EOF
           export J="-j ${NUM_PROCS}"
           date > StartTime_${COMPILE_TYPE}.txt
           \rm -f *COMPILE.tst   # Remove previous compile test results
@@ -482,8 +487,9 @@ if $RUN_COMPILE; then
           ./compile $COMPILE_STRING > compile_${COMPILE_STRING}.log 2>&1
           date > EndTime_${COMPILE_TYPE}.txt
 EOF
-       echo $BSUB > $targetDir/submitCommand
-       $BSUB < $targetDir/build.sh
+       echo $BSUB > submitCommand
+       $BSUB < build.sh
+       cd $origDir
    else
       export J="-j ${NUM_PROCS}"
       date > StartTime_${COMPILE_TYPE}.txt
