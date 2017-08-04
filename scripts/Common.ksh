@@ -489,7 +489,7 @@ goodConfiguration()
 #
 #  NOTE: job string must escape special characters like ".", i.e. "\."
 #
-#  usage: batchWait <LSF_NSQ> <jobstring> waitTime 
+#  usage: batchWait <LSF_PBS_NSQ> <jobstring> waitTime 
 #   
 batchWait()
 {
@@ -504,11 +504,19 @@ batchWait()
                   JOBS=`bjobs -w | grep $jobString`
              done
              ;;
+      PBS)   userName=`whoami`
+             JOBS=`qstat -u $userName | grep $userName | grep $jobString`
+             while [ -n "$JOBS" ]; do
+                  sleep 60
+                  JOBS=`qstat -u $userName | grep $userName | grep $jobString`
+                  echo JOBS="$JOBS"
+             done
+             ;;
       NQS)   userName=`whoami`
              JOBS=`qstat -u $userName | grep $userName | grep $jobString | awk '{print $10}' | grep -v C`
              while [ -n "$JOBS" ]; do
                   sleep $waitTime
-                  JOBS=`qstat -u bonnland | grep bonnland | grep $jobString | awk '{print $10}' | grep -v C`
+                  JOBS=`qstat -u $userName | grep $userName | grep $jobString | awk '{print $10}' | grep -v C`
                   echo JOBS="$JOBS"
              done
              ;;

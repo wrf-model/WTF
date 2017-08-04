@@ -208,6 +208,9 @@ if [[ $WRF_TYPE = "wrfda_3dvar" ]] || [[ $WRF_TYPE = "wrfda_4dvar" ]];then
                         LSF) REAL_COMMAND=""
                              WRF_COMMAND="mpirun.lsf ./da_wrfvar.exe "
                              ;;
+                        PBS) REAL_COMMAND=""
+                             WRF_COMMAND="mpirun ./da_wrfvar.exe "
+                             ;;
                         NQS) REAL_COMMAND=""
                              WRF_COMMAND="mpirun ./da_wrfvar.exe "
                              ;;
@@ -232,6 +235,9 @@ elif [[ $WRF_TYPE = "wrfplus" ]];then
                    case $BATCH_QUEUE_TYPE in
                         LSF) REAL_COMMAND=""
                              WRF_COMMAND="mpirun.lsf ./wrf.exe "
+                             ;;
+                        PBS) REAL_COMMAND=""
+                             WRF_COMMAND="mpirun ./wrf.exe "
                              ;;
                         NQS) REAL_COMMAND=""
                              WRF_COMMAND="mpirun ./wrf.exe "
@@ -262,6 +268,9 @@ else
                         LSF) REAL_COMMAND="mpirun.lsf ./prewrf.exe "
                              WRF_COMMAND="mpirun.lsf  ./wrf.exe "
            		  ;;
+                        PBS) REAL_COMMAND="mpirun ./prewrf.exe "
+                             WRF_COMMAND="mpirun ./wrf.exe "
+                          ;;
                         NQS) REAL_COMMAND="mpirun ./prewrf.exe "
                              WRF_COMMAND="mpirun ./wrf.exe "
            		  ;;
@@ -485,6 +494,20 @@ if $BATCH_TEST; then
             BSUB="bsub -q $TEST_QUEUE -P $BATCH_ACCOUNT -n $NUM_PROC -a poe -W $runTime -J $jobString -o test.out -e test.err -cwd $testDir "
             echo $BSUB > $testDir/submitCommand
             $BSUB < $testDir/test.sh
+            ;;
+        PBS) # Create a meaningful job string, so unfinished jobs can be identified easily. 
+            $origDir=`pwd`
+            jobString=`getJobString $WRF_TYPE $PARALLEL_TYPE $NAMELIST_PATH`
+            # Look for time control spec at end of namelist
+            runTime=`grep PBS_TIME $testDir/namelist.input | cut -d '=' -f 2`
+            if [ -z "$runTime" ]; then
+               runTime="0:05:00"
+            fi
+            BSUB="qsub -w block=true -q $TEST_QUEUE -l select=1:ncpus=$NUM_PROC -l walltime=$runTime -N $jobString -o test.out -e test.err"
+            cd $testDir
+            echo $BSUB > submitCommand
+            $BSUB test.sh
+            cd $origDir
             ;;
         NQS) # Create a meaningful job string, so unfinished jobs can be identified easily. 
             jobString=`getJobString $WRF_TYPE $PARALLEL_TYPE $NAMELIST_PATH`
