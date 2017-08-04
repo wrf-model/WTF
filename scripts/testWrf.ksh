@@ -209,7 +209,7 @@ if [[ $WRF_TYPE = "wrfda_3dvar" ]] || [[ $WRF_TYPE = "wrfda_4dvar" ]];then
                              WRF_COMMAND="mpirun.lsf ./da_wrfvar.exe "
                              ;;
                         PBS) REAL_COMMAND=""
-                             WRF_COMMAND="mpirun ./da_wrfvar.exe "
+                             WRF_COMMAND="mpiexec_mpt omplace -vv ./da_wrfvar.exe "
                              ;;
                         NQS) REAL_COMMAND=""
                              WRF_COMMAND="mpirun ./da_wrfvar.exe "
@@ -237,7 +237,7 @@ elif [[ $WRF_TYPE = "wrfplus" ]];then
                              WRF_COMMAND="mpirun.lsf ./wrf.exe "
                              ;;
                         PBS) REAL_COMMAND=""
-                             WRF_COMMAND="mpirun ./wrf.exe "
+                             WRF_COMMAND="mpiexec_mpt omplace -vv ./wrf.exe "
                              ;;
                         NQS) REAL_COMMAND=""
                              WRF_COMMAND="mpirun ./wrf.exe "
@@ -268,8 +268,8 @@ else
                         LSF) REAL_COMMAND="mpirun.lsf ./prewrf.exe "
                              WRF_COMMAND="mpirun.lsf  ./wrf.exe "
            		  ;;
-                        PBS) REAL_COMMAND="mpirun ./prewrf.exe "
-                             WRF_COMMAND="mpirun ./wrf.exe "
+                        PBS) REAL_COMMAND="mpiexec_mpt omplace -vv ./prewrf.exe "
+                             WRF_COMMAND="mpiexec_mpt omplace -vv ./wrf.exe "
                           ;;
                         NQS) REAL_COMMAND="mpirun ./prewrf.exe "
                              WRF_COMMAND="mpirun ./wrf.exe "
@@ -503,7 +503,7 @@ if $BATCH_TEST; then
             if [ -z "$runTime" ]; then
                runTime="0:05:00"
             fi
-            BSUB="qsub -w block=true -q $TEST_QUEUE -l select=1:ncpus=$NUM_PROC -l walltime=$runTime:00 -N $jobString -o test.out -e test.err"
+            BSUB="qsub -Wblock=true -q $TEST_QUEUE -A $BATCH_ACCOUNT -l select=1:ncpus=$NUM_PROC -l walltime=$runTime -N $jobString -o test.out -e test.err"
             cd $testDir
             echo $BSUB > submitCommand
             $BSUB test.sh

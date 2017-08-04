@@ -457,14 +457,12 @@ if $RUN_COMPILE; then
    
    echo BATCH_COMPILE==$BATCH_COMPILE
    if $BATCH_COMPILE; then
-       origDir=`pwd`
-       cd $targetDir
        case $BATCH_QUEUE_TYPE in
           LSF)  BSUB="bsub -K -q $BUILD_QUEUE -P $BATCH_ACCOUNT -n $NUM_PROCS -a poe -W $wallTime -J $BUILD_STRING -o build.out -e build.err"
                 ;;
-          PBS)  BSUB="qsub -q $BUILD_QUEUE -A $BATCH_ACCOUNT -l select=1:ncpus=$NUM_PROCS -l walltime=${wallTime}:00 -N $BUILD_STRING -o build.out -e build.err"
+          PBS)  BSUB="qsub -Wblock=true -q $BUILD_QUEUE -A $BATCH_ACCOUNT -l select=1:ncpus=$NUM_PROCS -l walltime=${wallTime}:00 -N $BUILD_STRING -o build.out -e build.err"
                 thisUser=`whoami`
-                export TMPDIR="/glade/scratch/$thisuser/tmp" # CISL-recommended hack for Cheyenne builds
+                export TMPDIR="/glade/scratch/$thisUser/tmp" # CISL-recommended hack for Cheyenne builds
 
                 ;;
           NQS)  export MSUBQUERYINTERVAL=30
@@ -489,7 +487,6 @@ if $RUN_COMPILE; then
 EOF
        echo $BSUB > submitCommand
        $BSUB < build.sh
-       cd $origDir
    else
       export J="-j ${NUM_PROCS}"
       date > StartTime_${COMPILE_TYPE}.txt
