@@ -50,9 +50,9 @@ export BUILD_TYPES="em_real"
 
 #export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/contributors
 #export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/internal
-#export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/weekly
+export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/weekly
 #export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/caseStudies
-export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/cheyenne_test
+#export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/cheyenne_test
 
 # Choose the options that should be passed to the "configure" script used to build WRF.  Each specified option 
 # builds a separate WRF executable that will be tested.  Each option indicates a Fortran compiler to use for 
@@ -63,8 +63,8 @@ export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/cheyenne_test
 # "serial", "openmp", and "mpi" communication frameworks, respectively.   Leave a blank string for any options
 # that you do not wish to build and test. 
 
-#export CONFIGURE_SERIAL="32"
-#export CONFIGURE_OPENMP="33"
+export CONFIGURE_SERIAL="32"
+export CONFIGURE_OPENMP="33"
 export CONFIGURE_MPI="34"
 
 
@@ -95,8 +95,7 @@ export BUILD_QUEUE=share
 #export TEST_QUEUE=share
 export TEST_QUEUE=economy
 
-# Account charge code string for queue-managed computers.   Ignored when BATCH_COMPILE and 
-# BATCH_TEST are false.
+# Account charge code string for queue-managed computers. Ignored when BATCH_COMPILE and BATCH_TEST are false.
 
 export BATCH_ACCOUNT=P64000400
 
@@ -104,6 +103,10 @@ export BATCH_ACCOUNT=P64000400
 # No reason to set larger than 6 due to diminishing returns on compile time.
 
 export NUM_PROC_BUILD=4
+
+# Time to request for building WRF in batch queue. Ignored when BATCH_COMPILE is false.
+
+export BATCH_COMPILE_TIME=00:30:00
 
 # Number of processors to use for running MPI-based tests, 
 # and checking test outcomes.  On batch computers, this is not the *total* used at once, but the number 

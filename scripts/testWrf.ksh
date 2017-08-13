@@ -496,7 +496,7 @@ if $BATCH_TEST; then
             $BSUB < $testDir/test.sh
             ;;
         PBS) # Create a meaningful job string, so unfinished jobs can be identified easily. 
-            $origDir=`pwd`
+            origDir=`pwd`
             jobString=`getJobString $WRF_TYPE $PARALLEL_TYPE $NAMELIST_PATH`
             # Look for time control spec at end of namelist
             runTime=`grep PBS_TIME $testDir/namelist.input | cut -d '=' -f 2`

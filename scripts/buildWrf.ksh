@@ -160,7 +160,11 @@ fi
 
 
 PREPROCESSOR=`getPreprocessorName $COMPILE_STRING`
-wallTime="0:90"
+if [[ $BATCH_COMPILE_TIME == '' ]]; then
+   wallTime="0:90"
+else
+   wallTime=$BATCH_COMPILE_TIME
+fi
 
 case $COMPILE_STRING in
     em_real)       
@@ -168,7 +172,9 @@ case $COMPILE_STRING in
                    ;;
     em_b_wave|em_quarter_ss)
                    COMPATIBLE_BUILD='em_real'
-                   wallTime="0:10"
+                   if [[ $BATCH_COMPILE_TIME == '' ]]; then
+                      wallTime="0:10"
+                   fi
                    ;;
     em_real8)       
 		   COMPILE_STRING='em_real'
@@ -179,7 +185,9 @@ case $COMPILE_STRING in
 		   COMPILE_STRING='em_quarter_ss'
                    COMPATIBLE_BUILD='em_real8'
                    REAL8=true
-                   wallTime="0:10"
+                   if [[ $BATCH_COMPILE_TIME == '' ]]; then
+                      wallTime="0:10"
+                   fi
                    ;;
     em_move)
 		   COMPILE_STRING='em_real'
@@ -243,7 +251,9 @@ case $COMPILE_STRING in
                                                              # setting this variable might mess things up
                    ;;
     wrfplus)
-                   wallTime="3:00"
+                   if [[ $BATCH_COMPILE_TIME == '' ]]; then
+                      wallTime="3:00"
+                   fi
                    COMPILE_STRING='em_real'                    # For WRFPLUS, "compile em_real" is needed
                    COMPATIBLE_BUILD='wrfplus'
                    CONFIGURE_COMMAND="./configure -d wrfplus " # WRFPLUS can not be set with environment variable;
@@ -460,7 +470,7 @@ if $RUN_COMPILE; then
        case $BATCH_QUEUE_TYPE in
           LSF)  BSUB="bsub -K -q $BUILD_QUEUE -P $BATCH_ACCOUNT -n $NUM_PROCS -a poe -W $wallTime -J $BUILD_STRING -o build.out -e build.err"
                 ;;
-          PBS)  BSUB="qsub -Wblock=true -q $BUILD_QUEUE -A $BATCH_ACCOUNT -l select=1:ncpus=$NUM_PROCS -l walltime=${wallTime}:00 -N $BUILD_STRING -o build.out -e build.err"
+          PBS)  BSUB="qsub -Wblock=true -q $BUILD_QUEUE -A $BATCH_ACCOUNT -l select=1:ncpus=$NUM_PROCS -l walltime=${wallTime} -N $BUILD_STRING -o build.out -e build.err"
                 thisUser=`whoami`
                 export TMPDIR="/glade/scratch/$thisUser/tmp" # CISL-recommended hack for Cheyenne builds
 
