@@ -464,7 +464,7 @@ OS_NAME=`uname`
 
 # Run 'compile'; see existing regression scripts.    
 if $RUN_COMPILE; then
-   
+   touch build.sh
    echo BATCH_COMPILE==$BATCH_COMPILE
    if $BATCH_COMPILE; then
        case $BATCH_QUEUE_TYPE in
@@ -472,8 +472,9 @@ if $RUN_COMPILE; then
                 ;;
           PBS)  BSUB="qsub -Wblock=true -q $BUILD_QUEUE -A $BATCH_ACCOUNT -l select=1:ncpus=$NUM_PROCS -l walltime=${wallTime} -N $BUILD_STRING -o build.out -e build.err"
                 thisUser=`whoami`
+                cat > build.sh << EOF
                 export TMPDIR="/glade/scratch/$thisUser/tmp" # CISL-recommended hack for Cheyenne builds
-
+EOF
                 ;;
           NQS)  export MSUBQUERYINTERVAL=30
                 export PNETCDF="/curc/tools/free/redhat_5_x86_64/parallel-netcdf-1.2.0_openmpi-1.4.5_intel-12.1.4/"
@@ -484,7 +485,7 @@ if $RUN_COMPILE; then
        esac
 
        # Put num processors and "compile" command in a file, then submit as a batch job. 
-       cat > build.sh << EOF
+       cat >> build.sh << EOF
           export J="-j ${NUM_PROCS}"
           date > StartTime_${COMPILE_TYPE}.txt
           \rm -f *COMPILE.tst   # Remove previous compile test results

@@ -187,7 +187,19 @@ REGDATA_FILES=`ls ${REGDATA_PATH}/*`
 
 # Set the number of processors/threads to use for the test.
 if [ "$BATCH_COMPILE" = false -a "$BATCH_TEST" = false ]; then
-   NUM_PROC=$NUM_PROC_TEST
+   if [[ $TEST_QUEUE = "share" ]] || [[ $TEST_QUEUE = "caldera" ]]; then
+      NUM_PROC=$NUM_PROC_TEST
+   else
+      case $BATCH_QUEUE_TYPE in
+         LSF) NUM_PROC="32"
+              ;;
+         PBS) NUM_PROC="36"
+              ;;
+         *)   NUM_PROC="16"
+              ;;
+         
+      esac
+   fi
 else
    NUM_PROC=`grep NUM_PROCESSORS ${NAMELIST_PATH} | cut -d '=' -f 2`
    if [ -z "$NUM_PROC" ]; then
