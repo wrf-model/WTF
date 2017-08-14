@@ -16,8 +16,8 @@
 #PBS -l walltime=06:00:00
 # Project charge code
 #PBS -A P64000400
-# Claim 12 cores for this script
-#PBS -l select=1:ncpus=12
+# Claim 18 cores for this script (individual jobs created by this script can use way more)
+#PBS -l select=1:ncpus=18
 # Send email on abort or end of main job
 #PBS -m ae
 
@@ -29,5 +29,7 @@ if ( ! -e Data  ) then
    echo "If on Cheyenne, link /glade/p/wrf/Data into your WTF directory"
    exit 1
 endif
+
+setenv TMPDIR /glade/scratch/$USER/tmp # CISL-recommended hack for Cheyenne builds
 
 scripts/run_all_for_qsub.csh
