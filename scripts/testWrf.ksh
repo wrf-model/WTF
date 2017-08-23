@@ -271,8 +271,8 @@ else
                WRF_COMMAND="./wrf.exe > wrf.out 2>&1 "
                NUM_PROC=1
                ;;
-       openmp) REAL_COMMAND="./prewrf.exe > prewrf.out 2>&1 "
-               WRF_COMMAND="./wrf.exe > wrf.out 2>&1 "
+       openmp) REAL_COMMAND="omplace ./prewrf.exe > prewrf.out 2>&1 "
+               WRF_COMMAND="omplace ./wrf.exe > wrf.out 2>&1 "
                export OMP_NUM_THREADS=$NUM_PROC_TEST
                ;;
        mpi)    if $BATCH_TEST; then
@@ -515,7 +515,16 @@ if $BATCH_TEST; then
             if [ -z "$runTime" ]; then
                runTime="0:05:00"
             fi
-            BSUB="qsub -q $TEST_QUEUE -A $BATCH_ACCOUNT -l select=1:ncpus=$NUM_PROC -l walltime=$runTime -N $jobString -o test.out -e test.err"
+            case $PARALLEL_TYPE in
+               serial) BSUB="qsub -q $TEST_QUEUE -A $BATCH_ACCOUNT -l select=1:ncpus=1 -l walltime=$runTime -N $jobString -o test.out -e test.err"
+                       ;;
+               openmp) BSUB="qsub -q $TEST_QUEUE -A $BATCH_ACCOUNT -l select=1:ncpus=$NUM_PROC:ompthreads=$NUM_PROC -l walltime=$runTime -N $jobString -o test.out -e test.err"
+                       ;;
+               mpi)    BSUB="qsub -q $TEST_QUEUE -A $BATCH_ACCOUNT -l select=1:ncpus=$NUM_PROC:mpiprocs=$NUM_PROC -l walltime=$runTime -N $jobString -o test.out -e test.err"
+                       ;;
+               *)      echo "Error: Unknown parallel type '$PARALLEL_TYPE'!"
+                       exit 2
+            esac
             cd $testDir
             echo $BSUB > submitCommand
             $BSUB test.sh
