@@ -84,7 +84,7 @@ getPreprocessorName()
          nmm_real|nmm_nest|nmm_hwrf)
                    PREPROCESSOR='real_nmm.exe' 
 		   ;;
-         all_wrfvar)
+         wrfda_3dvar|wrfda_4dvar)
                    PREPROCESSOR='NONE'
                    ;;
          *)        echo "$0: Unknown WRF type: '$wrfType'"
