@@ -3,7 +3,7 @@
 # PBS batch script
 #
 # Job name
-#PBS -N WTF_v03.09
+#PBS -N WTF_v04.00
 # queue: share, regular, economy
 #PBS -q share
 # Combine error and output files

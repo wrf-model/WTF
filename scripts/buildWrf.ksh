@@ -330,7 +330,7 @@ if ( ! $goodConfig ); then
 fi
 
 if [[ "$COMPILE_TYPE" = wrfplus ]]; then
-   banner "Building WRFPLUS $COMPILE_TYPE, option $CONFIG_OPTION in $buildDir .... "
+   banner "Building $COMPILE_TYPE, option $CONFIG_OPTION in $buildDir .... "
 elif [[ "$COMPILE_STRING" = all_wrfvar ]]; then
    banner "Building WRFDA $COMPILE_TYPE, option $CONFIG_OPTION in $buildDir .... "
 else
@@ -368,8 +368,9 @@ elif [ -d $REUSE_DIR -a -f $REUSE_DIR/SUCCESS_TAR.tst ]; then
        UNPACK_WRF=false
        RUN_CONFIGURE=false
    else
-       echo "Existing build directory unusable; delete directory and retry script: $targetDir"
-       exit 2
+       echo "Existing build directory unusable: $targetDir"
+       echo "Will attempt to build from scratch"
+       echo "$COMPILE_TYPE, option $CONFIG_OPTION in $buildDir"
    fi
 fi
 
@@ -473,7 +474,7 @@ if $RUN_COMPILE; then
           PBS)  BSUB="qsub -Wblock=true -q $BUILD_QUEUE -A $BATCH_ACCOUNT -l select=1:ncpus=$NUM_PROCS -l walltime=${wallTime} -N $BUILD_STRING -o build.out -e build.err"
                 thisUser=`whoami`
                 cat > build.sh << EOF
-                export TMPDIR="/glade/scratch/$thisUser/tmp" # CISL-recommended hack for Cheyenne builds
+                export TMPDIR="/glade/scratch/$thisUser/tmp/$BUILD_STRING" # CISL-recommended hack for Cheyenne builds
 EOF
                 ;;
           NQS)  export MSUBQUERYINTERVAL=30
