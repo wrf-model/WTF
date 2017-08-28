@@ -16,6 +16,8 @@ fi
 # Include common functions.
 . $WRF_TEST_ROOT/scripts/Common.ksh
 
+# Ask who the user is
+thisUser=`whoami`
 
 ##  Script should take the following params: tar file, build directory, configure option, nesting option, 
 ##    compile string (em_real, nmm_real, etc). , real*4 vs. real*8, etc.  
@@ -294,10 +296,10 @@ fi
 
 # tarFile must be an actual tarfile. 
 #topDir=`tar tf $tarFile | head -1`
-(tar -tf $tarFile | head -1) > /tmp/.foo_$$ 2> /dev/null
+(tar -tf $tarFile | head -1) > .foo_$$ 2> /dev/null
 topDir=`cat /tmp/.foo_$$`
 topDir=`basename $topDir`
-\rm /tmp/.foo_$$
+#\rm .foo_$$
 
 if [ -z "$topDir" ]; then
    echo "$0: not a valid tarfile: '${tarFile}'; stopping."
@@ -472,7 +474,6 @@ if $RUN_COMPILE; then
           LSF)  BSUB="bsub -K -q $BUILD_QUEUE -P $BATCH_ACCOUNT -n $NUM_PROCS -a poe -W $wallTime -J $BUILD_STRING -o build.out -e build.err"
                 ;;
           PBS)  BSUB="qsub -Wblock=true -q $BUILD_QUEUE -A $BATCH_ACCOUNT -l select=1:ncpus=$NUM_PROCS -l walltime=${wallTime} -N $BUILD_STRING -o build.out -e build.err"
-                thisUser=`whoami`
                 cat > build.sh << EOF
                 export TMPDIR="/glade/scratch/$thisUser/tmp/$BUILD_STRING" # CISL-recommended hack for Cheyenne builds
 EOF
