@@ -118,7 +118,7 @@ def main():
           print(f + ' would be moved to ' + trash_dir + "run" + f)
        else:
           os.system('mv ' + fullf + ' ' + trash_dir + "run" + f)
-          print(f + ' is being moved to ' + trash_dir)
+          print(f + ' is being moved to ' + trash_dir + "run" + f)
  else: # If "clean fail" or "clean check", find build directories with FAIL*.tst in them
     print("Searching for failed builds and runs to delete...")
     del_dirs = []
@@ -128,20 +128,44 @@ def main():
     else:
        failbuilds = glob.glob(build_dir + "/" + cleanname + "*/*/*/FAIL*.tst") #First check build failures
        failruns   = glob.glob(runs_dir  + "/" + cleanname + "*/*/*/FAIL*.tst") #Then check run failures
-    allfails   = failbuilds + failruns
-    for full_dir in allfails:               # For each parallelism type
+
+    # Loop over Builds and Runs separately to avoid collisions
+    #Build directories
+    for full_dir in failbuilds:             # For each parallelism type
        del_struct = full_dir.split('/')     # decompose directory structure into del_struct
-       del_dir = '/'.join(del_struct[:-3])  # recompose "del_struct" (minus 3 lowest level directories) into path "del_dir"
+       del_dir = '/'.join(del_struct[:-2])  # recompose "del_struct" (minus 2 lowest level directories) into path "del_dir"
        del_dirs.append(del_dir)             # Add path "del_dir" to list "del_dirs"
 
     del_dirs = list(set(del_dirs))  # Removes duplicate items on the list
 
     for f in del_dirs:
+       f_struct = f.split('/')
+       f1 = f_struct[-1]
+       f2 = f_struct[-2]
        if dryrun:
-          print(f + ' would be moved to ' + trash_dir)
+          print(f + ' would be moved to ' + trash_dir + "build" + f2 + f1)
        else:
-          os.system('mv ' + f + ' ' + trash_dir)
-          print(f + ' is being moved to ' + trash_dir)
+          os.system('mv ' + f + ' ' + trash_dir + "build" + f2 + f1)
+          print(f + ' is being moved to ' + trash_dir + "build" + f2 + f1)
+
+
+    #Run directories
+    for full_dir in failruns:               # For each parallelism type
+       del_struct = full_dir.split('/')     # decompose directory structure into del_struct
+       del_dir = '/'.join(del_struct[:-2])  # recompose "del_struct" (minus 2 lowest level directories) into path "del_dir"
+       del_dirs.append(del_dir)             # Add path "del_dir" to list "del_dirs"
+
+    del_dirs = list(set(del_dirs))  # Removes duplicate items on the list
+
+    for f in del_dirs:
+       f_struct = f.split('/')
+       f1 = f_struct[-1]
+       f2 = f_struct[-2]
+       if dryrun:
+          print(f + ' would be moved to ' + trash_dir + "run" + f2 + f1)
+       else:
+          os.system('mv ' + f + ' ' + trash_dir + "run" + f2 + f1)
+          print(f + ' is being moved to ' + trash_dir + "run" + f2 + f1)
 
  if not dryrun:
      print("Deleting everything in " + trash_dir)
