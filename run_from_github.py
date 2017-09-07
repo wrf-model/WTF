@@ -199,15 +199,7 @@ def main():
 
  os.chdir("../")
 
- user = os.environ.get("USER")
-
- del(os.environ["MP_PE_AFFINITY"])
- if not os.path.isdir("/glade/scratch/" + user + "/TMPDIR_FOR_PGI_COMPILE"):
-    os.makedirs("/glade/scratch/" + user + "/TMPDIR_FOR_PGI_COMPILE")
- os.environ["TMPDIR"] = "/glade/scratch/" + user + "/TMPDIR_FOR_PGI_COMPILE"
-
-
- os.system('bsub < bsub_this_to_run_all_compilers.csh')
+ os.system('qsub < qsub_this_to_run_all_compilers.pbs.csh')
 
 
 if __name__ == "__main__":

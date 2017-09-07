@@ -297,9 +297,9 @@ fi
 # tarFile must be an actual tarfile. 
 #topDir=`tar tf $tarFile | head -1`
 (tar -tf $tarFile | head -1) > .foo_$$ 2> /dev/null
-topDir=`cat /tmp/.foo_$$`
+topDir=`cat .foo_$$`
 topDir=`basename $topDir`
-#\rm .foo_$$
+\rm .foo_$$
 
 if [ -z "$topDir" ]; then
    echo "$0: not a valid tarfile: '${tarFile}'; stopping."
