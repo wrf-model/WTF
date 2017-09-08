@@ -187,26 +187,29 @@ REGDATA_FILES=`ls ${REGDATA_PATH}/*`
 
 # Set the number of processors/threads to use for the test.
 if [ "$BATCH_COMPILE" = false -a "$BATCH_TEST" = false ]; then
-   if [[ $TEST_QUEUE = "share" ]] || [[ $TEST_QUEUE = "caldera" ]]; then
-      NUM_PROC=$NUM_PROC_TEST
-   else
-      case $BATCH_QUEUE_TYPE in
-         LSF) NUM_PROC="32"
-              ;;
-         PBS) NUM_PROC="36"
-              ;;
-         *)   NUM_PROC="16"
-              ;;
-         
-      esac
-   fi
+   NUM_PROC=$NUM_PROC_TEST
 else
    NUM_PROC=`grep NUM_PROCESSORS ${NAMELIST_PATH} | cut -d '=' -f 2`
    if [ -z "$NUM_PROC" ]; then
-      NUM_PROC=$NUM_PROC_TEST
+      if [[ $TEST_QUEUE = "share" ]] || [[ $TEST_QUEUE = "caldera" ]]; then
+         NUM_PROC=$NUM_PROC_TEST
+      else
+         case $BATCH_QUEUE_TYPE in
+            LSF) NUM_PROC="32"
+                 ;;
+            PBS) NUM_PROC="36"
+                 ;;
+            *)   NUM_PROC="16"
+                 ;;
+         esac
+      fi
    fi
 fi
 
+BATCH_MEM=`grep MEMORY_REQ ${NAMELIST_PATH} | cut -d '=' -f 2`
+if [ -z "$BATCH_MEM" ]; then
+   BATCH_MEM=$MEM_TEST
+fi
 
 if [[ $WRF_TYPE = "wrfda_3dvar" ]] || [[ $WRF_TYPE = "wrfda_4dvar" ]];then
    # For WRFDA, only run da_wrfvar.exe

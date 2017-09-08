@@ -464,6 +464,8 @@ OS_NAME=`uname`
 #   BATCH_COMPILE=false
 #fi
 
+TMPDIR=/glade/scratch/$thisUser/tmp/$BUILD_STRING
+mkdir -p $TMPDIR
 
 # Run 'compile'; see existing regression scripts.    
 if $RUN_COMPILE; then
@@ -473,9 +475,10 @@ if $RUN_COMPILE; then
        case $BATCH_QUEUE_TYPE in
           LSF)  BSUB="bsub -K -q $BUILD_QUEUE -P $BATCH_ACCOUNT -n $NUM_PROCS -a poe -W $wallTime -J $BUILD_STRING -o build.out -e build.err"
                 ;;
-          PBS)  BSUB="qsub -Wblock=true -q $BUILD_QUEUE -A $BATCH_ACCOUNT -l select=1:ncpus=$NUM_PROCS -l walltime=${wallTime} -N $BUILD_STRING -o build.out -e build.err"
+          PBS)  BSUB="qsub -Wblock=true -q $BUILD_QUEUE -A $BATCH_ACCOUNT -l select=1:ncpus=$NUM_PROCS:mem=$MEM_BUILD -l walltime=${wallTime} -N $BUILD_STRING -o build.out -e build.err"
+                TMPDIR=/glade/scratch/$thisUser/tmp/$BUILD_STRING
                 cat > build.sh << EOF
-                export TMPDIR="/glade/scratch/$thisUser/tmp/$BUILD_STRING" # CISL-recommended hack for Cheyenne builds
+                export TMPDIR="$TMPDIR" # CISL-recommended hack for Cheyenne builds
 EOF
                 ;;
           NQS)  export MSUBQUERYINTERVAL=30
