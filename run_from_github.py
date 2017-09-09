@@ -73,7 +73,7 @@ def main():
  ls_proc = subprocess.Popen(["ls", "-l", tardir], stdout=subprocess.PIPE)
  (out, err) = ls_proc.communicate()
  if err:
-    sys.exit("There was an error: " + err)
+    sys.exit("`ls -l` returned an error, this shouldn't happen!")
 
  tardirfiles = out.splitlines()
 
@@ -149,7 +149,13 @@ def main():
 
  os.system("git clone " + url + " WRFV3")
  os.chdir("WRFV3")
- os.system("git checkout " + branch)
+
+ # We have to check the exit status of git checkout, otherwise we may not get the right code!
+ err = subprocess.call(["git", "checkout", branch])
+# (out, err) = checkout_proc.communicate()
+ if err:
+    sys.exit("There was an error checking out " + branch + ", see above for details")
+
  os.chdir("../")
 
 
