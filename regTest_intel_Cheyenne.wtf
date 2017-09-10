@@ -35,9 +35,9 @@ fi
 # "em_real em_real8 em_hill2d_x nmm_nest em_chem em_chem_kpp em_move em_b_wave em_quarter_ss em_quarter_ss8".   The final three cases are 
 # idealized cases, and if any are specified, then "em_real" or "em_real8" (respectively) must also be included earlier in the list.
 
-#export BUILD_TYPES="em_real em_real8 em_hill2d_x nmm_nest em_chem em_chem_kpp em_b_wave em_quarter_ss em_quarter_ss8 nmm_hwrf wrfda_3dvar em_move"
 export BUILD_TYPES="em_real"
 export BUILD_TYPES="em_real em_real8 em_hill2d_x nmm_nest em_chem em_chem_kpp em_b_wave em_quarter_ss em_quarter_ss8 nmm_hwrf wrfda_3dvar em_move"
+
 
 # Select one of the directories below.  This is the parent directory for all namelist.input files to be used for 
 # the tests.  Below this directory should be subdirectories "em_real", "nmm_nest", etc with namelist.input files 
@@ -88,8 +88,8 @@ export BATCH_QUEUE_TYPE=PBS
 # Ignored when BATCH_COMPILE and BATCH_TEST are false.
 
 export BUILD_QUEUE=share
-#export TEST_QUEUE=share
-export TEST_QUEUE=economy
+export TEST_QUEUE=share
+#export TEST_QUEUE=economy
 
 # Account charge code string for queue-managed computers. Ignored when BATCH_COMPILE and BATCH_TEST are false.
 

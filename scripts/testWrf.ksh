@@ -518,12 +518,16 @@ if $BATCH_TEST; then
             if [ -z "$runTime" ]; then
                runTime="0:05:00"
             fi
+            runMem=`grep MEMORY_REQ $testDir/namelist.input | cut -d '=' -f 2`
+            if [ -z "$runMem" ]; then
+               runMem=$BATCH_MEM
+            fi
             case $PARALLEL_TYPE in
-               serial) BSUB="qsub -q $TEST_QUEUE -A $BATCH_ACCOUNT -l select=1:ncpus=1 -l walltime=$runTime -N $jobString -o test.out -e test.err"
+               serial) BSUB="qsub -q $TEST_QUEUE -A $BATCH_ACCOUNT -l select=1:ncpus=1:mem=$runMem -l walltime=$runTime -N $jobString -o test.out -e test.err"
                        ;;
-               openmp) BSUB="qsub -q $TEST_QUEUE -A $BATCH_ACCOUNT -l select=1:ncpus=$NUM_PROC:ompthreads=$NUM_PROC -l walltime=$runTime -N $jobString -o test.out -e test.err"
+               openmp) BSUB="qsub -q $TEST_QUEUE -A $BATCH_ACCOUNT -l select=1:ncpus=$NUM_PROC:ompthreads=$NUM_PROC:mem=$runMem -l walltime=$runTime -N $jobString -o test.out -e test.err"
                        ;;
-               mpi)    BSUB="qsub -q $TEST_QUEUE -A $BATCH_ACCOUNT -l select=1:ncpus=$NUM_PROC:mpiprocs=$NUM_PROC -l walltime=$runTime -N $jobString -o test.out -e test.err"
+               mpi)    BSUB="qsub -q $TEST_QUEUE -A $BATCH_ACCOUNT -l select=1:ncpus=$NUM_PROC:mpiprocs=$NUM_PROC:mem=$runMem -l walltime=$runTime -N $jobString -o test.out -e test.err"
                        ;;
                *)      echo "Error: Unknown parallel type '$PARALLEL_TYPE'!"
                        exit 2
