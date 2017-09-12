@@ -100,9 +100,9 @@ export BATCH_ACCOUNT=P64000400
 
 export NUM_PROC_BUILD=4
 
-# Memory to request for building WRF in batch queue. For PBS job scheduling only. Ignored when BATCH_COMPILE is false.
+# Memory to request (in GB) for building WRF in batch queue. For PBS job scheduling only. Ignored when BATCH_COMPILE is false.
 
-export MEM_BUILD=20GB
+export MEM_BUILD=20
 
 # Time to request for building WRF in batch queue. Ignored when BATCH_COMPILE is false.
 
@@ -116,10 +116,10 @@ export BATCH_COMPILE_TIME=00:90:00
 
 export NUM_PROC_TEST=6
 
-# Memory to request for each test. For PBS job scheduling only. Ignored when BATCH_TEST is false.
+# Memory to request (in GB) for each test. For PBS job scheduling only. Ignored when BATCH_TEST is false.
 # NOTE: this value can be overridden by putting "MEMORY_REQ=<value>" in an individual test namelist.input file.
 
-export MEM_TEST=4GB
+export MEM_TEST=4
 
 # If true, all script commands are echoed to the standard error output stream.  To capture this output to a file 
 # "run.log", run the tests using the command "scripts/run_WRF_Tests.ksh -R <this_file> >& run.log &".
