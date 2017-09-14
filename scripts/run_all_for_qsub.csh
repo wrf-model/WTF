@@ -1,7 +1,7 @@
 #!/bin/csh
 
 set RUN_DA = NO
-#set RUN_DA = YEPPERS
+set RUN_DA = YEPPERS
 
 set INTELversion = 17.0.1
 set PGIversion = 17.5
@@ -54,14 +54,15 @@ echo submit intel WTF
 module swap gnu intel/${INTELversion}
 module list
 ( nohup scripts/run_WRF_Tests.ksh -R regTest_intel_Cheyenne.wtf ) >&! foo_intel &
-if ( $RUN_DA != NO ) then
-        echo submit intel WRFDA WTF
-        ( nohup scripts/run_WRF_Tests.ksh -R regTest_intel_Cheyenne_WRFDA.wtf ) >&! foo_intel_WRFDA &
-endif
-echo Waiting 10 seconds to submit next job ...
-echo
-
-sleep 10
+#if ( $RUN_DA != NO ) then
+# WRFPLUS GIVES INTERNAL COMPILER ERROR, SKIP FOR NOW
+#        echo submit intel WRFDA WTF
+#        ( nohup scripts/run_WRF_Tests.ksh -R regTest_intel_Cheyenne_WRFDA.wtf ) >&! foo_intel_WRFDA &
+#endif
+#echo Waiting 10 seconds to submit next job ...
+#echo
+#
+#sleep 10
 
 ################### PGI
 #echo submit PGI WTF
