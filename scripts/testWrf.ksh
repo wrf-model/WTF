@@ -184,6 +184,31 @@ fi
 
 REGDATA_FILES=`ls ${REGDATA_PATH}/*`
 
+case $PARALLEL_TYPE in
+   serial) SERIAL_QUEUE=`grep SERIAL_QUEUE ${NAMELIST_PATH} | cut -d '=' -f 2`
+           if [ -z "$SERIAL_QUEUE" ]; then
+              BATCH_QUEUE=$TEST_QUEUE
+           else
+              BATCH_QUEUE=$SERIAL_QUEUE
+           fi
+           ;;
+   openmp) OPENMP_QUEUE=`grep OPENMP_QUEUE ${NAMELIST_PATH} | cut -d '=' -f 2`
+           if [ -z "$OPENMP_QUEUE" ]; then
+              BATCH_QUEUE=$TEST_QUEUE
+           else
+              BATCH_QUEUE=$OPENMP_QUEUE
+           fi
+           ;;
+   mpi)    MPI_QUEUE=`grep MPI_QUEUE ${NAMELIST_PATH} | cut -d '=' -f 2`
+           if [ -z "$MPI_QUEUE" ]; then
+              BATCH_QUEUE=$TEST_QUEUE
+           else
+              BATCH_QUEUE=$MPI_QUEUE
+           fi
+           ;;
+   *) echo "$0: Error, unknown parallel setting ${PARALLEL_TYPE}."
+      exit 2
+   esac
 
 # Set the number of processors/threads to use for the test.
 if [ "$BATCH_COMPILE" = false -a "$BATCH_TEST" = false ]; then
@@ -191,7 +216,7 @@ if [ "$BATCH_COMPILE" = false -a "$BATCH_TEST" = false ]; then
 else
    NUM_PROC=`grep NUM_PROCESSORS ${NAMELIST_PATH} | cut -d '=' -f 2`
    if [ -z "$NUM_PROC" ]; then
-      if [[ $TEST_QUEUE = "share" ]] || [[ $TEST_QUEUE = "caldera" ]]; then
+      if [[ $BATCH_QUEUE = "share" ]] || [[ $BATCH_QUEUE = "caldera" ]]; then
          NUM_PROC=$NUM_PROC_TEST
       else
          case $BATCH_QUEUE_TYPE in
@@ -217,7 +242,7 @@ if $BATCH_TEST; then
    case $BATCH_QUEUE_TYPE in
       LSF) MPI_CMD="mpirun.lsf"
            ;;
-      PBS) if [[ $TEST_QUEUE = "share" ]] then
+      PBS) if [[ $BATCH_QUEUE = "share" ]] then
               MPI_CMD="mpirun \`hostname\` -np $NUM_PROC"
            else
               MPI_CMD="mpiexec_mpt omplace -vv"
@@ -243,8 +268,6 @@ if [[ $WRF_TYPE = "wrfda_3dvar" ]] || [[ $WRF_TYPE = "wrfda_4dvar" ]];then
                    WRF_COMMAND="mpirun -machinefile machfile -np $NUM_PROC ./da_wrfvar.exe "
                fi
                ;;
-       *) echo "$0: Error, unknown parallel setting ${PARALLEL_TYPE}."
-          exit 2
    esac
 
 elif [[ $WRF_TYPE = "wrfplus" ]];then
@@ -285,8 +308,6 @@ else
                    WRF_COMMAND="mpirun -machinefile machfile -np $NUM_PROC ./wrf.exe "
                fi
                ;;
-       *) echo "$0: Error, unknown parallel setting ${PARALLEL_TYPE}."
-          exit 2
    esac
 fi
 
@@ -453,7 +474,7 @@ fi
 if $CREATE_DIR; then
     if [ "$PARALLEL_TYPE" = "mpi" ]; then    
         ##  Put all batched commands related to running the test in the local file "test.sh". 
-        if [[ $TEST_QUEUE = "share" ]] then
+        if [[ $BATCH_QUEUE = "share" ]] then
             cat >| $testDir/test.sh << EOF
         export MPI_USE_ARRAY=false
 EOF
@@ -501,7 +522,7 @@ if $BATCH_TEST; then
             if [ -z "$runTime" ]; then
                runTime="0:05"
             fi
-            BSUB="bsub -q $TEST_QUEUE -P $BATCH_ACCOUNT -n $NUM_PROC -a poe -W $runTime -J $jobString -o test.out -e test.err -cwd $testDir "
+            BSUB="bsub -q $BATCH_QUEUE -P $BATCH_ACCOUNT -n $NUM_PROC -a poe -W $runTime -J $jobString -o test.out -e test.err -cwd $testDir "
             echo $BSUB > $testDir/submitCommand
             $BSUB < $testDir/test.sh
             ;;
@@ -518,22 +539,20 @@ if $BATCH_TEST; then
                serial) if [ -z "$runMem" ]; then
                           runMem=$BATCH_MEM
                        fi
-                       BSUB="qsub -q $TEST_QUEUE -A $BATCH_ACCOUNT -l select=1:ncpus=1:mem=${runMem}GB -l walltime=$runTime -N $jobString -o test.out -e test.err"
+                       BSUB="qsub -q $BATCH_QUEUE -A $BATCH_ACCOUNT -l select=1:ncpus=1:mem=${runMem}GB -l walltime=$runTime -N $jobString -o test.out -e test.err"
                        ;;
                openmp) if [ -z "$runMem" ]; then
                           (( totalMem = NUM_PROC * BATCH_MEM ))
                           runMem=$totalMem
                        fi
-                       BSUB="qsub -q $TEST_QUEUE -A $BATCH_ACCOUNT -l select=1:ncpus=$NUM_PROC:ompthreads=$NUM_PROC:mem=${runMem}GB -l walltime=$runTime -N $jobString -o test.out -e test.err"
+                       BSUB="qsub -q $BATCH_QUEUE -A $BATCH_ACCOUNT -l select=1:ncpus=$NUM_PROC:ompthreads=$NUM_PROC:mem=${runMem}GB -l walltime=$runTime -N $jobString -o test.out -e test.err"
                        ;;
                mpi)    if [ -z "$runMem" ]; then
                           (( totalMem = NUM_PROC * BATCH_MEM ))
                           runMem=$totalMem
                        fi
-                       BSUB="qsub -q $TEST_QUEUE -A $BATCH_ACCOUNT -l select=1:ncpus=$NUM_PROC:mpiprocs=$NUM_PROC:mem=${runMem}GB -l walltime=$runTime -N $jobString -o test.out -e test.err"
+                       BSUB="qsub -q $BATCH_QUEUE -A $BATCH_ACCOUNT -l select=1:ncpus=$NUM_PROC:mpiprocs=$NUM_PROC:mem=${runMem}GB -l walltime=$runTime -N $jobString -o test.out -e test.err"
                        ;;
-               *)      echo "Error: Unknown parallel type '$PARALLEL_TYPE'!"
-                       exit 2
             esac
             cd $testDir
             echo $BSUB > submitCommand
