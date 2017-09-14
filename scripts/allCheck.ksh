@@ -67,6 +67,8 @@ getVariationName()
           ;;
      ST)  variationName='Stoch    ' 
           ;;
+     VN)  variationName='VertNest '
+          ;;
      WP)  variationName='WRFPLUS  '
           ;;
      *)   variationName='Standard ' 
