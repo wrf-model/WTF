@@ -136,4 +136,5 @@
  dfi_fwdstop_minute                  = 30
  dfi_fwdstop_second                  = 00
  /
+NUM_PROCESSORS=8
 
