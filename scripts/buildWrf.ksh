@@ -347,16 +347,23 @@ USABLE_TARGET_DIR=`reusable_wrfdir $targetDir`
 USABLE_REUSE_DIR=`reusable_wrfdir $REUSE_DIR`
 
 if [ -d $targetDir ]; then
-       if [ -f $targetDir/main/wrf.exe -a -f $targetDir/main/$TARGET_PREWRF ]; then
-          echo "Both target executables already exist for $targetDir; nothing to be done."
-          exit 0
-       fi
-       if [ -f $targetDir/SUCCESS_TAR.tst ]; then
-          UNPACK_WRF=false
-       fi
-       if [ -f $targetDir/configure.wrf ]; then
-          RUN_CONFIGURE=false
-       fi
+   if [[ $COMPILE_STRING = "all_wrfvar" ]];then
+      if [ -f $targetDir/var/build/da_wrfvar.exe ]; then
+         echo "Target executable already exists for $targetDir; nothing to be done."
+         exit 0
+      fi
+   else
+      if [ -f $targetDir/main/wrf.exe -a -f $targetDir/main/$TARGET_PREWRF ]; then
+         echo "Both target executables already exist for $targetDir; nothing to be done."
+         exit 0
+      fi
+   fi
+   if [ -f $targetDir/SUCCESS_TAR.tst ]; then
+      UNPACK_WRF=false
+   fi
+   if [ -f $targetDir/configure.wrf ]; then
+      RUN_CONFIGURE=false
+   fi
 
 elif [ -d $REUSE_DIR -a -f $REUSE_DIR/SUCCESS_TAR.tst ]; then
    if $USABLE_REUSE_DIR; then
