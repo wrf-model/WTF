@@ -59,7 +59,7 @@ getBuildCode()
                       exit 2
                       ;;
    esac
-   echo $buildType
+   echo $typeCode
 }
 
 
@@ -145,7 +145,10 @@ fi
 # 
 
 if $BATCH_COMPILE; then
-   batchWait $BATCH_QUEUE_TYPE 'bld\.' 60
+   for platform in $CONFIGURE_CHOICES; do
+      code=`getBuildCode $wrfType`
+      batchWait $BATCH_QUEUE_TYPE "bld\.${code}\.${platform}" 10
+   done
 fi
 
 # Then, when all the above builds have finished, fire off the builds that cannot
