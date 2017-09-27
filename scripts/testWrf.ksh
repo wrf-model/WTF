@@ -207,7 +207,7 @@ case $PARALLEL_TYPE in
            fi
            ;;
    *) echo "$0: Error, unknown parallel setting ${PARALLEL_TYPE}."
-      exit 2
+      exit 3
    esac
 
 # Set the number of processors/threads to use for the test.
@@ -260,6 +260,14 @@ if [[ $WRF_TYPE = "wrfda_3dvar" ]] || [[ $WRF_TYPE = "wrfda_4dvar" ]];then
                WRF_COMMAND="./da_wrfvar.exe > wrfda.out 2>&1 "
                NUM_PROC=1
                ;;
+       openmp) if [[ $WRF_TYPE = "wrfda_3dvar" ]];then
+                  WRF_COMMAND="omplace ./da_wrfvar.exe > wrfda.out 2>&1 "
+                  export OMP_NUM_THREADS=$NUM_PROC
+               else
+                  echo "$0: Error, ${PARALLEL_TYPE} not valid for ${WRF_TYPE}."
+                  exit 4
+               fi
+               ;;
        mpi)    if $BATCH_TEST; then
                   REAL_COMMAND=""
                   WRF_COMMAND="$MPI_CMD ./da_wrfvar.exe "
@@ -286,7 +294,7 @@ elif [[ $WRF_TYPE = "wrfplus" ]];then
                fi
                ;;
        *) echo "$0: Error, unknown parallel setting ${PARALLEL_TYPE}."
-          exit 2
+          exit 3
    esac
 
 else

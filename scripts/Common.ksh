@@ -285,8 +285,7 @@ checkDAResult()
    case $parallelType in
       serial)  LOGFILE='wrfda.out'
                ;;
-      openmp)  echo "WRFDA NOT SET UP FOR OPENMP. TEST SHOULD NEVER GET THIS FAR. BAD FAIL."
-               exit 1
+      openmp)  LOGFILE='wrfda.out'
                ;;
       mpi)     LOGFILE='rsl.out.0000'
                ;;
@@ -432,8 +431,8 @@ goodConfiguration()
          echo false
          return 0
       fi
-   # exclude OpenMP for WRFDA builds.
-   elif [ "$wType" = "wrfda_3dvar" -o "$wType" = "wrfda_4dvar" -o "$wType" = "wrfplus" ]; then
+   # exclude OpenMP for WRFDA 4DVAR amd WRFPLUS builds.
+   elif [ "$wType" = "wrfda_4dvar" -o "$wType" = "wrfplus" ]; then
       if [ "$platf" = "openmp" ]; then
          echo false
          return 0
