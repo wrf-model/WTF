@@ -38,7 +38,7 @@ def main():
  branch=None
 
  # Keep track of version number for Data directory
- version="v03.07"
+ version="v04.01"
 
  # First things first: check if user has a "Data" directory, quit with helpful message if they don't
  if not os.path.isdir("Data"):
@@ -145,6 +145,18 @@ def main():
  os.chdir(tardir)
 
  if os.path.isdir("WRFV3"):
+    cont = ''
+    print("\nWARNING: \n" + tardir + "/WRFV3 already exists.\nIf you continue, this directory will be deleted and overwritten.\n")
+    while not cont:
+       cont = raw_input("Do you wish to continue? (y/n) ")
+       if re.match('y', cont, re.IGNORECASE) is not None:
+          break
+       elif re.match('n', cont, re.IGNORECASE) is not None:
+          print("User specified exit.")
+          sys.exit(0)
+       else:
+          print("Unrecognized input: " + cont)
+          cont=''
     shutil.rmtree("WRFV3")
 
  os.system("git clone " + url + " WRFV3")
