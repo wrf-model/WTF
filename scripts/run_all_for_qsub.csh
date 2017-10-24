@@ -4,15 +4,15 @@ set RUN_DA = NO
 set RUN_DA = YEPPERS
 
 set INTELversion = 17.0.1
-set PGIversion = 17.5
+set PGIversion = 17.9
 set GNUversion = 6.3.0
 
 echo
 echo
-echo Script will submit GNU and Intel WTF jobs to Cheyenne.
+echo Script will submit GNU, Intel, and PGI WTF jobs to Cheyenne.
 echo
-echo No PGI for now
-echo
+#echo No PGI for now
+#echo
 
 scripts/checkModules intel >&! /dev/null
 set OK_intel = $status
@@ -54,24 +54,24 @@ echo submit intel WTF
 module swap gnu intel/${INTELversion}
 module list
 ( nohup scripts/run_WRF_Tests.ksh -R regTest_intel_Cheyenne.wtf ) >&! foo_intel &
-#if ( $RUN_DA != NO ) then
+if ( $RUN_DA != NO ) then
 # WRFPLUS GIVES INTERNAL COMPILER ERROR, SKIP FOR NOW
-#        echo submit intel WRFDA WTF
-#        ( nohup scripts/run_WRF_Tests.ksh -R regTest_intel_Cheyenne_WRFDA.wtf ) >&! foo_intel_WRFDA &
-#endif
-#echo Waiting 10 seconds to submit next job ...
-#echo
-#
-#sleep 10
+        echo submit intel WRFDA WTF
+        ( nohup scripts/run_WRF_Tests.ksh -R regTest_intel_Cheyenne_WRFDA.wtf ) >&! foo_intel_WRFDA &
+endif
+echo Waiting 10 seconds to submit next job ...
+echo
+
+sleep 10
 
 ################### PGI
-#echo submit PGI WTF
-#module swap intel pgi/${PGIversion}
-#module list
-#( nohup scripts/run_WRF_Tests.ksh -R regTest_pgi_Cheyenne.wtf ) >&! foo_pgi &
-#if ( $RUN_DA != NO ) then
-#        echo submit pgi WRFDA WTF
-#        ( nohup scripts/run_WRF_Tests.ksh -R regTest_pgi_Cheyenne_WRFDA.wtf ) >&! foo_pgi_WRFDA &
-#endif
+echo submit PGI WTF
+module swap intel pgi/${PGIversion}
+module list
+( nohup scripts/run_WRF_Tests.ksh -R regTest_pgi_Cheyenne.wtf ) >&! foo_pgi &
+if ( $RUN_DA != NO ) then
+        echo submit pgi WRFDA WTF
+        ( nohup scripts/run_WRF_Tests.ksh -R regTest_pgi_Cheyenne_WRFDA.wtf ) >&! foo_pgi_WRFDA &
+endif
 
 wait
