@@ -485,7 +485,9 @@ if $RUN_COMPILE; then
           PBS)  BSUB="qsub -Wblock=true -q $BUILD_QUEUE -A $BATCH_ACCOUNT -l select=1:ncpus=$NUM_PROCS:mem=${MEM_BUILD}GB -l walltime=${wallTime} -N $BUILD_STRING -o build.out -e build.err"
                 TMPDIR=/glade/scratch/$thisUser/tmp/$BUILD_STRING
                 cat > build.sh << EOF
-                export TMPDIR="$TMPDIR" # CISL-recommended hack for Cheyenne builds
+          export TMPDIR="$TMPDIR"     # CISL-recommended hack for Cheyenne builds
+          export MPI_DSM_DISTRIBUTE=0 # CISL-recommended hack for distributing jobs properly in share queue
+          export MPI_DSM_VERBOSE=1    # Prints diagnostics of where jobs are distributed in share queue
 EOF
                 ;;
           NQS)  export MSUBQUERYINTERVAL=30

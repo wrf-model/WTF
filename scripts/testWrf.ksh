@@ -485,6 +485,8 @@ if $CREATE_DIR; then
         if [[ $BATCH_QUEUE = "share" ]] then
             cat >| $testDir/test.sh << EOF
         export MPI_USE_ARRAY=false
+        export MPI_DSM_DISTRIBUTE=0 # CISL-recommended hack for distributing jobs properly in share queue
+        export MPI_DSM_VERBOSE=1    # Prints diagnostics of where jobs are distributed in share queue
 EOF
         fi
         cat <<EOF >> $testDir/test.sh
