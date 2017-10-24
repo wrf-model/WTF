@@ -79,7 +79,8 @@ if $BATCH_COMPILE; then
 	                                              ;;
            em_b_wave|em_quarter_ss|em_quarter_ss8)    WRF_SERIAL="$WRF_SERIAL $f"
 	                                              ;;
-           wrfda_4dvar)                               WRFDA_4DVAR=true
+           wrfda_4dvar)                               WRF_PARALLEL="$WRF_PARALLEL $f"
+                                                      WRFDA_4DVAR=true
                                                       ;;
            *) echo "$0: unknown executable type: '$f'; aborting!"
               exit 255
@@ -121,9 +122,10 @@ for wrfType in $WRF_PARALLEL; do
             $WRF_TEST_ROOT/scripts/buildWrf.ksh -f $TARFILE -d $buildDir -ci $platform -ct $wrfType -bs $buildString -N $NUM_PROC_BUILD
          fi
       fi
-   sleep 10 # Wait 10 seconds between build jobs to avoid overloading parent job with untar and configure steps
+   sleep 60 # Wait 60 seconds between build jobs to avoid overloading parent job with untar and configure steps
    done
 done
+
 
 # Special case to speed up 4DVAR build: wait for WRFPLUS specifically, then move on
 if $WRFDA_4DVAR; then
@@ -145,9 +147,11 @@ fi
 # 
 
 if $BATCH_COMPILE; then
-   for platform in $CONFIGURE_CHOICES; do
-      code=`getBuildCode $wrfType`
-      batchWait $BATCH_QUEUE_TYPE "bld\.${code}\.${platform}" 10
+   for wrfType in $WRF_PARALLEL; do
+      for platform in $CONFIGURE_CHOICES; do
+         code=`getBuildCode $wrfType`
+         batchWait $BATCH_QUEUE_TYPE "bld\.${code}\.${platform}" 10
+      done
    done
 fi
 
