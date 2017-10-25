@@ -1,7 +1,8 @@
 #!/usr/bin/python
 #
 # A python script for running a WTF straight from Github, just specifying a URL and branch name.
-# For now, this only works on Yellowstone. Future modifications will allow for use on local machines.
+# For now, this only works on batch machines (Yellowstone and Cheyenne). 
+# Future modifications will be needed to allow for use on local machines.
 #
 # Usage: ./run_from_github.py
 #        When prompted, enter a repository URL.
@@ -44,14 +45,14 @@ def main():
  if not os.path.isdir("Data"):
     print("\nERROR ERROR ERROR\n")
     print("'Data' directory not found")
-    print("If on Yellowstone, link /glade/p/wrf/Data into your WTF directory")
-    print("If you do not have access to Yellowstone, you can download the data from http://www2.mmm.ucar.edu/wrf/tmp/data_"+version+".tar")
+    print("If on Yellowstone or Cheyenne, link /glade/p/wrf/Data into your WTF directory")
+    print("If you do not have access to Yellowstone or Cheyenne, you can download the data from http://www2.mmm.ucar.edu/wrf/tmp/data_"+version+".tar")
     sys.exit("\nExiting script")
  elif not os.path.isfile("Data/" + version):
     print("\nERROR ERROR ERROR\n")
     print("Your 'Data' directory is too old to work with this version of the WTF. You need version " + version)
-    print("If on Yellowstone, link /glade/p/wrf/Data into your WTF directory")
-    print("If you do not have access to Yellowstone, you can download the data from http://www2.mmm.ucar.edu/wrf/tmp/data_"+version+".tar")
+    print("If on Yellowstone or Cheyenne, link /glade/p/wrf/Data into your WTF directory")
+    print("If you do not have access to Yellowstone or Cheyenne, you can download the data from http://www2.mmm.ucar.edu/wrf/tmp/data_"+version+".tar")
     sys.exit("\nExiting script")
 
  tardir = "tarballs"

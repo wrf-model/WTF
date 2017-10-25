@@ -20,7 +20,7 @@
 ##
 
 
-##  A helpful check to make sure that the compiler is ready to use on yellowstone.
+##  A helpful check to make sure that the compiler is ready to use on Cheyenne.
 export COMPILER_WTF=pgi
 CHECK_MODULES=true
 if $CHECK_MODULES; then

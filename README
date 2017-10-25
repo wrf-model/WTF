@@ -12,36 +12,86 @@
 
 The WRF Testing Framework is designed to build, test, and analyze test results for 
 one or more versions of the WRF model.   It supports the testing of various "flavors"
-of WRF, including the ARW model, NMM model, and WRF-Chem.  It also supports
-the comparison of results for different software revisions of the same model;
-for example, test results for version 3.4.1 of WRF can be compared against 
-an updated version of WRF.   Finally, for users with access to Matlab, test results
-can be summarized in a single plot, which gives a summary overview of results.
+of WRF, including the ARW model, NMM model, WRF-Chem, and WRFDA.
 
 
 The WRF Testing Framework has been designed so that only a single "master control file", 
-from now on referred to as a "WRF Test File", needs to be modified by the user.   
-This file specifies which "flavors" of WRF should be built, which compiler options
-to use, whether to build WRF with optimizations turned on, etc.   
+from now on referred to as a "WRF Test File", needs to be modified by the user (though
+most users can use the provided files without modifications). These file specify which
+"flavors" of WRF should be built, which compiler options to use, whether to build WRF 
+with optimizations turned on, etc.   
 
 
 The file structure of the WRF Test Framework is as follows:
 
-     README                           --  This file
-     regTest_gnu_Darwin.wtf           --  WTF config file for Apple desktop gfortran compiler regtests
-     regTest_gnu_Yellowstone.wtf      --  WTF config file for Yellowstone gfortran compiler regtests
-     regTest_intel_Yellowstone.wtf    --  WTF config file for Yellowstone Intel ifort regtests
-     regTest_pgi_Yellowstone.wtf      --  WTF config file for Yellowstone PGI compiler regtests
-     scripts/                         --  Control programs 
-     tarballs/                        --  User must place WRF source tar files here (initially empty)
-     Builds/                          --  All WRF builds are performed here  (initially empty)
-     Data/                            --  Metgrid files for tests  (user can add files for new tests)
-     Namelists/                       --  Namelists for tests (user can add namelists for new tests)
-     Runs/                            --  All WRF tests are performed here
-
+     README                      --  This file
+     regTest_gnu_Darwin.wtf      --  WTF config file for Apple desktop gfortran compiler regtests
+     regTest_gnu_Cheyenne.wtf    --  WTF config file for Cheyenne gfortran compiler regtests
+     regTest_intel_Cheyenne.wtf  --  WTF config file for Cheyenne Intel ifort regtests
+     regTest_pgi_Cheyenne.wtf    --  WTF config file for Cheyenne PGI compiler regtests
+     scripts/                    --  Control programs 
+     tarballs/                   --  User must place WRF source tar files here (initially empty)
+     Builds/                     --  All WRF builds are performed here  (initially empty)
+     Data/                       --  Metgrid and other input files for tests  (user can add files 
+                                     for new tests)
+     Namelists/                  --  Namelists for tests (user can add namelists for new tests)
+     Runs/                       --  All WRF tests are performed here
+     clean                       --  Script for cleaning out old tests. run `./clean` or view
+                                     the script's comments for usage instructions
+     run_from_github.py          --  Script for running the test directly from code on Github.
+                                     See below for instructions.
+     qsub_this_to_run_all_compilers.pbs.csh
+                                 --  Script for running tests for all compilers on Cheyenne. See
+                                     below for instructions.
 
 =================================================================================================
-                                       STEPS TO RUN
+                           TO RUN DIRECTLY FROM GITHUB ON CHEYENNE
+=================================================================================================
+
+1)   View the script `scripts/run_all_for_qsub.csh` and make modifications if necessary. The most
+     common modification that may need to be made is to change the compiler versions. Note that 
+     this script sets up each compiler as necessary, then submits each individual test as 
+     described below.
+
+2)   In the top-level directory, run the script:
+
+      `./run_from_github.py`
+
+     This will prompt you to enter the URL of the repository you want to test (for example, 
+     https://github.com/wrf-model/WRF), and the name of the branch you want to test (for example, 
+     master). It will download the code, pack it into a tar file, and submit a test job using the 
+     `qsub_this_to_run_all_compiler.csh` script described below.
+
+3)   When the test has completed, results will be summarized in the directory Runs/RESULTS.        
+
+=================================================================================================
+                           TO RUN ON A LOCAL TAR FILE ON CHEYENNE
+=================================================================================================
+
+1)   Place one or more  WRF source tar files in the "tarballs" directory.  Each file must end in 
+     "*.tar" (case sensitive), and the tarfile names should not contain spaces. Each WRF tarfile 
+     must create the directory "WRFV3" when unpacked. Otherwise, the script will fail. NOTE: IT 
+     IS NOT RECOMMENDED TO RUN FOR MORE THAN ONE TAR FILE AT A TIME, unless you are running 
+     overnight, as the process can take a long time and use a significant fraction of Cheyenne's
+     resources.
+
+2)   View the script `scripts/run_all_for_qsub.csh` and make modifications if necessary. Note
+     that this script sets up each compiler as necessary, then submits each individual test as
+     described belowcompiler  This file must end in "*.wtf"  (case sensitive).
+     Lengthy explanations are given in the existing WRF Test Files for each configuration.
+     The most important parameters to check are near the top of the file.
+
+3)   In the top-level directory, issue the command:
+
+       "qsub < qsub_this_to_run_all_compilers.pbs.csh"
+
+     This will run separate tests simultaneously for GNU, Intel, and PGI compilers, as well as 
+     separate tests for WRFDA 4DVAR (since the configuration option numbers are different).
+
+4)   When the test has completed, results will be summarized in the directory Runs/RESULTS.        
+
+=================================================================================================
+                           TO RUN MANUALLY FOR A SINGLE COMPILER
 =================================================================================================
 
 1)   Place one or more WRF source tar files in the "tarballs" directory.  Each file
@@ -50,7 +100,7 @@ The file structure of the WRF Test Framework is as follows:
      the script will fail.  
 
 2)   Create or modify a WRF Test File.  This file must end in "*.wtf"  (case sensitive). 
-     Lengthy explanations are given in existing WRF Test Files for each parameter.  
+     Lengthy explanations are given in the existing WRF Test Files for each configuration.
      The most important parameters to check are near the top of the file.
      
 3)   Make sure that you have selected the proper compiler environment within your shell!
@@ -62,13 +112,13 @@ The file structure of the WRF Test Framework is as follows:
        "scripts/run_WRF_Tests.ksh -R <WRF_Test_File>.wtf >& run.log &"
 
 
-You can issue the command "tail -f run.log" to check the progress of the script.   There will 
-be some long pauses in the log file output at two different times:  while the WRF code is 
-unpacked and compiled (look in the build directories for compilation logs), and after all the 
-WRF runs have completed when all the WRF output files are checked for invalid values (NaNs).   
+     You can issue the command "tail -f run.log" to check the progress of the script.   There
+     will be some long pauses in the log file output at two different times:  while the WRF code
+     is unpacked and compiled (look in the build directories for compilation logs), and after all
+     WRF runs have completed when all the WRF output files are checked for invalid values (NaNs).   
 
-When the top-level command  has completed,  results will be summarized in the directory Runs/RESULTS. 
 
+5)   When the test has completed, results will be summarized in the directory Runs/RESULTS. 
 
 
 ------------------------------------------------------------------------------------------------------
@@ -186,9 +236,9 @@ script.  Codes for different flavors or WRF are:
        wrfplus)        typeCode='wp'
        wrfda_4dvar)    typeCode='4d'
 
-For example, the job string given for building the MPI version of "em_real" using the PGI compiler 
-on yellowstone would be "bld.er.3", since "3" is the value passed to "configure" to select the PGI
-compiler building the MPI version of WRF.  
+For example, the job string given for building the MPI version of "em_real" using the GNU compiler 
+on Cheyenne would be "bld.er.34", since "34" is the value passed to "configure" to select the GNU
+compiler building the MPI version of WRF.
  
 
 Test job strings have the form "t.<WRF_TYPE_ABBREVATION>.<PARALLEL_TYPE>.<NAMELIST_SUFFIX>".  The
