@@ -1,0 +1,178 @@
+##
+##                       WRF SOFTWARE TEST SUITE CONFIGURATION FILE
+##  
+##  The WRF Software Test Suite is designed to automatically build and run WRF under a variety of 
+##  configurations.  People contributing changes to WRF are encouraged to run a small set of tests given in the 
+##  "testNamelists/contributors" directory, as a way of confirming that their changes do not break existing code.      
+##  This file should be the only one that requires modification by the test suite user. 
+##
+##  STEPS TO RUNNING THE TEST SUITE:
+##
+##  1)  Familiarize yourself with the directory structure of the test suite by reading the README file in
+##      the top-level directory of the test suite.  
+##  2)  Place one or more WRF source tar-files in the top-level "tarballs" directory.  These tar-files 
+##      must have the case-sensitive suffix ".tar".  The rest of each tar-file name is used to label builds and test results.
+##  3)  Modify the variables in this WRF Test File.   Variables near the top are most likely to require modification.
+##  4)  After checking the settings in this file to confirm they are correct for your needs, type the following at the command 
+##      line:  "scripts/run_WRF_Tests.ksh -R <this_file> >& run.log &".
+##
+##  Author:  Brian Bonnlander
+##
+
+
+##  A helpful check to make sure that the compiler is ready to use on yellowstone.
+export COMPILER_WTF=pgi
+CHECK_MODULES=true
+if $CHECK_MODULES; then
+   $WRF_TEST_ROOT/scripts/checkModules ${COMPILER_WTF}
+   if [ $? != 0 ]; then
+      echo "WTF: ${COMPILER_WTF} compiler not loaded; aborting."
+      exit 255
+   fi
+fi   
+
+# Specify which WRF target executables to build and test.  Choose some or all of the following: 
+# "em_real em_real8 em_hill2d_x nmm_nest em_chem em_chem_kpp em_move em_b_wave em_quarter_ss em_quarter_ss8".   The final three cases are 
+# idealized cases, and if any are specified, then "em_real" or "em_real8" (respectively) must also be included earlier in the list.
+
+export BUILD_TYPES="em_real em_real8 em_hill2d_x nmm_nest em_chem em_chem_kpp em_b_wave em_quarter_ss em_quarter_ss8 nmm_hwrf wrfda_3dvar em_move"
+
+# Select one of the directories below.  This is the parent directory for all namelist.input files to be used for 
+# the tests.  Below this directory should be subdirectories "em_real", "nmm_nest", etc with namelist.input files 
+# that should be run for that flavor of WRF.  
+#
+# Code contributors: select the directory ending in "contributors".
+
+#export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/contributors
+#export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/internal
+export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/weekly
+#export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/caseStudies
+#export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/cheyenne_test
+
+# Choose the options that should be passed to the "configure" script used to build WRF.  Each specified option 
+# builds a separate WRF executable that will be tested.  Each option indicates a Fortran compiler to use for 
+# building WRF and a communication framework (serial, mpi, or openmp) to use
+# when running WRF.   If you are unsure of which options you need, unpack the WRF source code, start a terminal 
+# session, go to the top-level directory of the WRF source code, and type "./configure".  The available options 
+# will be displayed.   For example, on bluefire, the three options "1 2 3" specify the xlf compiler with the 
+# "serial", "openmp", and "mpi" communication frameworks, respectively.   Leave a blank string for any options
+# that you do not wish to build and test. 
+
+export CONFIGURE_SERIAL="52"
+export CONFIGURE_OPENMP="53"
+export CONFIGURE_MPI="54"
+
+# If set to true, the tasks associated with building WRF and/or running tests using WRF will be submitted to a 
+# batch queue.   All logically independent WRF builds (em_real, em_real8, em_hill2d_x, nmm_nest, em_chem, em_chem_kpp,
+# em_move will be built concurrently, each using NUM_PROC_BUILDS processors to build WRF.  Then the remaining builds 
+# (em_b_wave, em_quarter_ss, em_quarter_ss8) will be built consecutively in the em_real or em_real8 directory tree; these 
+# depend on the existence of the "em_real" or "em_real8" version of the WRF executable.  If BATCH_COMPILE is set to false, then each 
+# WRF executable is built consecutively using NUM_PROC_BUILDS processors.  If BATCH_TEST is false, all 
+# WRF tests are performed consecutively on the local machine.
+# Recommended values:  both false for personal computers, both true for mainframe computers with batch queues. 
+
+export BATCH_COMPILE=true
+export BATCH_TEST=true
+
+# Can be set to "LSF", "PBS", or "NQS".  Right now, "NQS" has been tested on janus.colorado.edu only.  
+# Ignored when BATCH_COMPILE and BATCH_TEST are false.
+
+export BATCH_QUEUE_TYPE=PBS
+
+# Names of batch queues to use for building and testing.
+# Valid names:
+#   Yellowstone: caldera, regular, economy, premium
+#   Cheyenne: share, regular, economy
+# Ignored when BATCH_COMPILE and BATCH_TEST are false.
+
+export BUILD_QUEUE=share
+export TEST_QUEUE=share
+#export TEST_QUEUE=economy
+
+# Account charge code string for queue-managed computers. Ignored when BATCH_COMPILE and BATCH_TEST are false.
+
+export BATCH_ACCOUNT=P64000400
+
+# Number of processors/tasks to use for building WRF. 
+# No reason to set larger than 6 due to diminishing returns on compile time.
+
+export NUM_PROC_BUILD=4
+
+# Memory to request (in GB) for building WRF in batch queue. For PBS job scheduling only. Ignored when BATCH_COMPILE is false.
+
+export MEM_BUILD=20
+
+# Time to request for building WRF in batch queue. Ignored when BATCH_COMPILE is false.
+
+export BATCH_COMPILE_TIME=00:60:00
+
+# Number of processors to use for running MPI-based tests, 
+# and checking test outcomes.  On batch computers, this is not the *total* used at once, but the number 
+# used for each test or compilation.  Recommended value for personal computers: the number of available 
+# processors on the machine.  Recommended value for batch computers: at least 4, and no more than 12.
+# NOTE: this value can be overridden by putting "NUM_PROCESSORS=<value>" in an individual test namelist.input file.
+
+export NUM_PROC_TEST=4
+
+# Memory to request (in GB) for each test. For PBS job scheduling only. Ignored when BATCH_TEST is false.
+# NOTE: this value can be overridden by putting "MEMORY_REQ=<value>" in an individual test namelist.input file.
+
+export MEM_TEST=4
+
+# If true, all script commands are echoed to the standard error output stream.  To capture this output to a file 
+# "run.log", run the tests using the command "scripts/run_WRF_Tests.ksh -R <this_file> >& run.log &".
+# Recommended value: true for at least the first time using the test suite, false once you're confident the 
+# scripts are working.
+
+export DEBUG_WTF=true
+
+# Whether to build WRF optimized or not.  Recommended value:  false for code contributors, since turning on full 
+# optimization can cause bit-for-bit differences when comparing output from serial and non-serial versions of WRF. 
+
+export OPTIMIZE_WRF=false
+
+# Whether to build the "em_chem" or "em_chem_kpp" versions of WRF optimized.  Recommended value: false, since 
+# optimizing the large Fortran modules associated with these codes has taken up to 14 hours on some machines.  
+
+export OPTIMIZE_WRF_CHEM=false
+
+# If set to true, WRF is built in such a way that checks array bounds, uninitialized variables, and serious
+# floating point exceptions.  Execution stops when one of these errors is encountered, and a debugger can be 
+# used to track down the problem.  For Intel builds, "idb" is the debugger.  For PGI builds, "pgdbg" is the 
+# debugger.  For gfortran builds, "gdb" is the debugger. 
+#
+# Recommended value for contributors:  false, because several of the WRF microphysics options 
+# (e.g., CAM shortwave radiation) have spurious numerical exceptions occur as part of their expected behavior.
+
+export TRAP_ERRORS=false
+
+#
+# ========================== STUFF BELOW HERE PROBABLY NEEDS NO MODIFICATION ==============================
+#
+
+# Directory where the WRF source tar files should be placed for testing. 
+export TARFILE_DIR=$WRF_TEST_ROOT/tarballs
+
+# Directory where all the WRF source builds take place. 
+export BUILD_DIR=$WRF_TEST_ROOT/Builds
+
+# The parent directory for all the regression test runs created and performed by this script. 
+export TEST_DIR=$WRF_TEST_ROOT/Runs
+
+
+# The parent directory for all meteorological input data files to be used for the regression tests.  Below this directory
+# should be subdirectories "em_real", "nmm_nest", etc with data files that should be part of the test for each
+# flavor of WRF.  For idealized versions of WRF that use no observation data (e.g. em_b_wave), no input data are needed,
+# so the directories can be empty.
+export METDATA_DIR=$WRF_TEST_ROOT/Data
+
+#  Location of the library libfl.a; needed for building em_chem_kpp version of WRF.   The location of this library
+#  is often in /usr/lib, /usr/local/lib, or /lib, but it could be anywhere the computer administrator chooses to 
+#  install it.   If unsure of its location, ask your system administrator.  This option is ignored if the "em_chem_kpp"
+#  version of WRF is not built. 
+export FLEX_LIB_DIR='/usr/lib64'
+
+#  This probably does not need to be modified.  Most WRF tests expect only basic nesting to be available within WRF.
+#  Recommended value: 1 (basic nesting).
+export NEST_OPTION=1         
+

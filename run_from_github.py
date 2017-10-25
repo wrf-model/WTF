@@ -38,7 +38,7 @@ def main():
  branch=None
 
  # Keep track of version number for Data directory
- version="v03.07"
+ version="v04.01"
 
  # First things first: check if user has a "Data" directory, quit with helpful message if they don't
  if not os.path.isdir("Data"):
@@ -73,7 +73,7 @@ def main():
  ls_proc = subprocess.Popen(["ls", "-l", tardir], stdout=subprocess.PIPE)
  (out, err) = ls_proc.communicate()
  if err:
-    sys.exit("There was an error: " + err)
+    sys.exit("`ls -l` returned an error, this shouldn't happen!")
 
  tardirfiles = out.splitlines()
 
@@ -145,11 +145,29 @@ def main():
  os.chdir(tardir)
 
  if os.path.isdir("WRFV3"):
+    cont = ''
+    print("\nWARNING: \n" + tardir + "/WRFV3 already exists.\nIf you continue, this directory will be deleted and overwritten.\n")
+    while not cont:
+       cont = raw_input("Do you wish to continue? (y/n) ")
+       if re.match('y', cont, re.IGNORECASE) is not None:
+          break
+       elif re.match('n', cont, re.IGNORECASE) is not None:
+          print("User specified exit.")
+          sys.exit(0)
+       else:
+          print("Unrecognized input: " + cont)
+          cont=''
     shutil.rmtree("WRFV3")
 
  os.system("git clone " + url + " WRFV3")
  os.chdir("WRFV3")
- os.system("git checkout " + branch)
+
+ # We have to check the exit status of git checkout, otherwise we may not get the right code!
+ err = subprocess.call(["git", "checkout", branch])
+# (out, err) = checkout_proc.communicate()
+ if err:
+    sys.exit("There was an error checking out " + branch + ", see above for details")
+
  os.chdir("../")
 
 
@@ -199,15 +217,7 @@ def main():
 
  os.chdir("../")
 
- user = os.environ.get("USER")
-
- del(os.environ["MP_PE_AFFINITY"])
- if not os.path.isdir("/glade/scratch/" + user + "/TMPDIR_FOR_PGI_COMPILE"):
-    os.makedirs("/glade/scratch/" + user + "/TMPDIR_FOR_PGI_COMPILE")
- os.environ["TMPDIR"] = "/glade/scratch/" + user + "/TMPDIR_FOR_PGI_COMPILE"
-
-
- os.system('bsub < bsub_this_to_run_all_compilers.csh')
+ os.system('qsub < qsub_this_to_run_all_compilers.pbs.csh')
 
 
 if __name__ == "__main__":

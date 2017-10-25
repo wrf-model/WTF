@@ -84,7 +84,7 @@ getPreprocessorName()
          nmm_real|nmm_nest|nmm_hwrf)
                    PREPROCESSOR='real_nmm.exe' 
 		   ;;
-         all_wrfvar)
+         wrfda_3dvar|wrfda_4dvar)
                    PREPROCESSOR='NONE'
                    ;;
          *)        echo "$0: Unknown WRF type: '$wrfType'"
@@ -285,8 +285,7 @@ checkDAResult()
    case $parallelType in
       serial)  LOGFILE='wrfda.out'
                ;;
-      openmp)  echo "WRFDA NOT SET UP FOR OPENMP. TEST SHOULD NEVER GET THIS FAR. BAD FAIL."
-               exit 1
+      openmp)  LOGFILE='wrfda.out'
                ;;
       mpi)     LOGFILE='rsl.out.0000'
                ;;
@@ -432,8 +431,8 @@ goodConfiguration()
          echo false
          return 0
       fi
-   # exclude OpenMP for WRFDA builds.
-   elif [ "$wType" = "wrfda_3dvar" -o "$wType" = "wrfda_4dvar" -o "$wType" = "wrfplus" ]; then
+   # exclude OpenMP for WRFDA 4DVAR amd WRFPLUS builds.
+   elif [ "$wType" = "wrfda_4dvar" -o "$wType" = "wrfplus" ]; then
       if [ "$platf" = "openmp" ]; then
          echo false
          return 0
@@ -489,7 +488,7 @@ goodConfiguration()
 #
 #  NOTE: job string must escape special characters like ".", i.e. "\."
 #
-#  usage: batchWait <LSF_NSQ> <jobstring> waitTime 
+#  usage: batchWait <LSF_PBS_NSQ> <jobstring> waitTime 
 #   
 batchWait()
 {
@@ -504,11 +503,19 @@ batchWait()
                   JOBS=`bjobs -w | grep $jobString`
              done
              ;;
+      PBS)   userName=`whoami`
+             JOBS=`qstat -w -u $userName | grep $jobString`
+             while [ -n "$JOBS" ]; do
+                  sleep $waitTime
+                  JOBS=`qstat -w -u $userName | grep $jobString`
+                  echo JOBS="$JOBS"
+             done
+             ;;
       NQS)   userName=`whoami`
              JOBS=`qstat -u $userName | grep $userName | grep $jobString | awk '{print $10}' | grep -v C`
              while [ -n "$JOBS" ]; do
                   sleep $waitTime
-                  JOBS=`qstat -u bonnland | grep bonnland | grep $jobString | awk '{print $10}' | grep -v C`
+                  JOBS=`qstat -u $userName | grep $userName | grep $jobString | awk '{print $10}' | grep -v C`
                   echo JOBS="$JOBS"
              done
              ;;

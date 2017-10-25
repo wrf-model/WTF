@@ -8,49 +8,58 @@
 ##  Author: Brian Bonnlander
 ##
 
-#  Returns a short string to identify with the build job.  This is 
-#  used at the end of the script to keep the script from exiting until
-#  all builds have completed. 
+#  getBuildString wrfType config_id
+#  Returns a short string to identify with the build job.  This is used as a way to identify the type
+#  of job and compiler for workflow purposes.
 getBuildString()
 {
-    wrfType=$1
-    config_id=$2
-    case $wrfType in
-       em_real)        typeCode='er'
-                       ;;
-       em_real8)       typeCode='eR'
-                       ;;
-       nmm_real)       typeCode='nr'
-                       ;;
-       nmm_nest)       typeCode='nn'
-                       ;;
-       nmm_hwrf)       typeCode='nh'
-                       ;;
-       em_chem)        typeCode='ec'
-                       ;;
-       em_chem_kpp)    typeCode='ek'
-                       ;;
-       em_b_wave)      typeCode='eb'
-                       ;;
-       em_quarter_ss)  typeCode='eq'
-                       ;;
-       em_quarter_ss8) typeCode='eQ'
-                       ;;
-       em_hill2d_x)    typeCode='eh'
-                       ;;
-       em_move)        typeCode='em'
-                       ;;
-       wrfda_3dvar)    typeCode='3d'
-                       ;;
-       wrfplus)        typeCode='wp'
-                       ;;
-       wrfda_4dvar)    typeCode='4d'
-                       ;;
-                   *)  echo $0:getBuildString:  unknown wrfType $wrfType
-                       exit 2
-                       ;;
-     esac
-     echo "bld.${typeCode}.${config_id}"
+   wrfType=$1
+   config_id=$2
+   typeCode=`getBuildCode $wrfType`
+   echo "bld.${typeCode}.${config_id}"
+}
+
+#  getBuildCode buildType
+#  Given a WRF build type, returns the appropriate 2-letter code identifying the build type
+getBuildCode()
+{
+   buildType=$1
+   case $buildType in
+      em_real)        typeCode='er'
+                      ;;
+      em_real8)       typeCode='eR'
+                      ;;
+      nmm_real)       typeCode='nr'
+                      ;;
+      nmm_nest)       typeCode='nn'
+                      ;;
+      nmm_hwrf)       typeCode='nh'
+                      ;;
+      em_chem)        typeCode='ec'
+                      ;;
+      em_chem_kpp)    typeCode='ek'
+                      ;;
+      em_b_wave)      typeCode='eb'
+                      ;;
+      em_quarter_ss)  typeCode='eq'
+                      ;;
+      em_quarter_ss8) typeCode='eQ'
+                      ;;
+      em_hill2d_x)    typeCode='eh'
+                      ;;
+      em_move)        typeCode='em'
+                      ;;
+      wrfda_3dvar)    typeCode='3d'
+                      ;;
+      wrfplus)        typeCode='wp'
+                      ;;
+      wrfda_4dvar)    typeCode='4d'
+                      ;;
+                  *)  echo $0:getBuildCode:  unknown buildType $buildType
+                      exit 2
+                      ;;
+   esac
+   echo $typeCode
 }
 
 
@@ -67,11 +76,12 @@ if $BATCH_COMPILE; then
     for f in $BUILD_TYPES; do
        case $f in 
            em_real|em_real8|em_hill2d_x|em_move|nmm_real|nmm_nest|nmm_hwrf|em_chem|em_chem_kpp|wrfda_3dvar|wrfplus) WRF_PARALLEL="$WRF_PARALLEL $f"
-	                                                  ;;
-           em_b_wave|em_quarter_ss|em_quarter_ss8|wrfda_4dvar)           WRF_SERIAL="$WRF_SERIAL $f"
-	                                                  ;;
-           wrfda_4dvar)           WRFDA_4DVAR=true
-                                                          ;;
+	                                              ;;
+           em_b_wave|em_quarter_ss|em_quarter_ss8)    WRF_SERIAL="$WRF_SERIAL $f"
+	                                              ;;
+           wrfda_4dvar)                               WRF_PARALLEL="$WRF_PARALLEL $f"
+                                                      WRFDA_4DVAR=true
+                                                      ;;
            *) echo "$0: unknown executable type: '$f'; aborting!"
               exit 255
        esac
@@ -79,6 +89,7 @@ if $BATCH_COMPILE; then
 else
     WRF_PARALLEL=""
     WRF_SERIAL=$BUILD_TYPES
+    WRFDA_4DVAR=false
 fi
 
 
@@ -111,8 +122,10 @@ for wrfType in $WRF_PARALLEL; do
             $WRF_TEST_ROOT/scripts/buildWrf.ksh -f $TARFILE -d $buildDir -ci $platform -ct $wrfType -bs $buildString -N $NUM_PROC_BUILD
          fi
       fi
+   sleep 60 # Wait 60 seconds between build jobs to avoid overloading parent job with untar and configure steps
    done
 done
+
 
 # Special case to speed up 4DVAR build: wait for WRFPLUS specifically, then move on
 if $WRFDA_4DVAR; then
@@ -134,15 +147,18 @@ fi
 # 
 
 if $BATCH_COMPILE; then
-   batchWait $BATCH_QUEUE_TYPE 'bld\.' 60
-else
-   wait
+   for wrfType in $WRF_PARALLEL; do
+      for platform in $CONFIGURE_CHOICES; do
+         code=`getBuildCode $wrfType`
+         batchWait $BATCH_QUEUE_TYPE "bld\.${code}\.${platform}" 10
+      done
+   done
 fi
 
 # Then, when all the above builds have finished, fire off the builds that cannot
 # be run in parallel.   These should complete quickly, since they re-use prior WRF builds.
 
-# Loop over WRF flavors (e.g. em_b_wave, em_quarter_ss, etc.)
+# Loop over WRF flavors (e.g. em_b_wave, nmm_nest, etc.)
 for wrfType in $WRF_SERIAL; do
    # Loop over parallel build choices for this WRF type (e.g. serial, openmp, mpi). 
    for platform in $CONFIGURE_CHOICES; do
@@ -155,12 +171,13 @@ for wrfType in $WRF_SERIAL; do
       fi
    done
    # Wait for builds in each separate build space to finish.
+   sleep 10 # Avoid potential race conditions
    if $BATCH_COMPILE; then
       for platform in $CONFIGURE_CHOICES; do
-         batchWait $BATCH_QUEUE_TYPE "bld\.${wrfType}.${platform}" 10
+         code=`getBuildCode $wrfType`
+         batchWait $BATCH_QUEUE_TYPE "bld\.${code}\.${platform}" 10
       done
    fi
-
 done
 
 echo ALL BUILDS APPEAR TO BE DONE!

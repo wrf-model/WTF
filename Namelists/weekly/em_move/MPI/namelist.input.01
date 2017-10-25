@@ -134,4 +134,6 @@
  dfi_fwdstop_minute                  = 30
  dfi_fwdstop_second                  = 00
  /
+PBS_TIME=0:10:00
+NUM_PROCESSORS=6
 

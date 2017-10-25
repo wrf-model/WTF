@@ -16,6 +16,8 @@ fi
 # Include common functions.
 . $WRF_TEST_ROOT/scripts/Common.ksh
 
+# Ask who the user is
+thisUser=`whoami`
 
 ##  Script should take the following params: tar file, build directory, configure option, nesting option, 
 ##    compile string (em_real, nmm_real, etc). , real*4 vs. real*8, etc.  
@@ -160,7 +162,11 @@ fi
 
 
 PREPROCESSOR=`getPreprocessorName $COMPILE_STRING`
-wallTime="0:90"
+if [[ $BATCH_COMPILE_TIME == '' ]]; then
+   wallTime="0:90"
+else
+   wallTime=$BATCH_COMPILE_TIME
+fi
 
 case $COMPILE_STRING in
     em_real)       
@@ -168,7 +174,9 @@ case $COMPILE_STRING in
                    ;;
     em_b_wave|em_quarter_ss)
                    COMPATIBLE_BUILD='em_real'
-                   wallTime="0:10"
+                   if [[ $BATCH_COMPILE_TIME == '' ]]; then
+                      wallTime="0:10"
+                   fi
                    ;;
     em_real8)       
 		   COMPILE_STRING='em_real'
@@ -179,7 +187,9 @@ case $COMPILE_STRING in
 		   COMPILE_STRING='em_quarter_ss'
                    COMPATIBLE_BUILD='em_real8'
                    REAL8=true
-                   wallTime="0:10"
+                   if [[ $BATCH_COMPILE_TIME == '' ]]; then
+                      wallTime="0:10"
+                   fi
                    ;;
     em_move)
 		   COMPILE_STRING='em_real'
@@ -244,7 +254,9 @@ case $COMPILE_STRING in
                                                              # setting this variable might mess things up
                    ;;
     wrfplus)
-                   wallTime="2:00"
+                   if [[ $BATCH_COMPILE_TIME == '' ]]; then
+                      wallTime="3:00"
+                   fi
                    COMPILE_STRING='em_real'                    # For WRFPLUS, "compile em_real" is needed
                    COMPATIBLE_BUILD='wrfplus'
                    CONFIGURE_COMMAND="./configure -d wrfplus " # WRFPLUS can not be set with environment variable;
@@ -285,10 +297,10 @@ fi
 
 # tarFile must be an actual tarfile. 
 #topDir=`tar tf $tarFile | head -1`
-(tar -tf $tarFile | head -1) > /tmp/.foo_$$ 2> /dev/null
-topDir=`cat /tmp/.foo_$$`
+(tar -tf $tarFile | head -1) > .foo_$$ 2> /dev/null
+topDir=`cat .foo_$$`
 topDir=`basename $topDir`
-\rm /tmp/.foo_$$
+\rm .foo_$$
 
 if [ -z "$topDir" ]; then
    echo "$0: not a valid tarfile: '${tarFile}'; stopping."
@@ -321,7 +333,7 @@ if ( ! $goodConfig ); then
 fi
 
 if [[ "$COMPILE_TYPE" = wrfplus ]]; then
-   banner "Building WRFPLUS $COMPILE_TYPE, option $CONFIG_OPTION in $buildDir .... "
+   banner "Building $COMPILE_TYPE, option $CONFIG_OPTION in $buildDir .... "
 elif [[ "$COMPILE_STRING" = all_wrfvar ]]; then
    banner "Building WRFDA $COMPILE_TYPE, option $CONFIG_OPTION in $buildDir .... "
 else
@@ -336,16 +348,23 @@ USABLE_TARGET_DIR=`reusable_wrfdir $targetDir`
 USABLE_REUSE_DIR=`reusable_wrfdir $REUSE_DIR`
 
 if [ -d $targetDir ]; then
-       if [ -f $targetDir/main/wrf.exe -a -f $targetDir/main/$TARGET_PREWRF ]; then
-          echo "Both target executables already exist for $targetDir; nothing to be done."
-          exit 0
-       fi
-       if [ -f $targetDir/SUCCESS_TAR.tst ]; then
-          UNPACK_WRF=false
-       fi
-       if [ -f $targetDir/configure.wrf ]; then
-          RUN_CONFIGURE=false
-       fi
+   if [[ $COMPILE_STRING = "all_wrfvar" ]];then
+      if [ -f $targetDir/var/build/da_wrfvar.exe ]; then
+         echo "Target executable already exists for $targetDir; nothing to be done."
+         exit 0
+      fi
+   else
+      if [ -f $targetDir/main/wrf.exe -a -f $targetDir/main/$TARGET_PREWRF ]; then
+         echo "Both target executables already exist for $targetDir; nothing to be done."
+         exit 0
+      fi
+   fi
+   if [ -f $targetDir/SUCCESS_TAR.tst ]; then
+      UNPACK_WRF=false
+   fi
+   if [ -f $targetDir/configure.wrf ]; then
+      RUN_CONFIGURE=false
+   fi
 
 elif [ -d $REUSE_DIR -a -f $REUSE_DIR/SUCCESS_TAR.tst ]; then
    if $USABLE_REUSE_DIR; then
@@ -359,8 +378,9 @@ elif [ -d $REUSE_DIR -a -f $REUSE_DIR/SUCCESS_TAR.tst ]; then
        UNPACK_WRF=false
        RUN_CONFIGURE=false
    else
-       echo "Existing build directory unusable; delete directory and retry script: $targetDir"
-       exit 2
+       echo "Existing build directory unusable: $targetDir"
+       echo "Will attempt to build from scratch"
+       echo "$COMPILE_TYPE, option $CONFIG_OPTION in $buildDir"
    fi
 fi
 
@@ -452,25 +472,35 @@ OS_NAME=`uname`
 #   BATCH_COMPILE=false
 #fi
 
+TMPDIR=/glade/scratch/$thisUser/tmp/$BUILD_STRING
+mkdir -p $TMPDIR
 
 # Run 'compile'; see existing regression scripts.    
 if $RUN_COMPILE; then
-   
+   touch build.sh
    echo BATCH_COMPILE==$BATCH_COMPILE
    if $BATCH_COMPILE; then
        case $BATCH_QUEUE_TYPE in
-          LSF)  BSUB="bsub -K -q $BUILD_QUEUE -P $BATCH_ACCOUNT -n $NUM_PROCS -a poe -W $wallTime -J $BUILD_STRING -o build.out -e build.err -cwd $targetDir "
+          LSF)  BSUB="bsub -K -q $BUILD_QUEUE -P $BATCH_ACCOUNT -n $NUM_PROCS -a poe -W $wallTime -J $BUILD_STRING -o build.out -e build.err"
+                ;;
+          PBS)  BSUB="qsub -Wblock=true -q $BUILD_QUEUE -A $BATCH_ACCOUNT -l select=1:ncpus=$NUM_PROCS:mem=${MEM_BUILD}GB -l walltime=${wallTime} -N $BUILD_STRING -o build.out -e build.err"
+                TMPDIR=/glade/scratch/$thisUser/tmp/$BUILD_STRING
+                cat > build.sh << EOF
+          export TMPDIR="$TMPDIR"     # CISL-recommended hack for Cheyenne builds
+          export MPI_DSM_DISTRIBUTE=0 # CISL-recommended hack for distributing jobs properly in share queue
+          export MPI_DSM_VERBOSE=1    # Prints diagnostics of where jobs are distributed in share queue
+EOF
                 ;;
           NQS)  export MSUBQUERYINTERVAL=30
                 export PNETCDF="/curc/tools/free/redhat_5_x86_64/parallel-netcdf-1.2.0_openmpi-1.4.5_intel-12.1.4/"
-                BSUB="msub -K -V -q janus-debug -l nodes=1:ppn=$NUM_PROCS,walltime=${wallTime}:00 -N $BUILD_STRING -o $targetDir/build.out -e $targetDir/build.err -d $targetDir "
+                BSUB="msub -K -V -q janus-debug -l nodes=1:ppn=$NUM_PROCS,walltime=${wallTime}:00 -N $BUILD_STRING -o build.out -e build.err "
                 ;;
           *)    echo "$0: unknown BATCH_QUEUE_TYPE '$BATCH_QUEUE_TYPE'; aborting!"
                 exit 3
        esac
 
        # Put num processors and "compile" command in a file, then submit as a batch job. 
-       cat > $targetDir/build.sh << EOF
+       cat >> build.sh << EOF
           export J="-j ${NUM_PROCS}"
           date > StartTime_${COMPILE_TYPE}.txt
           \rm -f *COMPILE.tst   # Remove previous compile test results
@@ -481,8 +511,8 @@ if $RUN_COMPILE; then
           ./compile $COMPILE_STRING > compile_${COMPILE_STRING}.log 2>&1
           date > EndTime_${COMPILE_TYPE}.txt
 EOF
-       echo $BSUB > $targetDir/submitCommand
-       $BSUB < $targetDir/build.sh
+       echo $BSUB > submitCommand
+       $BSUB < build.sh
    else
       export J="-j ${NUM_PROCS}"
       date > StartTime_${COMPILE_TYPE}.txt
