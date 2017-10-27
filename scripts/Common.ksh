@@ -78,7 +78,7 @@ getPreprocessorName()
          em_real|em_real8|em_move|em_chem|em_chem_kpp|wrfplus)
                    PREPROCESSOR='real.exe' 
 		   ;;
-         em_b_wave|em_quarter_ss|em_quarter_ss8|em_hill2d_x)
+         em_b_wave|em_quarter_ss|em_quarter_ss8|em_hill2d_x|em_fire)
                    PREPROCESSOR='ideal.exe' 
 		   ;;
          nmm_real|nmm_nest|nmm_hwrf)

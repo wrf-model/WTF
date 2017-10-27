@@ -55,6 +55,9 @@ getBuildCode()
                       ;;
       wrfda_4dvar)    typeCode='4d'
                       ;;
+      em_fire)        typeCode='ef'
+                      ;;
+
                   *)  echo $0:getBuildCode:  unknown buildType $buildType
                       exit 2
                       ;;
@@ -75,7 +78,7 @@ if $BATCH_COMPILE; then
     WRFDA_4DVAR=false
     for f in $BUILD_TYPES; do
        case $f in 
-           em_real|em_real8|em_hill2d_x|em_move|nmm_real|nmm_nest|nmm_hwrf|em_chem|em_chem_kpp|wrfda_3dvar|wrfplus) WRF_PARALLEL="$WRF_PARALLEL $f"
+           em_real|em_real8|em_hill2d_x|em_move|nmm_real|nmm_nest|nmm_hwrf|em_chem|em_chem_kpp|wrfda_3dvar|wrfplus|em_fire) WRF_PARALLEL="$WRF_PARALLEL $f"
 	                                              ;;
            em_b_wave|em_quarter_ss|em_quarter_ss8)    WRF_SERIAL="$WRF_SERIAL $f"
 	                                              ;;

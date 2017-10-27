@@ -42,6 +42,8 @@ getTableNames()
    # for 8-bit executables, we need the "DBL" tables
    if [[ $WRF_TYPE = "wrfda_3dvar" || $WRF_TYPE = "wrfda_4dvar" || $WRF_TYPE = "wrfplus" || $WRF_TYPE = "em_real8" ]]; then
       WRF_TABLES=`grep 'ln -s' ${WRF_ROOT_DIR}/Makefile | egrep -v '=|input|namelist|.exe' | tr ";" "\n" | grep 'ln -s' | awk '{print $3}' | sort -u`
+   elif [[ $WRF_TYPE = "em_fire" ]]; then
+      WRF_TABLES=`grep 'ln -s' ${WRF_ROOT_DIR}/Makefile | egrep -v '=|input|namelist.input|.exe' | tr ";" "\n" | grep 'ln -s' | awk '{print $3}' | sort -u`
    else
       WRF_TABLES=`grep 'ln -s' ${WRF_ROOT_DIR}/Makefile | egrep -v '=|input|DBL|namelist|.exe' | tr ";" "\n" | grep 'ln -s' | awk '{print $3}' | sort -u`
    fi
@@ -88,6 +90,7 @@ getJobString()
         wrfda_3dvar)     part1='3d'   ;;
         wrfplus)         part1='wp'   ;;
         wrfda_4dvar)     part1='4d'   ;;
+        em_fire)         part1='ef'   ;;
         *)               echo "$0::getJobString: unknown wrfType '$wrfType'"
                          exit 2
    esac

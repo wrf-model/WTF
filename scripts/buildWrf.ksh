@@ -275,6 +275,8 @@ case $COMPILE_STRING in
                    REAL8=false                               # WRFDA is automatically compiled as REAL8, so
                                                              # setting this variable might mess things up
                    ;;
+    em_fire)       # default settings are okay
+                   ;;
     *)             echo "$0: Unknown compile string: '$COMPILE_STRING'"
                    exit 2
                    ;;
