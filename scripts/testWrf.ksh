@@ -73,27 +73,8 @@ getJobString()
    parallelType=$2
    nlFile=$3
    nlSuffix=`getFileSuffix $nlFile`
-
-   case $wrfType in
-        em_real)         part1='er'   ;;
-        em_real8)        part1='eR'   ;;
-        em_b_wave)       part1='eb'   ;;
-        em_quarter_ss)   part1='eq'   ;;
-        em_quarter_ss8)  part1='eQ'   ;;
-        em_hill2d_x)     part1='eh'   ;;
-        em_move)         part1='em'   ;;
-        em_chem)         part1='ec'   ;;
-        em_chem_kpp)     part1='ek'   ;;
-        nmm_real)        part1='nr'   ;;
-        nmm_nest)        part1='nn'   ;;
-        nmm_hwrf)        part1='nh'   ;;
-        wrfda_3dvar)     part1='3d'   ;;
-        wrfplus)         part1='wp'   ;;
-        wrfda_4dvar)     part1='4d'   ;;
-        em_fire)         part1='ef'   ;;
-        *)               echo "$0::getJobString: unknown wrfType '$wrfType'"
-                         exit 2
-   esac
+#part1 is the 2-character ID code
+   part1=`getTypeCode $wrfType`
 
    case $parallelType in
         serial)   part2='se'   ;;

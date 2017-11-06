@@ -15,56 +15,9 @@ getBuildString()
 {
    wrfType=$1
    config_id=$2
-   typeCode=`getBuildCode $wrfType`
+   typeCode=`getTypeCode $wrfType`
    echo "bld.${typeCode}.${config_id}"
 }
-
-#  getBuildCode buildType
-#  Given a WRF build type, returns the appropriate 2-letter code identifying the build type
-getBuildCode()
-{
-   buildType=$1
-   case $buildType in
-      em_real)        typeCode='er'
-                      ;;
-      em_real8)       typeCode='eR'
-                      ;;
-      nmm_real)       typeCode='nr'
-                      ;;
-      nmm_nest)       typeCode='nn'
-                      ;;
-      nmm_hwrf)       typeCode='nh'
-                      ;;
-      em_chem)        typeCode='ec'
-                      ;;
-      em_chem_kpp)    typeCode='ek'
-                      ;;
-      em_b_wave)      typeCode='eb'
-                      ;;
-      em_quarter_ss)  typeCode='eq'
-                      ;;
-      em_quarter_ss8) typeCode='eQ'
-                      ;;
-      em_hill2d_x)    typeCode='eh'
-                      ;;
-      em_move)        typeCode='em'
-                      ;;
-      wrfda_3dvar)    typeCode='3d'
-                      ;;
-      wrfplus)        typeCode='wp'
-                      ;;
-      wrfda_4dvar)    typeCode='4d'
-                      ;;
-      em_fire)        typeCode='ef'
-                      ;;
-
-                  *)  echo $0:getBuildCode:  unknown buildType $buildType
-                      exit 2
-                      ;;
-   esac
-   echo $typeCode
-}
-
 
 if $DEBUG_WTF; then
    set -x
@@ -125,7 +78,7 @@ for wrfType in $WRF_PARALLEL; do
             $WRF_TEST_ROOT/scripts/buildWrf.ksh -f $TARFILE -d $buildDir -ci $platform -ct $wrfType -bs $buildString -N $NUM_PROC_BUILD
          fi
       fi
-   sleep 60 # Wait 60 seconds between build jobs to avoid overloading parent job with untar and configure steps
+   sleep 10 # Wait 10 seconds between build jobs to avoid overloading parent job with untar and configure steps
    done
 done
 

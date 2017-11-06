@@ -522,3 +522,50 @@ batchWait()
    esac
 }
 
+
+#  getTypeCode wrfType
+#  Given a WRF build/test type (em_real, nmm_hwrf, wrfda_3dvar, etc.), returns the appropriate 2-character build/test ID code
+getTypeCode()
+{
+   wrfType=$1
+   case $wrfType in
+      em_real)        typeCode='er'
+                      ;;
+      em_real8)       typeCode='eR'
+                      ;;
+      nmm_real)       typeCode='nr'
+                      ;;
+      nmm_nest)       typeCode='nn'
+                      ;;
+      nmm_hwrf)       typeCode='nh'
+                      ;;
+      em_chem)        typeCode='ec'
+                      ;;
+      em_chem_kpp)    typeCode='ek'
+                      ;;
+      em_b_wave)      typeCode='eb'
+                      ;;
+      em_quarter_ss)  typeCode='eq'
+                      ;;
+      em_quarter_ss8) typeCode='eQ'
+                      ;;
+      em_hill2d_x)    typeCode='eh'
+                      ;;
+      em_move)        typeCode='em'
+                      ;;
+      wrfda_3dvar)    typeCode='3d'
+                      ;;
+      wrfplus)        typeCode='wp'
+                      ;;
+      wrfda_4dvar)    typeCode='4d'
+                      ;;
+      em_fire)        typeCode='ef'
+                      ;;
+
+                  *)  echo $0:getBuildCode:  unknown buildType $wrfType
+                      exit 2
+                      ;;
+   esac
+   echo $typeCode
+}
+
