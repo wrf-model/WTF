@@ -162,8 +162,15 @@ fi
 
 
 PREPROCESSOR=`getPreprocessorName $COMPILE_STRING`
+
+# A hacky way to get our default wallclock values to behave properly without an obnoxious number of if/else statements.
+# This is necessary because LSF systems take walltimes as "HH:MM", while other systems use "MM:SS".
+secondsModifier=''
+if [[ $BATCH_QUEUE_TYPE == 'LSF' ]]; then
+   secondsModifier=':00'
+fi
 if [[ $BATCH_COMPILE_TIME == '' ]]; then
-   wallTime="0:90"
+   wallTime="0:90$secondsModifier"
 else
    wallTime=$BATCH_COMPILE_TIME
 fi
@@ -175,7 +182,7 @@ case $COMPILE_STRING in
     em_b_wave|em_quarter_ss)
                    COMPATIBLE_BUILD='em_real'
                    if [[ $BATCH_COMPILE_TIME == '' ]]; then
-                      wallTime="0:10"
+                      wallTime="0:10$secondsModifier"
                    fi
                    ;;
     em_real8)       
@@ -188,7 +195,7 @@ case $COMPILE_STRING in
                    COMPATIBLE_BUILD='em_real8'
                    REAL8=true
                    if [[ $BATCH_COMPILE_TIME == '' ]]; then
-                      wallTime="0:10"
+                      wallTime="0:10$secondsModifier"
                    fi
                    ;;
     em_move)
@@ -233,7 +240,9 @@ case $COMPILE_STRING in
 		   fi 
 		   ;;
     em_chem_kpp)
-                   wallTime="2:00"
+                   if [[ $BATCH_COMPILE_TIME == '' ]]; then
+                      wallTime="2:00$secondsModifier"
+                   fi
 		   COMPILE_STRING='em_real'    # For KPP chemistry, "compile em_real" is needed. 
                    COMPATIBLE_BUILD='em_chem_kpp'
 		   export WRF_CHEM=1
@@ -255,7 +264,7 @@ case $COMPILE_STRING in
                    ;;
     wrfplus)
                    if [[ $BATCH_COMPILE_TIME == '' ]]; then
-                      wallTime="3:00"
+                      wallTime="2:00$secondsModifier"
                    fi
                    COMPILE_STRING='em_real'                    # For WRFPLUS, "compile em_real" is needed
                    COMPATIBLE_BUILD='wrfplus'
