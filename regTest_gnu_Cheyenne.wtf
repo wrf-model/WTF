@@ -59,8 +59,8 @@ export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/weekly
 # that you do not wish to build and test. 
 
 export CONFIGURE_SERIAL="32"
-#export CONFIGURE_OPENMP="33"
-#export CONFIGURE_MPI="34"
+export CONFIGURE_OPENMP="33"
+export CONFIGURE_MPI="34"
 
 # If set to true, the tasks associated with building WRF and/or running tests using WRF will be submitted to a 
 # batch queue.   All logically independent WRF builds (em_real, em_real8, em_hill2d_x, nmm_nest, em_chem, em_chem_kpp,
