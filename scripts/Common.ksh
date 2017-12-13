@@ -562,7 +562,7 @@ getTypeCode()
       em_fire)        typeCode='ef'
                       ;;
 
-                  *)  echo $0:getBuildCode:  unknown buildType $wrfType
+                  *)  echo $0:getTypeCode:  unknown wrfType $wrfType
                       exit 2
                       ;;
    esac

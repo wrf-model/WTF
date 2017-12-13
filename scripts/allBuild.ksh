@@ -8,6 +8,9 @@
 ##  Author: Brian Bonnlander
 ##
 
+# Include common functions.
+. $WRF_TEST_ROOT/scripts/Common.ksh
+
 #  getBuildString wrfType config_id
 #  Returns a short string to identify with the build job.  This is used as a way to identify the type
 #  of job and compiler for workflow purposes.
@@ -78,7 +81,8 @@ for wrfType in $WRF_PARALLEL; do
             $WRF_TEST_ROOT/scripts/buildWrf.ksh -f $TARFILE -d $buildDir -ci $platform -ct $wrfType -bs $buildString -N $NUM_PROC_BUILD
          fi
       fi
-   sleep 10 # Wait 10 seconds between build jobs to avoid overloading parent job with untar and configure steps
+   sleep 60 # Wait 60 seconds between build jobs to TRY to avoid overloading parent job with untar and configure steps
+            # I say *try* because we still seem to be hitting a bottleneck here
    done
 done
 
@@ -105,7 +109,7 @@ fi
 if $BATCH_COMPILE; then
    for wrfType in $WRF_PARALLEL; do
       for platform in $CONFIGURE_CHOICES; do
-         code=`getBuildCode $wrfType`
+         code=`getTypeCode $wrfType`
          batchWait $BATCH_QUEUE_TYPE "bld\.${code}\.${platform}" 10
       done
    done
@@ -130,7 +134,7 @@ for wrfType in $WRF_SERIAL; do
    sleep 10 # Avoid potential race conditions
    if $BATCH_COMPILE; then
       for platform in $CONFIGURE_CHOICES; do
-         code=`getBuildCode $wrfType`
+         code=`getTypeCode $wrfType`
          batchWait $BATCH_QUEUE_TYPE "bld\.${code}\.${platform}" 10
       done
    fi
