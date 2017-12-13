@@ -255,6 +255,7 @@ case $COMPILE_STRING in
 		   ;;
     wrfda_3dvar)
                    COMPILE_STRING='all_wrfvar'               # For WRFDA, "compile all_wrfvar" is needed
+                   NEST_OPTION=''                            # WRFDA has no nesting support
                    COMPATIBLE_BUILD='wrfda_3dvar'
                    CONFIGURE_COMMAND="./configure -d wrfda " # WRFDA can not be set with environment variable;
                                                              # It MUST be set via "./configure -d wrfda"
@@ -266,6 +267,7 @@ case $COMPILE_STRING in
                    if [[ $BATCH_COMPILE_TIME == '' ]]; then
                       wallTime="2:00$secondsModifier"
                    fi
+                   NEST_OPTION=''                              # WRFDA has no nesting support
                    COMPILE_STRING='em_real'                    # For WRFPLUS, "compile em_real" is needed
                    COMPATIBLE_BUILD='wrfplus'
                    CONFIGURE_COMMAND="./configure -d wrfplus " # WRFPLUS can not be set with environment variable;
@@ -276,6 +278,7 @@ case $COMPILE_STRING in
                    ;;
     wrfda_4dvar)
                    export WRFPLUS_DIR="${buildDir}/wrfplus/WRFPLUSV3"
+                   NEST_OPTION=''                            # WRFDA has no nesting support
                    COMPILE_STRING='all_wrfvar'               # For WRFDA, "compile all_wrfvar" is needed
                    COMPATIBLE_BUILD='wrfda_4dvar'
                    CONFIGURE_COMMAND="./configure -d 4dvar " # WRFDA can not be set with environment variable;
@@ -419,10 +422,6 @@ if $UNPACK_WRF; then
       echo "$0: Unable to untar '${tarFile}' in '$buildDir/$COMPILE_TYPE'; stopping."
       exit 2
    fi
-   # Run "clean -a" on untarred source, in case it wasn't clean when tarred up.
-   cd $targetDir
-   ./clean -a
-   cd $oldDir
 
    # Indicate that untarring was a success and does not need to be repeated again. 
    if [ $tarSuccess -eq 0 ]; then
@@ -441,47 +440,36 @@ fi
 
 cd $targetDir
 
-echo "### RUN_CONFIGURE = $RUN_CONFIGURE"
+#echo "### RUN_CONFIGURE = $RUN_CONFIGURE"
 
 if $RUN_CONFIGURE; then
 
-# Put interactive "configure" options in a file, then pass to configure.
-if [[ $COMPILE_STRING = "all_wrfvar" ]];then
-   cat > $targetDir/CONFIG_OPTIONS << EOF
-   $CONFIG_OPTION
-EOF
-else
-   cat > $targetDir/CONFIG_OPTIONS << EOF
-   $CONFIG_OPTION
-   $NEST_OPTION
+   # Put interactive "configure" options in a file for future reference
+      cat > $targetDir/CONFIG_OPTIONS << EOF
+$CONFIG_OPTION
+$NEST_OPTION
 EOF
 
+   # Run 'configure' and provide choices using shell "Here document" syntax.   Check exit status before continuing.
+   #./configure < $targetDir/CONFIG_OPTIONS
+   #echo CONFIGURE_COMMAND==$CONFIGURE_COMMAND
+   #$CONFIGURE_COMMAND < $targetDir/CONFIG_OPTIONS
+
+   #cp configure.wrf configure.wrf.core=${COMPILE_TYPE}_build=${CONFIG_OPTION}
+    
+   #       The configure.wrf file needs to be adjusted as to whether we are requesting real*4 or real*8
+   #       as the default floating precision.
+    
+   #if $REAL8; then
+   #    sed -e '/^RWORDSIZE/s/\$(NATIVE_RWORDSIZE)/8/' \
+   #        -e '/^PROMOTION/s/#//'  configure.wrf > foo ; /bin/mv foo configure.wrf
+   #fi
+    
 fi
-    # Run 'configure' and provide choices using shell "Here document" syntax.   Check exit status before continuing.
-    #./configure < $targetDir/CONFIG_OPTIONS
-    echo CONFIGURE_COMMAND==$CONFIGURE_COMMAND   # Diagnostic; remove once command works correctly.
-    $CONFIGURE_COMMAND < $targetDir/CONFIG_OPTIONS
 
-    cp configure.wrf configure.wrf.core=${COMPILE_TYPE}_build=${CONFIG_OPTION}
-    
-    #       The configure.wrf file needs to be adjusted as to whether we are requesting real*4 or real*8
-    #       as the default floating precision.
-    
-    if $REAL8; then
-        sed -e '/^RWORDSIZE/s/\$(NATIVE_RWORDSIZE)/8/' \
-            -e '/^PROMOTION/s/#//'  configure.wrf > foo ; /bin/mv foo configure.wrf
-    fi
-    
-fi 
-
-echo "### RUN_COMPILE = $RUN_COMPILE"
+#echo "### RUN_COMPILE = $RUN_COMPILE"
 
 OS_NAME=`uname`
-
-#if [ `hostname | cut -c1-2` == "ys" ]; then
-#   echo "YELLOWSTONE!"
-#   BATCH_COMPILE=false
-#fi
 
 TMPDIR=/glade/scratch/$thisUser/tmp/$BUILD_STRING
 mkdir -p $TMPDIR
@@ -510,23 +498,62 @@ EOF
                 exit 3
        esac
 
-       # Put num processors and "compile" command in a file, then submit as a batch job. 
+       # Put clean, configure, and compile commands in a file, then submit as a batch job. 
        cat >> build.sh << EOF
-          export J="-j ${NUM_PROCS}"
-          date > StartTime_${COMPILE_TYPE}.txt
-          \rm -f *COMPILE.tst   # Remove previous compile test results
-          if [ "$COMPATIBLE_BUILD" = "em_real" ]; then
-             sed -e 's/WRF_USE_CLM/WRF_USE_CLM -DCLWRFGHG/' configure.wrf 2>&1 .foofoo
-             mv .foofoo configure.wrf
-          fi
-          ./compile $COMPILE_STRING > compile_${COMPILE_STRING}.log 2>&1
-          date > EndTime_${COMPILE_TYPE}.txt
+#Clean
+if $UNPACK_WRF; then
+   ./clean -a
+fi
+
+#Configure
+if $RUN_CONFIGURE; then
+   $CONFIGURE_COMMAND << EOT
+$CONFIG_OPTION
+$NEST_OPTION
+EOT
+  cp configure.wrf configure.wrf.core=${COMPILE_TYPE}_build=${CONFIG_OPTION}
+   # The configure.wrf file needs to be adjusted as to whether we are requesting real*4 or real*8
+   # as the default floating precision.
+   if $REAL8; then
+       sed -e '/^RWORDSIZE/s/\$(NATIVE_RWORDSIZE)/8/' \
+           -e '/^PROMOTION/s/#//'  configure.wrf > foo ; /bin/mv foo configure.wrf
+   fi
+fi
+
+#Compile
+export J="-j ${NUM_PROCS}"
+date > StartTime_${COMPILE_TYPE}.txt
+\rm -f *COMPILE.tst   # Remove previous compile test results
+if [ "$COMPATIBLE_BUILD" = "em_real" ]; then
+sed -e 's/WRF_USE_CLM/WRF_USE_CLM -DCLWRFGHG/' configure.wrf 2>&1 .foofoo
+mv .foofoo configure.wrf
+fi
+./compile $COMPILE_STRING > compile_${COMPILE_STRING}.log 2>&1
+date > EndTime_${COMPILE_TYPE}.txt
 EOF
        echo $BSUB > submitCommand
        $BSUB < build.sh
+       #For some reason wait isn't working, so let's use batchWait to ensure this job is done
+       batchWait $BATCH_QUEUE_TYPE $BUILD_STRING 10
    else
       export J="-j ${NUM_PROCS}"
       date > StartTime_${COMPILE_TYPE}.txt
+      #Clean
+      ./clean -a
+
+      #Configure
+      $CONFIGURE_COMMAND << EOT
+$CONFIG_OPTION
+$NEST_OPTION
+EOT
+      cp configure.wrf configure.wrf.core=${COMPILE_TYPE}_build=${CONFIG_OPTION}
+      # The configure.wrf file needs to be adjusted as to whether we are requesting real*4 or real*8
+      # as the default floating precision.
+      if $REAL8; then
+          sed -e '/^RWORDSIZE/s/\$(NATIVE_RWORDSIZE)/8/' \
+              -e '/^PROMOTION/s/#//'  configure.wrf > foo ; /bin/mv foo configure.wrf
+      fi
+
       \rm -f *COMPILE.tst   # Remove previous compile test results
       if [ "$COMPATIBLE_BUILD" = "em_real" ]; then
          sed -e 's/WRF_USE_CLM/WRF_USE_CLM -DCLWRFGHG/' configure.wrf 2>&1 .foofoo
