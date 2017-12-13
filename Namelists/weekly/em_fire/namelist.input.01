@@ -179,4 +179,4 @@
  fire_advection=0,              ! 0 = cawfe, 1 = use abs speed/slope in spread rate, then project on normal to fireline
 /
 
-PBS_TIME=0:20:00
+PBS_TIME=0:45:00
