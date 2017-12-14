@@ -3,7 +3,7 @@
 # PBS batch script
 #
 # Job name
-#PBS -N WTF_v04.01
+#PBS -N WTF_v04.02
 # queue: share, regular, economy
 #PBS -q share
 # Combine error and output files
@@ -17,7 +17,7 @@
 # Project charge code
 #PBS -A P64000400
 # Claim 18 cores for this script (individual jobs created by this script can use way more)
-#PBS -l select=1:ncpus=8:mem=40GB
+#PBS -l select=1:ncpus=18:mem=60GB
 # Send email on abort or end of main job
 #PBS -m ae
 

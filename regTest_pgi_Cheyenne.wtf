@@ -104,7 +104,7 @@ export MEM_BUILD=20
 
 # Time to request for building WRF in batch queue. Ignored when BATCH_COMPILE is false.
 
-export BATCH_COMPILE_TIME=00:60:00
+export BATCH_COMPILE_TIME=00:90:00
 
 # Number of processors to use for running MPI-based tests, 
 # and checking test outcomes.  On batch computers, this is not the *total* used at once, but the number 
