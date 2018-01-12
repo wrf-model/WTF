@@ -2,7 +2,7 @@
  run_days                            = 0,
  run_hours                           = 0,
  run_minutes                         = 0,
- run_seconds                         = 30,
+ run_seconds                         = 10,
  start_year                          = 0001, 0001, 0001,
  start_month                         = 01,   01,   01,
  start_day                           = 01,   01,   01,
@@ -15,7 +15,7 @@
  end_hour                            = 00,   00,   00,
  end_minute                          = 00,   00,   00,
  end_second                          = 30,   00,   00,
- history_interval_s                  = 30,  120,  120,
+ history_interval_s                  = 10,  120,  120,
  frames_per_outfile                  = 10,     1,    1,
  restart                             = .false.,
  io_form_history                     = 2
@@ -179,4 +179,4 @@
  fire_advection=0,              ! 0 = cawfe, 1 = use abs speed/slope in spread rate, then project on normal to fireline
 /
 
-PBS_TIME=0:45:00
+PBS_TIME=0:20:00
