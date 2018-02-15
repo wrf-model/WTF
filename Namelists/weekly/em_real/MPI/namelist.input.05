@@ -38,7 +38,7 @@
  max_dom                             = 2,
  e_we                                = 100,   100,   94,
  e_sn                                = 82,    100,   91,
- e_vert                              = 30,    30,    30,
+ e_vert                              = 49,    49,    49,
  p_top_requested                     = 5000,
  num_metgrid_levels                  = 27,
  num_metgrid_soil_levels             = 4,

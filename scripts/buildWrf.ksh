@@ -170,7 +170,7 @@ if [[ $BATCH_QUEUE_TYPE == 'LSF' ]]; then
    secondsModifier=':00'
 fi
 if [[ $BATCH_COMPILE_TIME == '' ]]; then
-   wallTime="0:90$secondsModifier"
+   wallTime="2:00$secondsModifier"
 else
    wallTime=$BATCH_COMPILE_TIME
 fi

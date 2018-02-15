@@ -35,7 +35,7 @@
  max_dom                    = 2,
  e_we                       = 71,    61,
  e_sn                       = 64,    61,
- e_vert                     = 41,    41, 
+ e_vert                     = 49,    49, 
  p_top_requested            = 5000,
  dx                         = 12000, 4000,
  dy                         = 12000, 4000,
