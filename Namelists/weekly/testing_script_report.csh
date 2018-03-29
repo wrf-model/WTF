@@ -5,13 +5,15 @@ set tests = ( ideal chem em_real nmm da )
 set ideal = ( em_b_wave em_hill2d_x em_quarter_ss )
 set chem = ( em_chem em_chem_kpp )
 set em_real = ( em_real em_real8 )
+set em_real = ( em_real )
 set nmm = ( nmm_hwrf nmm_nest nmm_real )
 set da = ( wrfda_3dvar wrfda_4dvar wrfplus )
 
-foreach t ( $ideal $chem $em_real $nmm $da )
+#foreach t ( $ideal $chem $em_real $nmm $da )
+foreach t ( $em_real ) 
 	
 	if ( $t == em_real ) then
-		cd ${t}/OPENMP
+		cd ${t}/MPI
 			echo "NL" > col01
 			\ls -1 namelist.input* | cut -c 16- >> col01
 
