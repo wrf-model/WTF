@@ -14,11 +14,12 @@
 #	for either.  This script will output temporary files, so have WRITE
 #	permission in the working directory.
 
-set TRUTH_DIR = /glade/u/wrf/WTF_v02.13_B/Runs
-set TRUTH_ROOT = wrf_9162
+wrf_before_hybrid wrf_hybrid_01
+set TRUTH_DIR = /glade2/scratch2/gill/WTF_cheyenne_v04.04/Runs
+set TRUTH_ROOT = wrf_before_hybrid_01
 
-set CHECK_DIR = /glade/u/wrf/WTF_v02.13/Runs
-set CHECK_ROOT = wrf_9162+vn_updates+rebalance
+set CHECK_DIR = /glade2/scratch2/gill/WTF_cheyenne_v04.04/Runs
+set CHECK_ROOT = wrf_hybrid_01
 
 #	How much junk do you want coming out for print info.
 #		TRUE means every step gives you the thumbs up.
