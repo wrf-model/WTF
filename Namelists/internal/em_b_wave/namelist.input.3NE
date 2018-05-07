@@ -108,6 +108,10 @@
  nio_tasks_per_group = 0,
  nio_groups = 1,
  /
+ 
+ &ideal
+ ideal_case = 7
+ /
 
 LSF_TIME=0:10
 NQS_TIME=0:10:00
