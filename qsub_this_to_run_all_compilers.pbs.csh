@@ -3,7 +3,7 @@
 # PBS batch script
 #
 # Job name
-#PBS -N WTF_v04.06
+#PBS -N WTF_v04.08
 # queue: share, regular, economy
 #PBS -q share
 # Combine error and output files
@@ -32,13 +32,13 @@ if ( ! -e Data  ) then
    exit 1
 endif
 
-if ( ! -e Data/v04.06  ) then
+if ( ! -e Data/v04.08  ) then
    echo "ERROR ERROR ERROR"
    echo ""
-   echo "'Data' directory is not the correct version (v04.06)"
+   echo "'Data' directory is not the correct version (v04.08)"
    echo "If on Cheyenne, link /glade/p/wrf/Data into your WTF directory"
    echo ""
-   echo "Otherwise, it can be downloaded from http://www2.mmm.ucar.edu/wrf/tmp/data_v04.06.tar"
+   echo "Otherwise, it can be downloaded from http://www2.mmm.ucar.edu/wrf/tmp/data_v04.08.tar"
    exit 2
 endif
 
