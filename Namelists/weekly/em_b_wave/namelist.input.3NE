@@ -110,6 +110,10 @@
  nio_groups = 1,
  /
 
+ &ideal
+ ideal_case = 7
+ /
+
 LSF_TIME=0:10
 PBS_TIME=0:10:00
 NQS_TIME=0:10:00
