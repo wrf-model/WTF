@@ -471,8 +471,19 @@ fi
 
 OS_NAME=`uname`
 
-TMPDIR=/glade/scratch/$thisUser/tmp/$BUILD_STRING
-mkdir -p $TMPDIR
+if [ "$OS_NAME" -eq "Darwin" ]; then
+   TMPDIR=/Volumes/sysdisk1/$thisUser/tmp
+   mkdir $TMPDIR
+   TMPDIR=$TMPDIR/$BUILD_STRING
+   mkdir $TMPDIR
+elif [ "$OS_NAME" -eq "Linux" -a -d /glade ]; then
+   TMPDIR=/glade/scratch/$thisUser/tmp/$BUILD_STRING
+   mkdir -p $TMPDIR
+else
+   TMPDIR=/tmp/$BUILD_STRING
+   mkdir -p $TMPDIR
+fi
+export TMPDIR
 
 # Run 'compile'; see existing regression scripts.    
 if $RUN_COMPILE; then
