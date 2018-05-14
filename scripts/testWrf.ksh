@@ -288,8 +288,13 @@ else
                WRF_COMMAND="./wrf.exe > wrf.out 2>&1 "
                NUM_PROC=1
                ;;
-       openmp) REAL_COMMAND="omplace ./prewrf.exe > prewrf.out 2>&1 "
-               WRF_COMMAND="omplace ./wrf.exe > wrf.out 2>&1 "
+       openmp) if $BATCH_TEST; then
+                 REAL_COMMAND="omplace ./prewrf.exe > prewrf.out 2>&1 "
+                 WRF_COMMAND="omplace ./wrf.exe > wrf.out 2>&1 "
+               else
+                 REAL_COMMAND="./prewrf.exe > prewrf.out 2>&1 "
+                 WRF_COMMAND="./wrf.exe > wrf.out 2>&1 "
+               fi
                export OMP_NUM_THREADS=$NUM_PROC
                ;;
        mpi)    if $BATCH_TEST; then
