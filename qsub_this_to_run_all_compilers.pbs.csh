@@ -44,4 +44,5 @@ endif
 
 setenv TMPDIR /glade/scratch/$USER/tmp # CISL-recommended hack for Cheyenne builds
 
-scripts/run_all_for_qsub.csh
+scripts/run_all_for_qsub1.csh
+scripts/run_all_for_qsub2.csh
