@@ -38,6 +38,7 @@ fi
 export BUILD_TYPES="em_real em_real8 em_hill2d_x nmm_nest em_chem em_chem_kpp em_b_wave em_quarter_ss em_quarter_ss8 nmm_hwrf wrfda_3dvar em_move em_fire"
 export BUILD_TYPES="em_real em_real8 em_hill2d_x nmm_nest em_chem             em_b_wave em_quarter_ss em_quarter_ss8 nmm_hwrf             em_move em_fire"
 export BUILD_TYPES="em_real em_real8 nmm_nest em_chem "
+export BUILD_TYPES="em_real"
 
 # Select one of the directories below.  This is the parent directory for all namelist.input files to be used for 
 # the tests.  Below this directory should be subdirectories "em_real", "nmm_nest", etc with namelist.input files 
@@ -48,7 +49,8 @@ export BUILD_TYPES="em_real em_real8 nmm_nest em_chem "
 #export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/contributors
 #export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/internal
 #export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/weekly
-export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/small
+#export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/small
+export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/single
 #export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/caseStudies
 #export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/cheyenne_test
 
@@ -62,8 +64,8 @@ export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/small
 # that you do not wish to build and test. 
 
 export CONFIGURE_SERIAL="32"
-export CONFIGURE_OPENMP="33"
-export CONFIGURE_MPI="34"
+export CONFIGURE_OPENMP=""
+export CONFIGURE_MPI=""
 
 # If set to true, the tasks associated with building WRF and/or running tests using WRF will be submitted to a 
 # batch queue.   All logically independent WRF builds (em_real, em_real8, em_hill2d_x, nmm_nest, em_chem, em_chem_kpp,
