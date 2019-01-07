@@ -110,7 +110,7 @@ if $BATCH_COMPILE; then
    for wrfType in $WRF_PARALLEL; do
       for platform in $CONFIGURE_CHOICES; do
          code=`getTypeCode $wrfType`
-         batchWait $BATCH_QUEUE_TYPE "bld\.${code}\.${platform}" 10
+         batchWait $BATCH_QUEUE_TYPE "bld\.${code}\.${platform}" 60
       done
    done
 fi
@@ -135,7 +135,7 @@ for wrfType in $WRF_SERIAL; do
    if $BATCH_COMPILE; then
       for platform in $CONFIGURE_CHOICES; do
          code=`getTypeCode $wrfType`
-         batchWait $BATCH_QUEUE_TYPE "bld\.${code}\.${platform}" 10
+         batchWait $BATCH_QUEUE_TYPE "bld\.${code}\.${platform}" 60
       done
    fi
 done

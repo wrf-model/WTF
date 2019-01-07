@@ -32,7 +32,7 @@ for choice in $CONFIGURE_CHOICES; do
           if [ $type = "wrfplus" ]; then
              wrfDir=$BUILD_DIR/${wrfTarName}.${choice}/$type/WRFPLUSV3
           else
-             wrfDir=$BUILD_DIR/${wrfTarName}.${choice}/$type/WRFV3
+             wrfDir=$BUILD_DIR/${wrfTarName}.${choice}/$type/WRF
           fi
           regDataDir=$METDATA_DIR/$type
           NAMELIST_FILES=`getNamelists $NAMELIST_DIR/$type $parallelType`

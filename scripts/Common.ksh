@@ -504,10 +504,10 @@ batchWait()
              done
              ;;
       PBS)   userName=`whoami`
-             JOBS=`qstat -w -u $userName | grep $jobString`
+             JOBS=`qstat -u $userName | grep $jobString`
              while [ -n "$JOBS" ]; do
                   sleep $waitTime
-                  JOBS=`qstat -w -u $userName | grep $jobString`
+                  JOBS=`qstat -u $userName | grep $jobString`
                   echo JOBS="$JOBS"
              done
              ;;

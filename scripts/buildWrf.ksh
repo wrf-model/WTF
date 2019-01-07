@@ -318,13 +318,13 @@ topDir=`basename $topDir`
 
 if [ -z "$topDir" ]; then
    echo "$0: not a valid tarfile: '${tarFile}'; stopping."
-   echo "Rebuild the tarfile so it unpacks everything into a local directory named 'WRFV3'"
+   echo "Rebuild the tarfile so it unpacks everything into a local directory named 'WRF'"
    exit 2
-elif [[ "$topDir" = ._WRFV3 ]]; then
+elif [[ "$topDir" = ._WRF ]]; then
    echo "$0: OK, we are fine"
 elif [[ "$topDir" = ._* ]]; then
    echo "$0: not a valid tarfile: '${tarFile}', since it unpacks into '$topDir'."
-   echo "Please remake the tarfile with the command 'tar --exclude="._*" -cf myTarName.tar WRFV3'"
+   echo "Please remake the tarfile with the command 'tar --exclude="._*" -cf myTarName.tar WRF'"
    exit 2
 fi
 
@@ -545,7 +545,7 @@ EOF
        echo $BSUB > submitCommand
        $BSUB < build.sh
        #For some reason wait isn't working, so let's use batchWait to ensure this job is done
-       batchWait $BATCH_QUEUE_TYPE $BUILD_STRING 10
+       batchWait $BATCH_QUEUE_TYPE $BUILD_STRING 60
    else
       export J="-j ${NUM_PROCS}"
       date > StartTime_${COMPILE_TYPE}.txt
