@@ -95,7 +95,7 @@ export TEST_QUEUE=caldera
 # Account charge code string for queue-managed computers.   Ignored when BATCH_COMPILE and 
 # BATCH_TEST are false.
 
-export BATCH_ACCOUNT=P64000400
+export BATCH_ACCOUNT=NMMM0054
 
 # Number of processors/tasks to use for building WRF.   Because of PGI license manager issues on 
 # yellowstone/caldera, we set this to a small number. 

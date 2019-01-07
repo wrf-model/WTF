@@ -92,7 +92,7 @@ export TEST_QUEUE=share
 
 # Account charge code string for queue-managed computers. Ignored when BATCH_COMPILE and BATCH_TEST are false.
 
-export BATCH_ACCOUNT=P64000400
+export BATCH_ACCOUNT=NMMM0054
 
 # Number of processors/tasks to use for building WRF. 
 # No reason to set larger than 6 due to diminishing returns on compile time.
