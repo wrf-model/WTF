@@ -163,11 +163,11 @@ writeBitForBit()
        outputForm_wb=`grep io_form_history $checkDir_wb/namelist.input | cut -d '=' -f 2 | awk '{print $1;}'`
     fi
     case $outputForm_wb in 
-        1) $checkDir_wb/diffwrf $compareFile_wb $checkFile_wb > /dev/null 2>&1            # Binary output
+        1) echo not diffing binary #$checkDir_wb/diffwrf $compareFile_wb $checkFile_wb > /dev/null 2>&1            # Binary output
 	   ;;
         2) $checkDir_wb/diffwrf $compareFile_wb $checkFile_wb > /dev/null 2>&1            # NetCDF output
 	   ;;
-        5) $checkDir_wb/diffwrf $compareFile_wb $checkFile_wb $checkDir_wb > /dev/null 2>&1  # Grib1 output
+        5) echo not diffing grib # $checkDir_wb/diffwrf $compareFile_wb $checkFile_wb $checkDir_wb > /dev/null 2>&1  # Grib1 output
 	   ;;
         *) echo "$0: unknown WRF output format: $outputForm_wb" 
            exit 2
@@ -296,11 +296,15 @@ for configOpt in $CONFIGURE_CHOICES; do
    done  # Loop over WRF flavors
 
 done   # Loop over WRF parallel options
+echo "DAVE about to start b4b stuff"
+date
 
 set -x
 
 # Wait for all forecast results to be written by child processes.
-wait
+sleep 10
+echo "DAVE after sleep, still about to start B4B"
+date
 
 
 # Non-serial WRF runs will have their output tested bit-for-bit against output 

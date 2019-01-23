@@ -423,21 +423,39 @@ else
    realFile=$WRF_ROOT_DIR/main/prewrf_${WRF_TYPE}.exe
    wrfFile=$WRF_ROOT_DIR/main/wrf.exe
 
-
    if [ -f $realFile ]; then
       ln -sf $realFile $testDir/prewrf.exe
    else
-      echo "Compile failure: File does not exist(real): $realFile" > $testDir/FAIL_COMPILE.tst
-      exit 2
+      date
+      echo "DAVE 1"
+      echo "REAL ls"
+      ls -ls $realFile 
+      sleep 10
+      ls -ls $realFile 
+      if [ -f $realFile ]; then
+         ln -sf $realFile $testDir/prewrf.exe
+      else
+         echo "Compile failure: File does not exist (real): $realFile" > $testDir/FAIL_COMPILE.tst
+         exit 2
+      fi
    fi
 
 
    if [ -f $wrfFile ]; then
       ln -sf $wrfFile $testDir/wrf.exe
    else
-      echo "Compile failure: File does not exist: $wrfFile"
-      touch $testDir/FAIL_COMPILE.tst
-      exit 2
+      date
+      echo "DAVE 1"
+      echo "WRF  ls"
+      ls -ls $wrfFile 
+      sleep 10
+      ls -ls $wrfFile 
+      if [ -f $wrfFile ]; then
+         ln -sf $wrfFile $testDir/wrf.exe
+      else
+         echo "Compile failure: File does not exist (wrf): $wrfFile" > $testDir/FAIL_COMPILE.tst
+         exit 2
+      fi
    fi
 fi
 

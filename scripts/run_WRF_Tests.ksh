@@ -122,6 +122,7 @@ fi
 ##
 ##  Loop over all WRF source tarfiles.
 ##
+debug_allCheck=true
 debug_allCheck=false
 for TARFILE in $tarFiles; do
 
@@ -142,7 +143,8 @@ for TARFILE in $tarFiles; do
         fi 
      fi
  
-    ## Run script to generate summary of test results.
-    . $WRF_TEST_ROOT/scripts/allCheck.ksh  
+     ## Run script to generate summary of test results.
+     . $WRF_TEST_ROOT/scripts/allCheck.ksh  
+
     
 done
