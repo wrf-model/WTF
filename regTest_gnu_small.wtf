@@ -37,7 +37,6 @@ fi
 
 export BUILD_TYPES="em_real em_real8 em_hill2d_x nmm_nest em_chem em_chem_kpp em_b_wave em_quarter_ss em_quarter_ss8 nmm_hwrf wrfda_3dvar em_move em_fire"
 export BUILD_TYPES="em_real em_real8 em_hill2d_x nmm_nest em_chem             em_b_wave em_quarter_ss em_quarter_ss8 nmm_hwrf             em_move em_fire"
-export BUILD_TYPES="em_real em_real8 em_hill2d_x nmm_nest em_chem             em_b_wave em_quarter_ss em_quarter_ss8                      em_move em_fire"
 #export BUILD_TYPES="em_real em_real8             nmm_nest em_chem"
 #export BUILD_TYPES="em_real "
 
