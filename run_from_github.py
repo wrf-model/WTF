@@ -39,7 +39,7 @@ def main():
  branch=None
 
  # Keep track of version number for Data directory
- version="v04.01"
+ version="v04.08"
 
  # First things first: check if user has a "Data" directory, quit with helpful message if they don't
  if not os.path.isdir("Data"):
@@ -145,9 +145,9 @@ def main():
  
  os.chdir(tardir)
 
- if os.path.isdir("WRFV3"):
+ if os.path.isdir("WRF"):
     cont = ''
-    print("\nWARNING: \n" + tardir + "/WRFV3 already exists.\nIf you continue, this directory will be deleted and overwritten.\n")
+    print("\nWARNING: \n" + tardir + "/WRF already exists.\nIf you continue, this directory will be deleted and overwritten.\n")
     while not cont:
        cont = raw_input("Do you wish to continue? (y/n) ")
        if re.match('y', cont, re.IGNORECASE) is not None:
@@ -158,10 +158,10 @@ def main():
        else:
           print("Unrecognized input: " + cont)
           cont=''
-    shutil.rmtree("WRFV3")
+    shutil.rmtree("WRF")
 
- os.system("git clone " + url + " WRFV3")
- os.chdir("WRFV3")
+ os.system("git clone " + url + " WRF")
+ os.chdir("WRF")
 
  # We have to check the exit status of git checkout, otherwise we may not get the right code!
  err = subprocess.call(["git", "checkout", branch])
@@ -212,7 +212,7 @@ def main():
 
  out = tarfile.open(tarname, mode='w')
  try:
-    out.add('WRFV3') # Adding "WRFV3" directory to tar file
+    out.add('WRF') # Adding "WRF" directory to tar file
  finally:
     out.close() # Close tar file
 
