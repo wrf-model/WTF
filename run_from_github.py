@@ -217,9 +217,17 @@ def main():
     out.close() # Close tar file
 
  os.chdir("../")
-
- os.system('qsub < qsub_this_to_run_all_compilers.pbs.csh')
-
+ 
+ cont=''
+ while not cont:
+ 	cont = raw_input("Are you using Cheyenne? (y/n) ")
+ 	if re.match('y', cont, re.IGNORECASE) is not None:
+ 		os.system('./run_all_Cheyenne.csh >& cheyenne.log &')
+ 	elif re.match('n', cont, re.IGNORECASE) is not None:
+ 		os.system('qsub < qsub_this_to_run_all_compilers.pbs.csh')
+ 	else:
+ 		print("Unrecognized input: " + cont)
+        	cont=''
 
 if __name__ == "__main__":
     main()
