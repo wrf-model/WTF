@@ -13,9 +13,9 @@
 # error filename
 #PBS -e regtest.out
 # wallclock time hh:mm:ss
-#PBS -l walltime=06:00:00
+#PBS -l walltime=12:00:00
 # Project charge code
-#PBS -A P64000400
+#PBS -A UCUD0004
 # Claim 18 cores for this script (individual jobs created by this script can use way more)
 #PBS -l select=1:ncpus=18:mem=60GB
 # Send email on abort or end of main job
@@ -42,7 +42,7 @@ if ( ! -e Data/v04.08  ) then
    exit 2
 endif
 
-setenv TMPDIR /glade/scratch/$USER/tmp # CISL-recommended hack for Cheyenne builds
+setenv TMPDIR /gpfs/fs1/scratch/$USER/tmp # CISL-recommended hack for Cheyenne builds
 
 scripts/run_all_for_qsub1.csh
 scripts/run_all_for_qsub2.csh

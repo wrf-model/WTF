@@ -88,13 +88,13 @@ export BATCH_QUEUE_TYPE=PBS
 #   Cheyenne: share, regular, economy
 # Ignored when BATCH_COMPILE and BATCH_TEST are false.
 
-export BUILD_QUEUE=share
-export TEST_QUEUE=share
+export BUILD_QUEUE=regular
+export TEST_QUEUE=regular
 #export TEST_QUEUE=economy
 
 # Account charge code string for queue-managed computers. Ignored when BATCH_COMPILE and BATCH_TEST are false.
 
-export BATCH_ACCOUNT=NMMM0054
+export BATCH_ACCOUNT=UCUD0004
 
 # Number of processors/tasks to use for building WRF. 
 # No reason to set larger than 6 due to diminishing returns on compile time.
