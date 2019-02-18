@@ -5,7 +5,7 @@
 # Job name
 #PBS -N WTF_v04.08
 # queue: share, regular, economy
-#PBS -q share
+#PBS -q economy
 # Combine error and output files
 #PBS -j oe
 # output filename

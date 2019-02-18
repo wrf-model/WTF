@@ -72,7 +72,7 @@ export CONFIGURE_MPI="54"
 # WRF tests are performed consecutively on the local machine.
 # Recommended values:  both false for personal computers, both true for mainframe computers with batch queues. 
 
-export BATCH_COMPILE=true
+export BATCH_COMPILE=false
 export BATCH_TEST=true
 
 # Can be set to "LSF", "PBS", or "NQS".  Right now, "NQS" has been tested on janus.colorado.edu only.  
