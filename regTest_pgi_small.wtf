@@ -21,7 +21,7 @@
 
 
 ##  A helpful check to make sure that the compiler is ready to use on Cheyenne.
-export COMPILER_WTF=gnu
+export COMPILER_WTF=pgi
 CHECK_MODULES=true
 if $CHECK_MODULES; then
    $WRF_TEST_ROOT/scripts/checkModules ${COMPILER_WTF}
@@ -62,9 +62,9 @@ export NAMELIST_DIR=$WRF_TEST_ROOT/Namelists/small
 # "serial", "openmp", and "mpi" communication frameworks, respectively.   Leave a blank string for any options
 # that you do not wish to build and test. 
 
-export CONFIGURE_SERIAL="32"
-export CONFIGURE_OPENMP="33"
-export CONFIGURE_MPI="34"
+export CONFIGURE_SERIAL="52"
+export CONFIGURE_OPENMP="53"
+export CONFIGURE_MPI="54"
 
 # If set to true, the tasks associated with building WRF and/or running tests using WRF will be submitted to a 
 # batch queue.   All logically independent WRF builds (em_real, em_real8, em_hill2d_x, nmm_nest, em_chem, em_chem_kpp,
