@@ -547,24 +547,28 @@ EOF
        #For some reason wait isn't working, so let's use batchWait to ensure this job is done
        batchWait $BATCH_QUEUE_TYPE $BUILD_STRING 60
    else
-      export J="-j ${NUM_PROCS}"
-      date > StartTime_${COMPILE_TYPE}.txt
       #Clean
-      ./clean -a
+      if $UNPACK_WRF; then
+      	./clean -a
+      fi
 
       #Configure
-      $CONFIGURE_COMMAND << EOT
+      if $RUN_CONFIGURE; then
+      	$CONFIGURE_COMMAND << EOT
 $CONFIG_OPTION
 $NEST_OPTION
 EOT
-      cp configure.wrf configure.wrf.core=${COMPILE_TYPE}_build=${CONFIG_OPTION}
-      # The configure.wrf file needs to be adjusted as to whether we are requesting real*4 or real*8
-      # as the default floating precision.
-      if $REAL8; then
-          sed -e '/^RWORDSIZE/s/\$(NATIVE_RWORDSIZE)/8/' \
-              -e '/^PROMOTION/s/#//'  configure.wrf > foo ; /bin/mv foo configure.wrf
+      	cp configure.wrf configure.wrf.core=${COMPILE_TYPE}_build=${CONFIG_OPTION}
+      	# The configure.wrf file needs to be adjusted as to whether we are requesting real*4 or real*8
+      	# as the default floating precision.
+      	if $REAL8; then
+          	sed -e '/^RWORDSIZE/s/\$(NATIVE_RWORDSIZE)/8/' \
+              	-e '/^PROMOTION/s/#//'  configure.wrf > foo ; /bin/mv foo configure.wrf
+      	fi
       fi
-
+      #Compile
+      export J="-j ${NUM_PROCS}"
+      date > StartTime_${COMPILE_TYPE}.txt
       \rm -f *COMPILE.tst   # Remove previous compile test results
       if [ "$COMPATIBLE_BUILD" = "em_real" ]; then
          sed -e 's/WRF_USE_CLM/WRF_USE_CLM -DCLWRFGHG/' configure.wrf 2>&1 .foofoo
