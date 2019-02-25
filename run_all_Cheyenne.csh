@@ -19,7 +19,7 @@ sleep 10
 
 ################### PGI
 echo submit PGI WTF
-screen -d -m -S pgi_WTF_v04.08 scripts/run_pgi.csh
+screen -d -m -S pgi_WTF_v04.08 bash -c 'scripts/run_pgi.csh >& regtest_pgi.out'
 screen -list
 echo
 
