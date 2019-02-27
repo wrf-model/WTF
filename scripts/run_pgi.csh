@@ -3,7 +3,7 @@
 set RUN_DA = NO
 #set RUN_DA = YEPPERS
 
-set PGIversion = 16.5
+set PGIversion = 17.9
 
 echo
 echo

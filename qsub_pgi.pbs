@@ -20,7 +20,8 @@
 #PBS -l select=1:ncpus=18:mem=60GB
 # Send email on abort or end of main job
 #PBS -m ae
-
+# login-node environment
+#PBS -l inception=login
 
 if ( ! -e Data  ) then
    echo "ERROR ERROR ERROR"
