@@ -38,20 +38,33 @@ The file structure of the WRF Test Framework is as follows:
      Runs/                       --  All WRF tests are performed here
      clean                       --  Script for cleaning out old tests. run `./clean` or view
                                      the script's comments for usage instructions
+     run_all_Cheyenne.csh        --  Script for running qsub for GNU and INTEL and screen for PGI.
      run_from_github.py          --  Script for running the test directly from code on Github.
                                      See below for instructions.
      qsub_this_to_run_all_compilers.pbs.csh
                                  --  Script for running tests for all compilers on Cheyenne. See
                                      below for instructions.
+     qsub_*.pbs                  --  Script for running tests for each specific compiler on Cheyenne.
 
 =================================================================================================
-                           TO RUN DIRECTLY FROM GITHUB ON CHEYENNE
+                       TO RUN DIRECTLY FROM GITHUB ON A SUPERCOMPUTER (CHEYENNE)
 =================================================================================================
 
-1)   View the script `scripts/run_all_for_qsub.csh` and make modifications if necessary. The most
-     common modification that may need to be made is to change the compiler versions. Note that 
-     this script sets up each compiler as necessary, then submits each individual test as 
-     described below.
+1)   If you are running on Cheyenne, view the next files and make modifications if necessary: 
+     *) `qsub_intel.pbs` and `scripts/run_intel.csh`
+     *) `qsub_gnu.pbs` and `scripts/run_gnu.csh`
+     in order to change the account to be charged. Other common modification that may need to be made is 
+     to change the compiler versions. 
+     Note that script `run_all_Cheyenne.csh` sets up each compiler as necessary, then submits each individual 
+     test as described below using the previous scripts. It is also important to view files:
+     *) `regTest_*_Cheyenne.wtf`
+     and make modifications if necessary. This file must end in "*.wtf"  (case sensitive).
+     Lengthy explanations are given in the existing WRF Test Files for each configuration.
+     The most important parameters to check are near the top of the file.
+     
+     If you are not running on Cheyenne, view `qsub_this_to_run_all_compilers.pbs.csh`, 
+     `scripts/run_all_for_qsub1.csh`, `scripts/run_all_for_qsub2.csh`, and regTest_*_*.wtf 
+     for similar modifications. 
 
 2)   In the top-level directory, run the script:
 
@@ -60,35 +73,57 @@ The file structure of the WRF Test Framework is as follows:
      This will prompt you to enter the URL of the repository you want to test (for example, 
      https://github.com/wrf-model/WRF), and the name of the branch you want to test (for example, 
      master). It will download the code, pack it into a tar file, and submit a test job using the 
-     `qsub_this_to_run_all_compiler.csh` script described below.
+     `qsub_this_to_run_all_compiler.csh` script described below. Finally, it will ask if you are on 
+     Cheyenne. If the answer is yes, it will run qsub for GNU and INTEL and screen for PGI using the
+     script run_all_Cheyenne.csh. If not, it will run qsub for everything using the script 
+     qsub_this_to_run_all_compilers.pbs.csh.
 
-3)   When the test has completed, results will be summarized in the directory Runs/RESULTS.        
+3)   In order to follow the executions, one can look at files foo_* for each compiler. When the test 
+     has completed, results will be summarized in the directory Runs/RESULTS.        
 
 =================================================================================================
-                           TO RUN ON A LOCAL TAR FILE ON CHEYENNE
+                       TO RUN ON A LOCAL TAR FILE ON A SUPERCOMPUTER (CHEYENNE)
 =================================================================================================
 
 1)   Place one or more  WRF source tar files in the "tarballs" directory.  Each file must end in 
      "*.tar" (case sensitive), and the tarfile names should not contain spaces. Each WRF tarfile 
-     must create the directory "WRFV3" when unpacked. Otherwise, the script will fail. NOTE: IT 
+     must create the directory "WRF" when unpacked. Otherwise, the script will fail. NOTE: IT 
      IS NOT RECOMMENDED TO RUN FOR MORE THAN ONE TAR FILE AT A TIME, unless you are running 
      overnight, as the process can take a long time and use a significant fraction of Cheyenne's
      resources.
 
-2)   View the script `scripts/run_all_for_qsub.csh` and make modifications if necessary. Note
-     that this script sets up each compiler as necessary, then submits each individual test as
-     described belowcompiler  This file must end in "*.wtf"  (case sensitive).
+2)   If you are running on Cheyenne, view the next files and make modifications if necessary: 
+     *) `qsub_intel.pbs` and `scripts/run_intel.csh`
+     *) `qsub_gnu.pbs` and `scripts/run_gnu.csh`
+     For instance, the account usually has to be changed. Note that script `run_all_Cheyenne.csh` 
+     sets up each compiler as necessary, then submits each individual test as described below using 
+     the previous scripts. It is also important to view files:
+     *) `regTest_*_Cheyenne.wtf`
+     and make modifications if necessary. These files must end in "*.wtf" (case sensitive).
      Lengthy explanations are given in the existing WRF Test Files for each configuration.
      The most important parameters to check are near the top of the file.
+     
+     If you are not running on Cheyenne, view `qsub_this_to_run_all_compilers.pbs.csh`, 
+     `scripts/run_all_for_qsub1.csh`, `scripts/run_all_for_qsub2.csh`, and regTest_*_*.wtf 
+     for similar modifications. 
 
-3)   In the top-level directory, issue the command:
+3)   If you are on Cheyenne, in the top-level directory, issue the command:
+
+      "./run_all_Cheyenne.csh >& cheyenne.log &"
+     
+     This will run separate tests simultaneously using qsub for GNU and Intel, and screen for 
+     PGI compilers, as well as separate tests for WRFDA 4DVAR (since the configuration option 
+     numbers are different).
+
+     If you are not on Cheyenne, in the top-level directory, issue the command:
 
        "qsub < qsub_this_to_run_all_compilers.pbs.csh"
 
-     This will run separate tests simultaneously for GNU, Intel, and PGI compilers, as well as 
-     separate tests for WRFDA 4DVAR (since the configuration option numbers are different).
+     This will run separate tests simultaneously using qsub for GNU, Intel, and PGI compilers, 
+     as well as separate tests for WRFDA 4DVAR (since the configuration option numbers are different).
 
-4)   When the test has completed, results will be summarized in the directory Runs/RESULTS.        
+4)   In order to follow the executions, one can look at files foo_* for each compiler. When the test 
+     has completed, results will be summarized in the directory Runs/RESULTS.      
 
 =================================================================================================
                            TO RUN MANUALLY FOR A SINGLE COMPILER
@@ -118,7 +153,8 @@ The file structure of the WRF Test Framework is as follows:
      WRF runs have completed when all the WRF output files are checked for invalid values (NaNs).   
 
 
-5)   When the test has completed, results will be summarized in the directory Runs/RESULTS. 
+5)   In order to follow the executions, one can look at files foo_* for each compiler. When the test 
+     has completed, results will be summarized in the directory Runs/RESULTS. 
 
 
 ------------------------------------------------------------------------------------------------------

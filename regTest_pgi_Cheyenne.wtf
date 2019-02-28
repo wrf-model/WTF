@@ -36,7 +36,7 @@ fi
 # idealized cases, and if any are specified, then "em_real" or "em_real8" (respectively) must also be included earlier in the list.
 
 export BUILD_TYPES="em_real em_real8 em_hill2d_x nmm_nest em_chem em_chem_kpp em_b_wave em_quarter_ss em_quarter_ss8 nmm_hwrf wrfda_3dvar em_move em_fire"
-export BUILD_TYPES="em_real em_real8 em_hill2d_x nmm_nest em_chem             em_b_wave em_quarter_ss em_quarter_ss8 nmm_hwrf             em_move em_fire"
+export BUILD_TYPES="em_real em_real8 em_hill2d_x          em_chem             em_b_wave em_quarter_ss em_quarter_ss8                      em_move em_fire"
 
 # Select one of the directories below.  This is the parent directory for all namelist.input files to be used for 
 # the tests.  Below this directory should be subdirectories "em_real", "nmm_nest", etc with namelist.input files 
@@ -72,7 +72,7 @@ export CONFIGURE_MPI="54"
 # WRF tests are performed consecutively on the local machine.
 # Recommended values:  both false for personal computers, both true for mainframe computers with batch queues. 
 
-export BATCH_COMPILE=true
+export BATCH_COMPILE=false
 export BATCH_TEST=true
 
 # Can be set to "LSF", "PBS", or "NQS".  Right now, "NQS" has been tested on janus.colorado.edu only.  
@@ -86,13 +86,13 @@ export BATCH_QUEUE_TYPE=PBS
 #   Cheyenne: share, regular, economy
 # Ignored when BATCH_COMPILE and BATCH_TEST are false.
 
-export BUILD_QUEUE=share
-export TEST_QUEUE=share
+export BUILD_QUEUE=regular
+export TEST_QUEUE=regular
 #export TEST_QUEUE=economy
 
 # Account charge code string for queue-managed computers. Ignored when BATCH_COMPILE and BATCH_TEST are false.
 
-export BATCH_ACCOUNT=NMMM0054
+export BATCH_ACCOUNT=UCUD0004
 
 # Number of processors/tasks to use for building WRF. 
 # No reason to set larger than 6 due to diminishing returns on compile time.

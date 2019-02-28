@@ -471,13 +471,13 @@ fi
 
 OS_NAME=`uname`
 
-if [ "$OS_NAME" -eq "Darwin" ]; then
+if [ "$OS_NAME" = "Darwin" ]; then
    TMPDIR=/Volumes/sysdisk1/$thisUser/tmp
    mkdir $TMPDIR
    TMPDIR=$TMPDIR/$BUILD_STRING
    mkdir $TMPDIR
-elif [ "$OS_NAME" -eq "Linux" -a -d /glade ]; then
-   TMPDIR=/glade/scratch/$thisUser/tmp/$BUILD_STRING
+elif [ "$OS_NAME" = "Linux" -a -d /glade ]; then
+   TMPDIR=/gpfs/fs1/scratch/$thisUser/tmp/$BUILD_STRING
    mkdir -p $TMPDIR
 else
    TMPDIR=/tmp/$BUILD_STRING
@@ -494,7 +494,7 @@ if $RUN_COMPILE; then
           LSF)  BSUB="bsub -K -q $BUILD_QUEUE -P $BATCH_ACCOUNT -n $NUM_PROCS -a poe -W $wallTime -J $BUILD_STRING -o build.out -e build.err"
                 ;;
           PBS)  BSUB="qsub -Wblock=true -q $BUILD_QUEUE -A $BATCH_ACCOUNT -l select=1:ncpus=$NUM_PROCS:mem=${MEM_BUILD}GB -l walltime=${wallTime} -N $BUILD_STRING -o build.out -e build.err"
-                TMPDIR=/glade/scratch/$thisUser/tmp/$BUILD_STRING
+                TMPDIR=/gpfs/fs1/scratch/$thisUser/tmp/$BUILD_STRING
                 cat > build.sh << EOF
           export TMPDIR="$TMPDIR"     # CISL-recommended hack for Cheyenne builds
           export MPI_DSM_DISTRIBUTE=0 # CISL-recommended hack for distributing jobs properly in share queue
@@ -547,24 +547,28 @@ EOF
        #For some reason wait isn't working, so let's use batchWait to ensure this job is done
        batchWait $BATCH_QUEUE_TYPE $BUILD_STRING 60
    else
-      export J="-j ${NUM_PROCS}"
-      date > StartTime_${COMPILE_TYPE}.txt
       #Clean
-      ./clean -a
+      if $UNPACK_WRF; then
+      	./clean -a
+      fi
 
       #Configure
-      $CONFIGURE_COMMAND << EOT
+      if $RUN_CONFIGURE; then
+      	$CONFIGURE_COMMAND << EOT
 $CONFIG_OPTION
 $NEST_OPTION
 EOT
-      cp configure.wrf configure.wrf.core=${COMPILE_TYPE}_build=${CONFIG_OPTION}
-      # The configure.wrf file needs to be adjusted as to whether we are requesting real*4 or real*8
-      # as the default floating precision.
-      if $REAL8; then
-          sed -e '/^RWORDSIZE/s/\$(NATIVE_RWORDSIZE)/8/' \
-              -e '/^PROMOTION/s/#//'  configure.wrf > foo ; /bin/mv foo configure.wrf
+      	cp configure.wrf configure.wrf.core=${COMPILE_TYPE}_build=${CONFIG_OPTION}
+      	# The configure.wrf file needs to be adjusted as to whether we are requesting real*4 or real*8
+      	# as the default floating precision.
+      	if $REAL8; then
+          	sed -e '/^RWORDSIZE/s/\$(NATIVE_RWORDSIZE)/8/' \
+              	-e '/^PROMOTION/s/#//'  configure.wrf > foo ; /bin/mv foo configure.wrf
+      	fi
       fi
-
+      #Compile
+      export J="-j ${NUM_PROCS}"
+      date > StartTime_${COMPILE_TYPE}.txt
       \rm -f *COMPILE.tst   # Remove previous compile test results
       if [ "$COMPATIBLE_BUILD" = "em_real" ]; then
          sed -e 's/WRF_USE_CLM/WRF_USE_CLM -DCLWRFGHG/' configure.wrf 2>&1 .foofoo

@@ -1,7 +1,7 @@
 #!/bin/csh
 
 set RUN_DA = NO
-set RUN_DA = YEPPERS
+#set RUN_DA = YEPPERS
 
 set INTELversion = 17.0.1
 set PGIversion = 17.9

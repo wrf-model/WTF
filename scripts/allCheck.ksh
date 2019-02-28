@@ -31,10 +31,11 @@ writeTestSummary()
    variation_wt=$4      #  e.g. Standard, Quilting, Adaptive
    testType_wt=$5       #  e.g. FCAST, BFB, COMPILE
    outcome_wt=$6        #  e.g. PASS, FAIL, PASS_MANUAL
+   summary_file=$7      #  e.g. github_openwfm_fuel-moisture-model_intel_13_14_15.2019-02-14_13:49:19
 
    # Fixed-format output thanks to ksh printf
    printf "%-13s %-22s %-10s %-7s %-8s %-11s\n" \
-     ${wrfFlavor_wt} ${namelistFile_wt} ${variation_wt} ${parType_wt} ${testType_wt} ${outcome_wt} >> $SUMMARY_FILE
+     ${wrfFlavor_wt} ${namelistFile_wt} ${variation_wt} ${parType_wt} ${testType_wt} ${outcome_wt} >> $summary_file
 }
 
 
@@ -91,6 +92,7 @@ writeForecastResult()
    nlist_wf=$4
    vtion_wf=$5
    testtype_wf=$6
+   summary_file=$7
 
    if [ "$vtion_wf" = "WRFDA" ];  then
       if [[ ! -f $testDir_wf/da_wrfvar.exe ]]; then
@@ -131,7 +133,7 @@ writeForecastResult()
       fi
    fi
    # Write a formatted line to the "results file". 
-   writeTestSummary $wrftype_wf $nlist_wf $parallelType_wf $vtion_wf $testtype_wf $result
+   writeTestSummary $wrftype_wf $nlist_wf $parallelType_wf $vtion_wf $testtype_wf $result $summary_file
 }
 
 
@@ -152,6 +154,7 @@ writeBitForBit()
     parType_wb=$5
     variation_wb=$6
     testType_wb=$7
+    summary_file=$8    
 
     checkDir_wb=`dirname $checkFile_wb`
     compareDir_wb=`dirname $compareFile_wb`
@@ -196,7 +199,7 @@ writeBitForBit()
     fi 
     
     # Write a formatted line to the "results file". 
-    writeTestSummary $wrfType_wb $namelist_wb $parType_wb $variation_wb $testType_wb $result_wb
+    writeTestSummary $wrfType_wb $namelist_wb $parType_wb $variation_wb $testType_wb $result_wb $summary_file
 }
 
 
@@ -215,8 +218,8 @@ done
 
 # The path to the file containing a summary of all test results
 #export SUMMARY_FILE=${TEST_DIR}/RESULTS/${TEST_ID}_${COMPILER_WTF}.`date +"%Y-%m-%d_%T"`
-export SUMMARY_FILE=${TEST_DIR}/RESULTS/${TEST_ID}_${COMPILER_WTF}_${CONFIGURE_CHOICES}.`date +"%Y-%m-%d_%T"`
-export SUMMARY_FILE=`echo $SUMMARY_FILE | sed 's/ /_/g'`
+SUMMARY_FILE=${TEST_DIR}/RESULTS/${TEST_ID}_${COMPILER_WTF}_${CONFIGURE_CHOICES}.`date +"%Y-%m-%d_%T"`
+SUMMARY_FILE=`echo $SUMMARY_FILE | sed 's/ /_/g'`
 
 echo "Test results will be summarized in '$SUMMARY_FILE'."
 
@@ -279,7 +282,7 @@ for configOpt in $CONFIGURE_CHOICES; do
               \rm -f $checkDir/*.tst  
               \rm -f $checkDir/fort.*
     
-              writeForecastResult $parType $checkDir $wrfType $namelist $variation $testType &
+              writeForecastResult $parType $checkDir $wrfType $namelist $variation $testType $SUMMARY_FILE &
     
               testCounter=$((testCounter + 1))
     	  echo testCounter == $testCounter
@@ -367,12 +370,12 @@ for configOpt in $WRF_COMPARE_PLATFORMS; do
                         if [[ $variation = "WRFDA" ]]; then
                            checkFile=$checkDir/wrfvar_output
                            compareFile=$compareDir/wrfvar_output
-                           writeBitForBit $checkFile $compareFile $wrfType $namelist $parType $variation $testType  &
+                           writeBitForBit $checkFile $compareFile $wrfType $namelist $parType $variation $testType $SUMMARY_FILE &
                            testCounter=$((testCounter + 1))
                         else
                            checkFile=$checkDir/wrfout_d01*
                            compareFile=$compareDir/wrfout_d01*
-                           writeBitForBit $checkFile $compareFile $wrfType $namelist $parType $variation $testType  &
+                           writeBitForBit $checkFile $compareFile $wrfType $namelist $parType $variation $testType $SUMMARY_FILE &
                            testCounter=$((testCounter + 1))
                         fi
                      else

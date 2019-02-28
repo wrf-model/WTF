@@ -3,15 +3,15 @@
 # PBS batch script
 #
 # Job name
-#PBS -N WTF_v04.08
+#PBS -N gnu_WTF_v04.08
 # queue: share, regular, economy
 #PBS -q economy
 # Combine error and output files
 #PBS -j oe
 # output filename
-#PBS -o regtest.out
+#PBS -o regtest_gnu.out
 # error filename
-#PBS -e regtest.out
+#PBS -e regtest_gnu.out
 # wallclock time hh:mm:ss
 #PBS -l walltime=12:00:00
 # Project charge code
@@ -20,7 +20,6 @@
 #PBS -l select=1:ncpus=18:mem=60GB
 # Send email on abort or end of main job
 #PBS -m ae
-
 
 if ( ! -e Data  ) then
    echo "ERROR ERROR ERROR"
@@ -44,5 +43,4 @@ endif
 
 setenv TMPDIR /gpfs/fs1/scratch/$USER/tmp # CISL-recommended hack for Cheyenne builds
 
-scripts/run_all_for_qsub1.csh
-scripts/run_all_for_qsub2.csh
+scripts/run_gnu.csh

@@ -200,7 +200,7 @@ if [ "$BATCH_COMPILE" = false -a "$BATCH_TEST" = false ]; then
 else
    NUM_PROC=`grep NUM_PROCESSORS ${NAMELIST_PATH} | cut -d '=' -f 2`
    if [ -z "$NUM_PROC" ]; then
-      if [[ $BATCH_QUEUE = "share" ]] || [[ $BATCH_QUEUE = "caldera" ]]; then
+      if [[ $BATCH_QUEUE = "share" ]] || [[ $BATCH_QUEUE = "regular" ]] || [[ $BATCH_QUEUE = "caldera" ]]; then
          NUM_PROC=$NUM_PROC_TEST
       else
          case $BATCH_QUEUE_TYPE in
@@ -510,7 +510,7 @@ EOF
     fi
 fi  # if $CREATE_DIR
 
-
+maxMem=100 # Max memory in GB per each test job
 # To allow many tests to be done in parallel, put all tests (even serial jobs) in a processing queue.  
 if $BATCH_TEST; then
     case $BATCH_QUEUE_TYPE in 
@@ -543,14 +543,23 @@ if $BATCH_TEST; then
                openmp) if [ -z "$runMem" ]; then
                           (( totalMem = NUM_PROC * BATCH_MEM ))
                           runMem=$totalMem
+			  if [ $runMem -gt $maxMem ]; then
+				runMem=$maxMem
+			  fi
                        fi
                        BSUB="qsub -q $BATCH_QUEUE -A $BATCH_ACCOUNT -l select=1:ncpus=$NUM_PROC:ompthreads=$NUM_PROC:mem=${runMem}GB -l walltime=$runTime -N $jobString -o test.out -e test.err"
                        ;;
                mpi)    if [ -z "$runMem" ]; then
                           (( totalMem = NUM_PROC * BATCH_MEM ))
                           runMem=$totalMem
+			  if [ $runMem -gt $maxMem ]; then
+				runMem=$maxMem
+			  fi
                        fi
                        BSUB="qsub -q $BATCH_QUEUE -A $BATCH_ACCOUNT -l select=1:ncpus=$NUM_PROC:mpiprocs=$NUM_PROC:mem=${runMem}GB -l walltime=$runTime -N $jobString -o test.out -e test.err"
+                       ;;
+	        *)     echo "Error: Unknown parallel type $PARALLEL_TYPE!"
+		       exit 2
                        ;;
             esac
             cd $testDir
